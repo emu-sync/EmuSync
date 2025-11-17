@@ -1,0 +1,32 @@
+import { GameSyncStatus } from "@/renderer/types/enums";
+
+export interface GameSummary {
+    id: string;
+    name: string;
+    lastSyncedFrom?: string | null;
+    lastSyncTimeUtc?: Date | null;
+    syncStatusId: GameSyncStatus;
+}
+
+export interface Game {
+    id: string;
+    name: string;
+    autoSync: boolean;
+    syncSourceIdLocations?: Record<string, string> | null;
+    lastSyncedFrom?: string | null;
+    lastSyncTimeUtc?: Date | null;
+    storageBytes: number;
+}
+
+export interface CreateGame {
+    name: string;
+    autoSync: boolean;
+    syncSourceIdLocations?: Record<string, string> | null;
+}
+
+export interface UpdateGame {
+    id: string;
+    name: string;
+    autoSync: boolean;
+    syncSourceIdLocations?: Record<string, string> | null;
+}

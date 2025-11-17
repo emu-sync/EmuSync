@@ -1,0 +1,183 @@
+name: Build & Release (Windows + Linux)
+
+on:
+  push:
+    tags:
+      - 'v*'  # triggers only on tags like v1.2.3
+
+env:
+  UI_DIR: src/EmuSync.UI
+  SERVICE_PROJECT: src/EmuSync.Agent/EmuSync.Agent.csproj
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+  
+      - name: Debug Git ref
+        run: echo "GITHUB_REF=$GITHUB_REF"
+  
+      - name: Get release version from tag
+        id: get-version
+        run: |
+          # Remove 'refs/tags/' prefix
+          VERSION="${GITHUB_REF#refs/tags/}"
+          # Optionally strip leading 'v' if your tags are like 'v1.2.3'
+          VERSION="${VERSION#v}"
+  
+          if [ -z "$VERSION" ]; then
+            echo "Error: VERSION is empty! Make sure this workflow is triggered by a tag."
+            exit 1
+          fi
+  
+          echo "Release version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+  build-windows:
+    needs: prep
+    runs-on: windows-latest
+    env:
+      RELEASE_VERSION: ${{ needs.prep.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Build .NET (Windows)
+        shell: bash
+        run: |
+          PUBLISH_DIR="${{ github.workspace }}/${{ env.UI_DIR }}/release/build/agent"
+          mkdir -p "$PUBLISH_DIR"
+          dotnet publish "${{ github.workspace }}/${{ env.SERVICE_PROJECT }}" \
+            -c Release -r win-x64 --self-contained true \
+            -o "$PUBLISH_DIR/tmp" -p:PublishSingleFile=true
+          # Copy only the exe and config
+          cp "$PUBLISH_DIR/tmp/EmuSync.Agent.exe" "$PUBLISH_DIR/"
+          cp "$PUBLISH_DIR/tmp/appsettings.json" "$PUBLISH_DIR/"          
+          rm -rf "$PUBLISH_DIR/tmp"
+
+      - name: Build Electron (Windows)
+        working-directory: ${{ env.UI_DIR }}
+        run: |
+          $env:RELEASE_VERSION = "${{ env.RELEASE_VERSION }}"
+          npm ci
+          npm run build:win
+
+      - name: Rename EXE
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem "${{ env.UI_DIR }}/release/build/" -Filter "*.exe" | Select-Object -First 1
+          Rename-Item $exe.FullName "EmuSync-Win-x64.exe"
+      
+      - name: Collect Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: ${{ env.UI_DIR }}/release/build/EmuSync-Win-x64.exe
+
+
+  build-linux:
+    needs: prep
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ needs.prep.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build .NET (Linux)
+        shell: bash
+        run: |
+          PUBLISH_DIR="${{ github.workspace }}/${{ env.UI_DIR }}/release/build/agent-linux"
+          mkdir -p "$PUBLISH_DIR/tmp"
+          dotnet publish "${{ github.workspace }}/${{ env.SERVICE_PROJECT }}" \
+            -c Release -r linux-x64 --self-contained true \
+            -o "$PUBLISH_DIR/tmp" -p:PublishSingleFile=true
+          # Copy only the exe and config
+          cp "$PUBLISH_DIR/tmp/EmuSync.Agent" "$PUBLISH_DIR/EmuSync.Agent"
+          cp "$PUBLISH_DIR/tmp/appsettings.json" "$PUBLISH_DIR/appsettings.json"
+          rm -rf "$PUBLISH_DIR/tmp"
+          
+      - name: Build Electron AppImage
+        working-directory: ${{ env.UI_DIR }}
+        run: |
+          npm ci
+          RELEASE_VERSION="${{ env.RELEASE_VERSION }}" npm run build:linux
+
+      - name: Package Linux artifacts
+        run: |
+          RELEASE_VERSION="${{ env.RELEASE_VERSION }}"
+          ART_OUTPUT="${{ github.workspace }}/${{ env.UI_DIR }}/release/build/$RELEASE_VERSION"
+          AGENT_DIR="${{ github.workspace }}/${{ env.UI_DIR }}/release/build/agent-linux"
+          mkdir -p "$ART_OUTPUT"
+          cp "${{ github.workspace }}/${{ env.UI_DIR }}/release/build/"*.AppImage "$ART_OUTPUT/EmuSync.AppImage" || true
+          mkdir -p "$ART_OUTPUT/agent"
+          cp "$AGENT_DIR/EmuSync.Agent" "$ART_OUTPUT/agent"
+          cp "$AGENT_DIR/appsettings.json" "$ART_OUTPUT/agent"
+          ZIP_DEST="$ART_OUTPUT/EmuSync-Linux-x64.zip"
+          cd "$ART_OUTPUT"
+          zip -r "$ZIP_DEST" EmuSync.AppImage agent
+      
+          echo "Linux zip created: $ZIP_DEST"
+
+      - name: Upload Linux zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-zip
+          path: ${{ env.UI_DIR }}/release/build/${{ env.RELEASE_VERSION }}/*.zip
+
+  release:
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Download Windows installer
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: artifacts/windows
+
+      - name: Download Linux zip
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-zip
+          path: artifacts/linux
+
+      - name: Upload Windows installer to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/windows/* 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux zip to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/linux/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>9e25b347-22f6-4000-be1e-f0eba847fad6</UserSecretsId>
+		<Version>0.1.0</Version>
+		<AssemblyVersion>0.1.0</AssemblyVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Destructurama.Attributed" Version="5.1.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.9" />
+		<PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+        <PackageReference Include="Serilog.Expressions" Version="5.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\EmuSync.Services.Managers\EmuSync.Services.Managers.csproj" />
+	  <ProjectReference Include="..\EmuSync.Services.Storage\EmuSync.Services.Storage.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,3 @@
+.MuiDataGrid-main > div[aria-hidden="true"]:nth-of-type(5) {
+    display: none !important;
+}

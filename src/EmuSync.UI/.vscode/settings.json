@@ -1,0 +1,10 @@
+{
+  "search.exclude": {
+    "**/.erb": true,
+    "**/release": true,
+    "**/node_modules": true
+  },
+  "files.exclude": {
+    "**/.erb": true,
+  }
+}

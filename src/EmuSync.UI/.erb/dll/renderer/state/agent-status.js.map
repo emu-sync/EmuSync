@@ -1,0 +1,1 @@
+{"version":3,"file":"agent-status.js","sourceRoot":"","sources":["../../../../src/renderer/state/agent-status.ts"],"names":[],"mappings":";;;AAAA,iCAA6B;AAQ7B,MAAM,kBAAkB,GAAgB;IACpC,SAAS,EAAE,KAAK;IAChB,UAAU,EAAE,KAAK;CACpB,CAAC;AAEW,QAAA,eAAe,GAAG,IAAA,YAAI,EAAc,kBAAkB,CAAC,CAAC"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"site-settings.js","sourceRoot":"","sources":["../../../src/renderer/site-settings.ts"],"names":[],"mappings":";AAAA,iEAAiE;AACjE,mEAAmE;;;AActD,QAAA,YAAY,GAAiB;IACtC,gBAAgB,EAAE;QACd,qBAAqB,EAAE,KAAK;QAC5B,qBAAqB,EAAE,MAAM;QAC7B,YAAY,EAAE,OAAO;QACrB,YAAY,EAAE,EAAE;QAChB,WAAW,EAAE,MAAM;KACtB;CACJ,CAAC"}
