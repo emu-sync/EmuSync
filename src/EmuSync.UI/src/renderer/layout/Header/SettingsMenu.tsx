@@ -38,7 +38,7 @@ export default function SettingsMenu() {
             <Badge
                 color="primary"
                 variant="dot"
-                badgeContent={true ? " " : ""}
+                badgeContent={isNewVersion ? 1 : 0}
             >
                 <SettingsOutlinedIcon />
             </Badge>
