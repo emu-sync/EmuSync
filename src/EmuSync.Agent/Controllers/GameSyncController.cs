@@ -78,6 +78,9 @@ public class GameSyncController(
         }
 
         await _manager.SyncGameAsync(syncSource.Id, game, cancellationToken);
+
+        _gameSyncStatusCache.AddOrUpdate(id, GameSyncStatus.InSync);
+
         return Ok();
     }
 
@@ -101,6 +104,9 @@ public class GameSyncController(
         }
 
         await _manager.ForceUploadGameAsync(syncSource.Id, game, cancellationToken);
+
+        _gameSyncStatusCache.AddOrUpdate(id, GameSyncStatus.InSync);
+
         return Ok();
     }
 
@@ -124,6 +130,9 @@ public class GameSyncController(
         }
 
         await _manager.ForceDownloadGameAsync(syncSource.Id, game, cancellationToken);
+
+        _gameSyncStatusCache.AddOrUpdate(id, GameSyncStatus.InSync);
+
         return Ok();
     }
 }

@@ -38,7 +38,7 @@ export default function SyncStatusForm({
     } = useEditQuery({
         queryFn: () => getGameSyncStatus(gameId),
         queryKey: [gameSyncStatusKey],
-        relatedQueryKeys: [gameSyncStatusKey],
+        relatedQueryKeys: [gameSyncStatusKey, cacheKeys.gameList],
         mutationFn: syncGame,
         successMessage: () => `Successfully synced game: ${gameName}`,
         errorMessage: () => `Failed to synced game: ${gameName}`,
