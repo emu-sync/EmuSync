@@ -136,12 +136,13 @@ jobs:
           AGENT_DIR="${{ github.workspace }}/${{ env.UI_DIR }}/release/build/agent-linux"
           mkdir -p "$ART_OUTPUT"
           cp "${{ github.workspace }}/${{ env.UI_DIR }}/release/build/"*.AppImage "$ART_OUTPUT/EmuSync.AppImage" || true
+          cp "${{ github.workspace }}/${{ env.UI_DIR }}/assets/icon.png "$ART_OUTPUT/emu-sync-icon.png" || true
           mkdir -p "$ART_OUTPUT/agent"
           cp "$AGENT_DIR/EmuSync.Agent" "$ART_OUTPUT/agent"
           cp "$AGENT_DIR/appsettings.json" "$ART_OUTPUT/agent"
           ZIP_DEST="$ART_OUTPUT/EmuSync-Linux-x64.zip"
           cd "$ART_OUTPUT"
-          zip -r "$ZIP_DEST" EmuSync.AppImage agent
+          zip -r "$ZIP_DEST" EmuSync.AppImage agent emu-sync-icon.png
       
           echo "Linux zip created: $ZIP_DEST"
 
