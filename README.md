@@ -7,9 +7,9 @@
 ## 📖 About
 
 Game save files are stored in different places across OS platforms, which can make syncing a challenge.
-EmuSync aims to simplifies this by mapping locations from multiple devices to a single sync point.
+EmuSync aims to simplify this by mapping locations from multiple devices to a single sync point.
 
-It has primarily been designed and developed for a Windows PC and Steam Deck, but should work on any modern Windows or Linux device (I'm currently unable to build and test on Mac, sorry).
+It has primarily been designed and developed for a Windows PC and Steam Deck, but it should work on any modern Windows or Linux device (I'm currently unable to build and test on Mac, sorry).
 
 If you're having trouble with EmuSync, see the FAQs section below or within the EmuSync app in the `Home` section. Any bugs can be raised in the [GitHub issues](https://github.com/emu-sync/EmuSync/issues/new) page.
 
@@ -42,9 +42,9 @@ If you're having trouble with EmuSync, see the FAQs section below or within the 
 1. Choose the option `Install EmuSync` and click `OK`.
     - If you're updating EmuSync, choose the `Update EmuSync` option.
 1. Wait for the download and installation to finish, then click `OK`.
-1. EmuSync is installer to `%USER%/EmuSync`
+1. EmuSync is installed to `%USER%/EmuSync`
     - For the Steam Deck, this will be `home/deck/EmuSync`.
-1. Launch EmuSync by double clicking `EmuSync.AppImage`.
+1. Launch EmuSync by double clicking `EmuSync.AppImage`, or use the newly created desktop shortcut.
 
 ## 👋 Uninstallation
 
@@ -58,9 +58,9 @@ If you're having trouble with EmuSync, see the FAQs section below or within the 
 
 1. Switch to Desktop mode
 1. Double click on the installer to run it. 
-1. Choose either `Unistall EmuSync, but keep config` or `Unistall EmuSync and delete config` and click `OK`.
-    - `Unistall EmuSync, but keep config`: If you want remove EmuSync but keep and data it has created on your device
-    - `Unistall EmuSync and delete config`: If you want to completely remove EmuSync and any data it has created on your device
+1. Choose either `Uninstall EmuSync, but keep config` or `Uninstall EmuSync and delete config` and click `OK`.
+    - `Uninstall EmuSync, but keep config`: If you want to remove EmuSync but keep and data it has created on your device
+    - `Uninstall EmuSync and delete config`: If you want to completely remove EmuSync and any data it has created on your device
 1. Wait for the uninstallation to complete.
 
 ## 🚀 Getting started
