@@ -142,14 +142,9 @@ export default function GameForm({
                         autoSyncEnabled &&
                         <WarningAlert
                             content={
-                                <VerticalStack>
-                                    <Typography>
-                                        You should only enable AutoSync if you're <strong>absolutely</strong> sure.
-                                    </Typography>
-                                    <Typography>
-                                        AutoSync can destructively overwrite game files if you open a game that isn't synced to this device yet.
-                                    </Typography>
-                                </VerticalStack>
+                                <Typography>
+                                    Auto sync can destructively overwrite game files - use with caution.
+                                </Typography>
                             }
                         />
                     }

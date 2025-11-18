@@ -14,6 +14,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { exec } from 'child_process';
 
 class AppUpdater {
     constructor() {
@@ -47,7 +48,18 @@ ipcMain.handle('dialog:openDirectory', async () => {
 });
 
 ipcMain.handle('shell:openExternal', async (e: any, link: string) => {
-    
+
+    try {
+
+        if (process.platform === 'linux') {
+            exec(`xdg-open "${link}"`);
+            return;
+        }
+    } catch (ex) {
+        console.error(ex);
+    }
+
+    //fall through and try open with openExternal
     shell.openExternal(link);
 });
 
@@ -80,7 +92,7 @@ const createWindow = async () => {
     mainWindow = new BrowserWindow({
         show: false,
         width: 1000,
-        height: 720,
+        height: 650,
         minWidth: 635,
         minHeight: 635,
         icon: getAssetPath('icon.png'),

@@ -1,4 +1,6 @@
 
+import ErrorAlert from "@/renderer/components/alerts/ErrorAlert";
+import InfoAlert from "@/renderer/components/alerts/InfoAlert";
 import SuccessAlert from "@/renderer/components/alerts/SuccessAlert";
 import WarningAlert from "@/renderer/components/alerts/WarningAlert";
 import StorageChip from "@/renderer/components/chips/StorageSizeChip";
@@ -38,7 +40,7 @@ export default function DisplayGameSyncStatus({
         const syncState = determineGameSyncStatus(gameSyncStatus);
 
         if (syncState.localPathIsUnset) {
-            return <WarningAlert
+            return <ErrorAlert
                 content="A sync location must be set for this device."
             />
         }
@@ -63,11 +65,6 @@ export default function DisplayGameSyncStatus({
             displayAsFromNow
         />
 
-        const diff = <DisplayDateDiff 
-            comparisonDate={gameSyncStatus.latestWriteTimeUtc}
-            date={gameSyncStatus.localLatestWriteTimeUtc}
-        />
-
         const displayFullDate = <DisplayDate
             date={gameSyncStatus.lastSyncedAtUtc}
             format="DD/MM/YYYY HH:mm:ss"
@@ -84,12 +81,12 @@ export default function DisplayGameSyncStatus({
             : undefined;
 
         if (syncState.requiresUpload) {
-            return <WarningAlert
+            return <InfoAlert
                 action={storageChip}
                 content={
                     <VerticalStack>
                         <Typography>
-                            Game files are newer by <Pre>{diff}</Pre> and require uploading.
+                            Game files are newer and require uploading.
                         </Typography>
                         {
                             lastSync
@@ -105,7 +102,7 @@ export default function DisplayGameSyncStatus({
                 content={
                     <VerticalStack>
                         <Typography>
-                            Game files are out of date by <Pre>{diff}</Pre> and require downloading.
+                            Game files are out of date and require downloading.
                         </Typography>
                         {
                             lastSync

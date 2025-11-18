@@ -10,6 +10,9 @@ public record GameSummaryDto
     [JsonPropertyName("name")]
     public string Name { get; set; }
 
+    [JsonPropertyName("autoSync")]
+    public bool AutoSync { get; set; }
+
     [JsonPropertyName("lastSyncedFrom")]
     public string? LastSyncedFrom { get; set; }
 

@@ -51,6 +51,23 @@ public class GameManager(
 
         foundEntity.Name = entity.Name;
         foundEntity.SyncSourceIdLocations = entity.SyncSourceIdLocations;
+        foundEntity.SyncSourceIdLocations = null;
+
+        if (entity.SyncSourceIdLocations != null)
+        {
+            //sanitise user inputs and remove any trailing slashes
+
+            foundEntity.SyncSourceIdLocations = entity
+                .SyncSourceIdLocations
+                .ToDictionary(
+                    x => x.Key,
+                    x =>
+                    {
+                        var v = x.Value?.Trim() ?? string.Empty;
+                        return v.TrimEnd('/', '\\');
+                    });
+        }
+
         foundEntity.AutoSync = entity.AutoSync;
 
         //add it to the games list

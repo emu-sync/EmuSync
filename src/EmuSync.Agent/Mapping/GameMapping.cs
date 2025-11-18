@@ -34,6 +34,7 @@ public static class GameMapping
         {
             Id = entity.Id,
             Name = entity.Name,
+            AutoSync = entity.AutoSync,
             LastSyncedFrom = entity.LastSyncedFrom,
             LastSyncTimeUtc = entity.LastSyncTimeUtc
         };

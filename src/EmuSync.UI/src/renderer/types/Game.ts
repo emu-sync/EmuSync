@@ -3,6 +3,7 @@ import { GameSyncStatus } from "@/renderer/types/enums";
 export interface GameSummary {
     id: string;
     name: string;
+    autoSync: boolean;
     lastSyncedFrom?: string | null;
     lastSyncTimeUtc?: Date | null;
     syncStatusId: GameSyncStatus;

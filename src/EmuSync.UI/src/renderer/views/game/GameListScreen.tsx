@@ -43,9 +43,13 @@ export default function GameListScreen() {
                 }
 
             },
-            { field: "name", headerName: "Name", flex: 10, type: "string", minWidth: 300 },
+            { field: "name", headerName: "Name", flex: 10, type: "string", minWidth: 250 },
             {
-                field: "lastSyncedFrom", headerName: "Last uploaded from", flex: 2, minWidth: 200,
+                field: "autoSync", headerName: "Auto sync", flex: 1, type: "boolean", minWidth: 100, headerAlign: "center", align: "center",
+
+            },
+            {
+                field: "lastSyncedFrom", headerName: "Last uploaded from", flex: 2, minWidth: 200, headerAlign: "center", align: "center",
                 type: "singleSelect",
                 valueOptions: allSyncSources.map(x => ({
                     value: x.id,
@@ -53,7 +57,7 @@ export default function GameListScreen() {
                 })),
             },
             {
-                field: "lastSyncTimeUtc", headerName: "Last uploaded time", flex: 1, minWidth: 150, headerAlign: "center", align: "center",
+                field: "lastSyncTimeUtc", headerName: "Last uploaded", flex: 1, minWidth: 150, headerAlign: "center", align: "center",
                 type: "date",
                 valueGetter: (value) => {
                     if (!value) return new Date();

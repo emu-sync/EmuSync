@@ -1,14 +1,11 @@
 import { cacheKeys } from "@/renderer/api/cache-keys";
 import { getGameById, updateGame } from "@/renderer/api/game-api";
-import ErrorAlert from "@/renderer/components/alerts/ErrorAlert";
 import BackToListButton from "@/renderer/components/buttons/BackToListButton";
 import Container from "@/renderer/components/Container";
-import DangerZone from "@/renderer/components/DangerZone";
 import VerticalStack from "@/renderer/components/stacks/VerticalStack";
 import useEditQuery from "@/renderer/hooks/use-edit-query";
 import useIdParam from "@/renderer/hooks/use-id-query-param";
 import { routes } from "@/renderer/routes";
-import DangerZoneForm from "@/renderer/views/game/forms/DangerZoneForm";
 import GameForm from "@/renderer/views/game/forms/GameForm";
 import SyncStatusForm from "@/renderer/views/game/forms/SyncStatusForm";
 import { Divider } from "@mui/material";
@@ -62,13 +59,6 @@ export default function GameEditScreen() {
             </VerticalStack>
 
         </Container>
-
-        {
-            query.data &&
-            <DangerZoneForm
-                game={query.data}
-            />
-        }
 
     </VerticalStack>
 }
