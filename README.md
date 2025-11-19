@@ -13,6 +13,8 @@ It has primarily been designed and developed for a Windows PC and Steam Deck, bu
 
 If you're having trouble with EmuSync, or want to see in more detail how to use it, please see our [Wiki](https://github.com/emu-sync/EmuSync/wiki).
 
+Want to see what EmuSync looks like before you download it? Check out the [Preview](https://github.com/emu-sync/EmuSync/wiki/Preview-EmuSync) page in our wiki.
+
 ## 🎨 Features
 - Use your own cloud storage provider.
     - Google Drive
