@@ -34,9 +34,9 @@ Want to see what EmuSync looks like before you download it? Check out the [Previ
 
 ### 🐧 Linux (Steam Deck)
 
-1. Switch to Desktop mode
+1. Switch to Desktop mode.
 1. Download the [Linux Installer](https://github.com/emu-sync/EmuSync-LinuxInstaller/releases/latest/download/EmuSync-LinuxInstaller.desktop)
-    - If you want, you can move this to somewhere more accessible like your desktop
+    - If you want, you can move this to somewhere more accessible like your desktop.
 1. Double click on the installer to run it.
     - The installer needs to use sudo to install some services. This requires a temporary password of `EmuSync!` being set for the user.
     - This password is removed after the installation exits.
@@ -44,7 +44,7 @@ Want to see what EmuSync looks like before you download it? Check out the [Previ
 1. Choose the option `Install EmuSync` and click `OK`.
     - If you're updating EmuSync, choose the `Update EmuSync` option.
 1. Wait for the download and installation to finish, then click `OK`.
-1. EmuSync is installed to `%USER%/EmuSync`
+1. EmuSync is installed at `%USER%/EmuSync`.
     - For the Steam Deck, this will be `home/deck/EmuSync`.
 1. Launch EmuSync by double clicking `EmuSync.AppImage`, or use the newly created desktop shortcut.
 
@@ -58,11 +58,11 @@ Want to see what EmuSync looks like before you download it? Check out the [Previ
 
 ### 🐧 Linux (Steam Deck)
 
-1. Switch to Desktop mode
+1. Switch to Desktop mode.
 1. Double click on the installer to run it. 
 1. Choose either `Uninstall EmuSync, but keep config` or `Uninstall EmuSync and delete config` and click `OK`.
-    - `Uninstall EmuSync, but keep config`: If you want to remove EmuSync but keep and data it has created on your device
-    - `Uninstall EmuSync and delete config`: If you want to completely remove EmuSync and any data it has created on your device
+    - `Uninstall EmuSync, but keep config`: If you want to remove EmuSync but keep and data it has created on your device.
+    - `Uninstall EmuSync and delete config`: If you want to completely remove EmuSync and any data it has created on your device.
 1. Wait for the uninstallation to complete.
 
 ## 🚀 Getting started
