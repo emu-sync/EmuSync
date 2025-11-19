@@ -1,22 +1,44 @@
 import AppLogo from "@/renderer/components/AppLogo";
 import ExternalLinkButton from "@/renderer/components/buttons/ExternalLinkButton";
 import Container from "@/renderer/components/Container";
+import LoadingHarness from "@/renderer/components/LoadingHarness";
 import NewReleaseAlert from "@/renderer/components/NewReleaseAlert";
+import HorizontalStack from "@/renderer/components/stacks/HorizontalStack";
 import VerticalStack from "@/renderer/components/stacks/VerticalStack";
+import { useChangeLog } from "@/renderer/hooks/use-change-log";
 import { useReleaseVersionChecker } from "@/renderer/hooks/use-release-version-checker";
 import ReadmeParagraph from "@/renderer/views/home/componenets/ReadmeParagraph";
 import ReadmeSection from "@/renderer/views/home/componenets/ReadmeSection";
-import { Typography } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 import { Box } from "@mui/system";
+import { useEffect, useMemo } from "react";
+import { useRemark } from 'react-remark';
 
+//TODO: may put in the ability to see previous version change logs
 
 export default function HomeScreen() {
+
+
+    const [changeLogMarkDown, setMarkdownSource] = useRemark();
 
     const {
         latestVersion,
         currentVersion,
         isNewVersion
     } = useReleaseVersionChecker();
+
+    const changeLog = useChangeLog();
+
+    useEffect(() => {
+        if (!changeLog.data) return;
+        const markdown = changeLog.data.find(x => x.version === currentVersion || x.version === `v${currentVersion}`)?.markdown ?? "";
+        setMarkdownSource(markdown);
+    }, [currentVersion, changeLog.data]);
+
+    const currentChangeLog = useMemo(() => {
+        if (!changeLog.data) return "";
+        return changeLog.data.find(x => x.version === currentVersion || x.version === `v${currentVersion}`);
+    }, [currentVersion, changeLog.data]);
 
     return <Container>
 
@@ -42,7 +64,20 @@ export default function HomeScreen() {
             <ReadmeSection
                 title="📢 What's new in this version?"
             >
-                TODO: Render changelog MD
+
+                <LoadingHarness
+                    query={changeLog}
+                    loadingState={<ChangeLogLoadingState />}
+
+                >
+                    {
+                        currentChangeLog &&
+                        <>
+                            {changeLogMarkDown}
+                        </>
+                    }
+
+                </LoadingHarness>
             </ReadmeSection>
 
             <ReadmeSection
@@ -60,4 +95,15 @@ export default function HomeScreen() {
 
         </VerticalStack>
     </Container>
+}
+
+
+
+function ChangeLogLoadingState() {
+    return <HorizontalStack>
+        <Typography>
+            Loading change log...
+        </Typography>
+        <CircularProgress size={16} />
+    </HorizontalStack>
 }

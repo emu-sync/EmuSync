@@ -13,6 +13,7 @@ export const cacheKeys = {
     healthCheck: "healthCheck",
     latestRelease: "latestRelease",
     agentSystemInfo: "agentSystemInfo",
+    changeLog: "changeLog",
 }
 
 export function buildCacheKey(key: string, additionalPart: string) {

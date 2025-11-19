@@ -1,11 +1,10 @@
 # v0.1.0
-This is a test change log
-
+## This is a test change log
 - Some list
 - With
 - Some stuff on
 
-And some more stuff here!
+And some more `stuff` here with some **markdown** things in it.
 
 # v0.1.1
 This version is different
