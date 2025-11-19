@@ -15,8 +15,7 @@ public class GameSyncWorker(
     ILogger<GameSyncWorker> logger,
     IOptions<GameSyncWorkerConfig> options,
     IGameFileWatchService fileWatchService,
-    IServiceProvider serviceProvider,
-    IGameSyncStatusCache gameSyncStatusCache
+    IServiceProvider serviceProvider
 ) : BackgroundService
 {
     private readonly GameSyncWorkerConfig _options = options.Value;
@@ -24,7 +23,6 @@ public class GameSyncWorker(
     private readonly ILogger<GameSyncWorker> _logger = logger;
     private readonly IGameFileWatchService _fileWatchService = fileWatchService;
     private readonly IServiceProvider _serviceProvider = serviceProvider;
-    private readonly IGameSyncStatusCache _gameSyncStatusCache = gameSyncStatusCache;
     private bool _isFirstLoad = true;
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -36,22 +34,12 @@ public class GameSyncWorker(
                 DateTime now = DateTime.UtcNow;
 
                 var serviceScope = _serviceProvider.CreateScope();
+                GameSyncService service = serviceScope.ServiceProvider.GetRequiredService<GameSyncService>();
 
-                ILogger<GameSyncService> logger = serviceScope.ServiceProvider.GetRequiredService<ILogger<GameSyncService>>();
-                IGameManager gameManager = serviceScope.ServiceProvider.GetRequiredService<IGameManager>();
-                IGameSyncManager gameSyncManager = serviceScope.ServiceProvider.GetRequiredService<IGameSyncManager>();
-                ISyncSourceManager syncSourceManager = serviceScope.ServiceProvider.GetRequiredService<ISyncSourceManager>();
+                //only create the sync tasks on first load, otherwise we're just managing the file watchers and sync statuses
+                bool createSyncTasksIfAutoSync = _isFirstLoad;
 
-                GameSyncService service = new(
-                    logger,
-                    _fileWatchService,
-                    _gameSyncStatusCache,
-                    gameManager,
-                    gameSyncManager,
-                    syncSourceManager
-                );
-
-                await service.ManageWatchersAsync(_isFirstLoad, cancellationToken);
+                await service.ManageWatchersAsync(createSyncTasksIfAutoSync, games: null, cancellationToken);
 
                 _isFirstLoad = false;
             }

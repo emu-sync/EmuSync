@@ -6,14 +6,10 @@ using EmuSync.Agent.Services;
 using EmuSync.Domain.Enums;
 using EmuSync.Domain.Extensions;
 using EmuSync.Domain.Helpers;
-using EmuSync.Domain.Services;
 using EmuSync.Services.Managers.Extensions;
 using EmuSync.Services.Storage.Extensions;
-using EmuSync.Services.Storage.GoogleDrive;
 using FluentValidation;
 using Serilog;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 
 namespace EmuSync.Agent;
 
@@ -137,6 +133,7 @@ public class Program
 
         builder.Services.AddSingleton<IGameSyncStatusCache, GameSyncStatusCache>();
         builder.Services.AddSingleton<IGameFileWatchService, GameFileWatchService>();
+        builder.Services.AddScoped<GameSyncService>();
 
 
         services.Configure<GameSyncWorkerConfig>(

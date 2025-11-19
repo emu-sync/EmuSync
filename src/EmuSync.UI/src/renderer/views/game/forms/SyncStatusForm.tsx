@@ -41,7 +41,7 @@ export default function SyncStatusForm({
         relatedQueryKeys: [gameSyncStatusKey, cacheKeys.gameList],
         mutationFn: syncGame,
         successMessage: () => `Successfully synced game: ${gameName}`,
-        errorMessage: () => `Failed to synced game: ${gameName}`,
+        errorMessage: () => `Failed to sync game: ${gameName}`,
     });
 
     const forceDownloadMutation = useMutation({

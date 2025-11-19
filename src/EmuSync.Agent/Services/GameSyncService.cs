@@ -19,7 +19,7 @@ public class GameSyncService(
     private readonly IGameSyncManager _gameSyncManager = gameSyncManager;
     private readonly ISyncSourceManager _syncSourceManager = syncSourceManager;
 
-    public async Task ManageWatchersAsync(bool createSyncTasksIfAutoSync, CancellationToken cancellationToken)
+    public async Task ManageWatchersAsync(bool createSyncTasksIfAutoSync, List<GameEntity>? games = null, CancellationToken cancellationToken = default)
     {
         using var logScope = _logger.BeginScope("GameSyncService");
 
@@ -39,7 +39,12 @@ public class GameSyncService(
                 return;
             }
 
-            await ManageFileWatchersAsync(syncSource, createSyncTasksIfAutoSync, cancellationToken);
+            await ManageFileWatchersAsync(
+                syncSource,
+                createSyncTasksIfAutoSync,
+                games,
+                cancellationToken
+            );
 
         }
         catch (Exception ex)
@@ -48,9 +53,17 @@ public class GameSyncService(
         }
     }
 
-    private async Task ManageFileWatchersAsync(SyncSourceEntity syncSource, bool createSyncTasksIfAutoSync, CancellationToken cancellationToken)
+    private async Task ManageFileWatchersAsync(
+        SyncSourceEntity syncSource,
+        bool createSyncTasksIfAutoSync,
+        List<GameEntity>? games = null,
+        CancellationToken cancellationToken = default
+    )
     {
-        List<GameEntity> games = await TryGetGamesAsync(cancellationToken);
+        if (games == null)
+        {
+            games = await TryGetGamesAsync(cancellationToken);
+        }
 
         TryRemoveDeletedGames(games);
 

@@ -10,7 +10,7 @@ import { routes } from "@/renderer/routes";
 import { agentStatusAtom } from "@/renderer/state/agent-status";
 import { localSyncSourceAtom } from "@/renderer/state/local-sync-source";
 import { GameSummary } from "@/renderer/types";
-import { Divider, Typography } from "@mui/material";
+import { Chip, Divider, Typography } from "@mui/material";
 
 import { GridColDef } from '@mui/x-data-grid';
 import { useAtom } from "jotai";
@@ -21,6 +21,7 @@ import { GameSyncStatusChip } from "@/renderer/components/chips/GameSyncStatusCh
 import { gameSyncStatusOptions } from "@/renderer/types/enums";
 import { allSyncSourcesAtom } from "@/renderer/state/all-sync-sources";
 import DisplayDate from "@/renderer/components/DisplayDate";
+import { size } from "lodash";
 
 
 export default function GameListScreen() {
@@ -64,6 +65,20 @@ export default function GameListScreen() {
                     return new Date(value);
                 },
                 renderCell: (params) => {
+
+                    const value = params.row.lastSyncTimeUtc;
+                    
+                    if (!value) {
+                        return <Chip
+                            label="Never"
+                            color="error"
+                            size="small"
+                            sx={{
+                                minWidth: 100
+                            }}
+                        />
+                    }
+
                     return <DisplayDate
                         date={params.row.lastSyncTimeUtc}
                         displayAsFromNow

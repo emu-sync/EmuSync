@@ -1,6 +1,5 @@
-
 using EmuSync.Agent.Dto.Game;
-using EmuSync.Domain.Enums;
+using EmuSync.Agent.Services;
 using EmuSync.Services.Managers.Interfaces;
 
 namespace EmuSync.Agent.Controllers;
@@ -13,18 +12,34 @@ public class GameController(
     IGameManager manager,
     IGameFileWatchService fileWatchService,
     ISyncSourceManager syncSourceManager,
-    IGameSyncStatusCache gameSyncStatusCache
+    IGameSyncStatusCache gameSyncStatusCache,
+    GameSyncService gameSyncService
 ) : CustomControllerBase(logger, validator)
 {
     private readonly IGameManager _manager = manager;
     private readonly IGameFileWatchService _fileWatchService = fileWatchService;
     private readonly ISyncSourceManager _syncSourceManager = syncSourceManager;
     private readonly IGameSyncStatusCache _gameSyncStatusCache = gameSyncStatusCache;
+    private readonly GameSyncService _gameSyncService = gameSyncService;
 
     [HttpGet]
     public async Task<IActionResult> GetList(CancellationToken cancellationToken = default)
     {
         List<GameEntity>? list = await _manager.GetListAsync(cancellationToken);
+
+        //if we have games, just reprocess all the file watchers that might be attached / re-evaluate the sync statuses
+        if (list != null && list.Count > 0)
+        {
+            try
+            {
+                await _gameSyncService.ManageWatchersAsync(createSyncTasksIfAutoSync: false, list, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to manage watchers from GameController");
+            }
+
+        }
 
         list ??= [];
 
