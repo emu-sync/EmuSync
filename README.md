@@ -9,11 +9,25 @@
 Game save files are stored in different places across OS platforms, which can make syncing a challenge.
 EmuSync aims to simplify this by mapping locations from multiple devices to a single sync point.
 
-It has primarily been designed and developed for a Windows PC and Steam Deck, but it should work on any modern Windows or Linux device (I'm currently unable to build and test on Mac, sorry).
-
 If you're having trouble with EmuSync, or want to see in more detail how to use it, please see our [Wiki](https://github.com/emu-sync/EmuSync/wiki).
 
 Want to see what EmuSync looks like before you download it? Check out the [Preview](https://github.com/emu-sync/EmuSync/wiki/Preview-EmuSync) page in our wiki.
+
+## 🖥️ What devices does EmuSync work on?
+
+EmuSync has primarily been designed and developed for a Windows PC and Steam Deck, but it **_should_** work on any modern Windows or Linux device. 
+
+> ℹ️ **Please note:** I'm currently unable to build and test on Mac.
+
+I currently have no plans to develop an Android and/or iOS version of EmuSync - sorry for any gamers this applies to!
+
+Confirmed working devices (but not limited to):
+| Device | Status |
+|-|-|
+| Windows 10 PC - x64 | ✅ |
+| Windows 11 PC - x64 | ✅ |
+| Steam Deck | ✅ |
+
 
 ## 🎨 Features
 - Use your own cloud storage provider.
@@ -55,6 +69,12 @@ Want to see what EmuSync looks like before you download it? Check out the [Previ
 1. Go to where you installed EmuSync.
     - If you didn't change the location, this will likely be at `C:\Program Files\emusync`
 1. Run the uninstaller.
+
+Alternatively, you can uninstall EmuSync through Windows.
+
+1. Search for `Add or remove programs`
+1. Search for EmuSync.
+1. Find EmuSync and uninstall it - this will open `Uninstall EmuSync.exe`.
 
 ### 🐧 Linux (Steam Deck)
 
