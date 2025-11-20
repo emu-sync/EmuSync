@@ -9,4 +9,5 @@ I plan to keep this maintained as long as there's interest. I work full-time tho
 Otherwise, I hope you enjoy using EmuSync. If you like it, please consider starring it on GitHub or sharing it with your friends.
 
 Many thanks,
+
 Rhys
