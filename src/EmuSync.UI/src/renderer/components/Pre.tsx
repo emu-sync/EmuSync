@@ -1,7 +1,6 @@
-import { Typography, useTheme } from "@mui/material";
+import { Typography } from "@mui/material";
 
 export function Pre({ children }: { children: React.ReactNode }) {
-    const theme = useTheme();
 
     return (
         <Typography

@@ -1,4 +1,5 @@
-﻿using EmuSync.Domain.Extensions;
+﻿using Dropbox.Api.Users;
+using EmuSync.Domain.Extensions;
 using EmuSync.Domain.Helpers;
 using EmuSync.Services.Managers.Abstracts;
 using EmuSync.Services.Managers.Enums;
@@ -44,10 +45,10 @@ public class GameManager(
         await WriteToExternalList(entity, ListOperation.Upsert, cancellationToken);
     }
 
-    public async Task<bool> UpdateAsync(GameEntity entity, CancellationToken cancellationToken = default)
+    public async Task<GameEntity?> UpdateAsync(GameEntity entity, CancellationToken cancellationToken = default)
     {
         var foundEntity = await GetAsync(entity.Id, cancellationToken);
-        if (foundEntity == null) return false;
+        if (foundEntity == null) return null;
 
         foundEntity.Name = entity.Name;
         foundEntity.SyncSourceIdLocations = entity.SyncSourceIdLocations;
@@ -73,7 +74,7 @@ public class GameManager(
         //add it to the games list
         await WriteToExternalList(foundEntity, ListOperation.Upsert, cancellationToken);
 
-        return true;
+        return foundEntity;
     }
 
     public async Task<bool> UpdateMetaDataAsync(GameEntity entity, CancellationToken cancellationToken = default)
@@ -98,6 +99,9 @@ public class GameManager(
 
         var foundEntity = await GetAsync(id, cancellationToken);
         if (foundEntity == null) return false;
+
+        string fileName = string.Format(StorageConstants.FileName_GameZip, id);
+        await storageProvider.DeleteFileAsync(fileName, cancellationToken);
 
         //remove it from the games list
         await WriteToExternalList(foundEntity, ListOperation.Remove, cancellationToken);

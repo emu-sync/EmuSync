@@ -10,7 +10,7 @@ public class GameSyncService(
     IGameManager gameManager,
     IGameSyncManager gameSyncManager,
     ISyncSourceManager syncSourceManager
-)
+) : IGameSyncService
 {
     private readonly ILogger<GameSyncService> _logger = logger;
     private readonly IGameFileWatchService _fileWatchService = fileWatchService;

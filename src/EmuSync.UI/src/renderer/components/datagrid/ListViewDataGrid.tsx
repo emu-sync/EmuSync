@@ -8,7 +8,7 @@ import { DataGrid, GridColDef, GridRow, GridRowProps } from '@mui/x-data-grid';
 import { useCallback, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
-import "./overrides.css"
+import "./overrides.css";
 
 interface ListViewDataGridProps<TData> {
     columns: GridColDef[];

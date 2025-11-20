@@ -3,12 +3,15 @@ import { CreateGame, Game, GameSummary, UpdateGame } from "@/renderer/types";
 
 const controller = "Game"
 
-export async function getGameList(): Promise<GameSummary[]> {
+export async function getGameList(forceReload: boolean = false): Promise<GameSummary[]> {
 
     const path = `${controller}`;
 
     return await get({
-        path
+        path,
+        query: {
+            forceReload
+        }
     });
 
 }

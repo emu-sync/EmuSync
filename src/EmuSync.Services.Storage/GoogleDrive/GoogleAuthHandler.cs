@@ -5,7 +5,6 @@ using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Drive.v3;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System.Text.Json;
 using System.Web;
 
 namespace EmuSync.Services.Storage.GoogleDrive;

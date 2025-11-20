@@ -1,6 +1,4 @@
-﻿using EmuSync.Agent.Services;
-using EmuSync.Services.Managers.Interfaces;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 
 namespace EmuSync.Agent.Background;
 
@@ -34,7 +32,7 @@ public class GameSyncWorker(
                 DateTime now = DateTime.UtcNow;
 
                 var serviceScope = _serviceProvider.CreateScope();
-                GameSyncService service = serviceScope.ServiceProvider.GetRequiredService<GameSyncService>();
+                var service = serviceScope.ServiceProvider.GetRequiredService<IGameSyncService>();
 
                 //only create the sync tasks on first load, otherwise we're just managing the file watchers and sync statuses
                 bool createSyncTasksIfAutoSync = _isFirstLoad;

@@ -32,7 +32,7 @@ public interface IGameManager
     /// <param name="entity"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<bool> UpdateAsync(GameEntity entity, CancellationToken cancellationToken = default);
+    Task<GameEntity?> UpdateAsync(GameEntity entity, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates the more detailed info of a <see cref="GameEntity"/>

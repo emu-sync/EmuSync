@@ -131,9 +131,10 @@ public class Program
 
         #endregion
 
+        builder.Services.AddSingleton<IApiCache, ApiCache>();
         builder.Services.AddSingleton<IGameSyncStatusCache, GameSyncStatusCache>();
         builder.Services.AddSingleton<IGameFileWatchService, GameFileWatchService>();
-        builder.Services.AddScoped<GameSyncService>();
+        builder.Services.AddScoped<IGameSyncService, GameSyncService>();
 
 
         services.Configure<GameSyncWorkerConfig>(

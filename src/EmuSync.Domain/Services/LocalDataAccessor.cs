@@ -130,7 +130,7 @@ public class LocalDataAccessor : ILocalDataAccessor
     {
         OsPlatform platform = PlatformHelper.GetOsPlatform();
 
-        string folderPath = platform == OsPlatform.Windows 
+        string folderPath = platform == OsPlatform.Windows
             ? Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)
             : Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 

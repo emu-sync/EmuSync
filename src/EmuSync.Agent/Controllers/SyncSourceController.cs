@@ -10,16 +10,24 @@ public class SyncSourceController(
     ILogger<SyncSourceController> logger,
     IValidationService validator,
     ISyncSourceManager manager,
-    IGameFileWatchService fileWatchService
+    IGameFileWatchService fileWatchService,
+    IApiCache apiCache
 ) : CustomControllerBase(logger, validator)
 {
     private readonly ISyncSourceManager _manager = manager;
     private readonly IGameFileWatchService _fileWatchService = fileWatchService;
+    private readonly IApiCache _apiCache = apiCache;
 
     [HttpGet]
     public async Task<IActionResult> GetList(CancellationToken cancellationToken = default)
     {
-        List<SyncSourceEntity>? list = await _manager.GetListAsync(cancellationToken);
+        List<SyncSourceEntity>? list = _apiCache.SyncSources.Value;
+
+        if (list == null)
+        {
+            list = await _manager.GetListAsync(cancellationToken);
+            if (list != null) _apiCache.SyncSources.Set(list);
+        }
 
         list ??= [];
 
@@ -53,6 +61,8 @@ public class SyncSourceController(
         SyncSourceEntity entity = requestBody.ToEntity();
         await _manager.UpdateLocalAsync(entity, cancellationToken);
 
+        _apiCache.SyncSources.Clear();
+
         return NoContent();
     }
 
@@ -67,11 +77,14 @@ public class SyncSourceController(
         StorageProvider storageProvider = (StorageProvider)requestBody.StorageProviderId;
         await _manager.SetLocalStorageProviderAsync(storageProvider, cancellationToken);
 
+        _apiCache.SyncSources.Clear();
+        _apiCache.Games.Clear();
+
         return NoContent();
     }
 
     [HttpDelete("Local/StorageProvider")]
-    public async Task<IActionResult> UnlinkLocalStorageProvider([FromQuery]bool force = false, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> UnlinkLocalStorageProvider([FromQuery] bool force = false, CancellationToken cancellationToken = default)
     {
         LogRequest($"{nameof(UnlinkLocalStorageProvider)}?force={force}");
 
@@ -88,6 +101,9 @@ public class SyncSourceController(
         }
 
         await _manager.UnlinkLocalStorageProviderAsync(entity, writeToExternalList: !force, cancellationToken);
+
+        _apiCache.SyncSources.Clear();
+        _apiCache.Games.Clear();
 
         return NoContent();
     }
@@ -110,6 +126,9 @@ public class SyncSourceController(
         {
             _fileWatchService.RemoveAllWatchers();
         }
+
+        _apiCache.SyncSources.Clear();
+        _apiCache.Games.Clear();
 
         return NoContent();
     }

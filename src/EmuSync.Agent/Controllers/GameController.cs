@@ -1,5 +1,5 @@
 using EmuSync.Agent.Dto.Game;
-using EmuSync.Agent.Services;
+using EmuSync.Domain.Extensions;
 using EmuSync.Services.Managers.Interfaces;
 
 namespace EmuSync.Agent.Controllers;
@@ -13,19 +13,27 @@ public class GameController(
     IGameFileWatchService fileWatchService,
     ISyncSourceManager syncSourceManager,
     IGameSyncStatusCache gameSyncStatusCache,
-    GameSyncService gameSyncService
+    IGameSyncService gameSyncService,
+    IApiCache apiCache
 ) : CustomControllerBase(logger, validator)
 {
     private readonly IGameManager _manager = manager;
     private readonly IGameFileWatchService _fileWatchService = fileWatchService;
     private readonly ISyncSourceManager _syncSourceManager = syncSourceManager;
     private readonly IGameSyncStatusCache _gameSyncStatusCache = gameSyncStatusCache;
-    private readonly GameSyncService _gameSyncService = gameSyncService;
+    private readonly IGameSyncService _gameSyncService = gameSyncService;
+    private readonly IApiCache _apiCache = apiCache;
 
     [HttpGet]
-    public async Task<IActionResult> GetList(CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetList([FromQuery]bool forceReload = false, CancellationToken cancellationToken = default)
     {
-        List<GameEntity>? list = await _manager.GetListAsync(cancellationToken);
+        List<GameEntity>? list = _apiCache.Games.Value;
+
+        if (list == null || forceReload)
+        {
+            list = await _manager.GetListAsync(cancellationToken);
+            if (list != null) _apiCache.Games.Set(list);
+        }
 
         //if we have games, just reprocess all the file watchers that might be attached / re-evaluate the sync statuses
         if (list != null && list.Count > 0)
@@ -59,7 +67,8 @@ public class GameController(
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken = default)
     {
-        GameEntity? entity = await _manager.GetAsync(id, cancellationToken);
+        GameEntity? entity = _apiCache.GetGame(id);
+        entity ??= await _manager.GetAsync(id, cancellationToken);
 
         if (entity == null)
         {
@@ -86,6 +95,8 @@ public class GameController(
 
         await TryUpdateFileWatchAsync(entity, cancellationToken);
 
+        _apiCache.Games.Value?.AddOrReplaceItem(entity, x => x.Id == entity.Id);
+
         var response = entity.ToSummaryDto();
         return Ok(response);
     }
@@ -102,14 +113,16 @@ public class GameController(
         if (errors.Count > 0) return BadRequestWithErrors(errors.ToArray());
 
         var entity = requestBody.ToEntity();
-        bool exists = await _manager.UpdateAsync(entity, cancellationToken);
+        var updatedEntity = await _manager.UpdateAsync(entity, cancellationToken);
 
-        if (!exists)
+        if (updatedEntity == null)
         {
             return NotFoundWithErrors($"No game found with ID {id}");
         }
 
         await TryUpdateFileWatchAsync(entity, cancellationToken);
+
+        _apiCache.Games.Value?.AddOrReplaceItem(updatedEntity, x => x.Id == id);
 
         return NoContent();
     }
@@ -127,6 +140,8 @@ public class GameController(
         }
 
         TryRemoveFileWatch(id);
+
+        _apiCache.Games.Value?.RemoveBy(x => x.Id == id);
 
         return NoContent();
     }

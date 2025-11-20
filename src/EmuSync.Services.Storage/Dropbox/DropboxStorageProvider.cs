@@ -127,7 +127,7 @@ public class DropboxStorageProvider(
     private async Task<MemoryStream> GetZipFileContentsAsync(string filePath, CancellationToken cancellationToken = default)
     {
         var client = await GetDropboxClientAsync(cancellationToken);
-        using var response = await client.Files.DownloadZipAsync(filePath);
+        using var response = await client.Files.DownloadAsync(filePath);
 
         var data = await response.GetContentAsByteArrayAsync();
         return new MemoryStream(data);

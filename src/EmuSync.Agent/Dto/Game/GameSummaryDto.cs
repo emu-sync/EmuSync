@@ -20,5 +20,5 @@ public record GameSummaryDto
     public DateTime? LastSyncTimeUtc { get; set; }
 
     [JsonPropertyName("syncStatusId")]
-    public int SyncStatusId { get; set;  }
+    public int SyncStatusId { get; set; }
 }

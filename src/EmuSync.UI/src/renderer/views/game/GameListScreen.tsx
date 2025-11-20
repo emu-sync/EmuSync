@@ -14,7 +14,7 @@ import { Chip, Divider, Typography } from "@mui/material";
 
 import { GridColDef } from '@mui/x-data-grid';
 import { useAtom } from "jotai";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { GameSyncStatusChip } from "@/renderer/components/chips/GameSyncStatusChip";
@@ -67,7 +67,7 @@ export default function GameListScreen() {
                 renderCell: (params) => {
 
                     const value = params.row.lastSyncTimeUtc;
-                    
+
                     if (!value) {
                         return <Chip
                             label="Never"
@@ -91,7 +91,7 @@ export default function GameListScreen() {
     const {
         query, deleteMutation
     } = useListQuery({
-        queryFn: getGameList,
+        queryFn: async () => getGameList(),
         queryKey: [cacheKeys.gameList],
         relatedQueryKeys: [cacheKeys.gameList],
         mutationFn: deleteGame
@@ -117,7 +117,6 @@ export default function GameListScreen() {
         return details;
 
     }, []);
-
 
     return <AgentStatusHarness
         agentStatus={agentStatus}

@@ -13,13 +13,15 @@ public class GameSyncController(
     IGameSyncManager manager,
     IGameManager gameManager,
     ISyncSourceManager syncSourceManager,
-    IGameSyncStatusCache gameSyncStatusCache
+    IGameSyncStatusCache gameSyncStatusCache,
+    IApiCache apiCache
 ) : CustomControllerBase(logger, validator)
 {
     private readonly IGameSyncManager _manager = manager;
     private readonly IGameManager _gameManager = gameManager;
     private readonly ISyncSourceManager _syncSourceManager = syncSourceManager;
     private readonly IGameSyncStatusCache _gameSyncStatusCache = gameSyncStatusCache;
+    private readonly IApiCache _apiCache = apiCache;
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetSyncStatus([FromRoute] string id, CancellationToken cancellationToken = default)
@@ -31,7 +33,8 @@ public class GameSyncController(
             return BadRequest("No sync source has been set up");
         }
 
-        GameEntity? game = await _gameManager.GetAsync(id, cancellationToken);
+        GameEntity? game = _apiCache.GetGame(id);
+        game ??= await _gameManager.GetAsync(id, cancellationToken);
 
         if (game == null)
         {
@@ -70,7 +73,8 @@ public class GameSyncController(
             return BadRequest("No sync source has been set up");
         }
 
-        GameEntity? game = await _gameManager.GetAsync(id, cancellationToken);
+        GameEntity? game = _apiCache.GetGame(id);
+        game ??= await _gameManager.GetAsync(id, cancellationToken);
 
         if (game == null)
         {
@@ -96,7 +100,8 @@ public class GameSyncController(
             return BadRequest("No sync source has been set up");
         }
 
-        GameEntity? game = await _gameManager.GetAsync(id, cancellationToken);
+        GameEntity? game = _apiCache.GetGame(id);
+        game ??= await _gameManager.GetAsync(id, cancellationToken);
 
         if (game == null)
         {
@@ -122,7 +127,8 @@ public class GameSyncController(
             return BadRequest("No sync source has been set up");
         }
 
-        GameEntity? game = await _gameManager.GetAsync(id, cancellationToken);
+        GameEntity? game = _apiCache.GetGame(id);
+        game ??= await _gameManager.GetAsync(id, cancellationToken);
 
         if (game == null)
         {

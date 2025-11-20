@@ -14,15 +14,15 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import { exec } from 'child_process';
 
-class AppUpdater {
-    constructor() {
-        log.transports.file.level = 'info';
-        autoUpdater.logger = log;
-        autoUpdater.checkForUpdatesAndNotify();
-    }
-}
+
+// class AppUpdater {
+//     constructor() {
+//         log.transports.file.level = 'info';
+//         autoUpdater.logger = log;
+//         autoUpdater.checkForUpdatesAndNotify();
+//     }
+// }
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -49,14 +49,12 @@ ipcMain.handle('dialog:openDirectory', async () => {
 
 ipcMain.handle('shell:openExternal', async (e: any, link: string) => {
 
-    try {
 
-        if (process.platform === 'linux') {
-            exec(`xdg-open "${link}"`);
-            return;
-        }
-    } catch (ex) {
-        console.error(ex);
+    //steam deck isn't opening links properly, so just open them in electron
+    if (process.platform === 'linux') {
+        const win = new BrowserWindow({ width: 1000, height: 650 });
+        win.loadURL(link);
+        return;
     }
 
     //fall through and try open with openExternal

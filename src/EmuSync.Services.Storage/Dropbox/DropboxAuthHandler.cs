@@ -1,4 +1,4 @@
-﻿ using Dropbox.Api;
+﻿using Dropbox.Api;
 using EmuSync.Domain.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using System.Web;
@@ -20,7 +20,7 @@ public class DropboxAuthHandler(
 
     public string GetAuthUrl(string state)
     {
-        string url =  DropboxOAuth2Helper.GetAuthorizeUri(
+        string url = DropboxOAuth2Helper.GetAuthorizeUri(
             OAuthResponseType.Code,
             _options.AppKey,
             new Uri(_options.RedirectUri),
