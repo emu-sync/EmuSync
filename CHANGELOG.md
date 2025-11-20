@@ -30,3 +30,6 @@ This version is different again
 - List item 3
 
 Here is some `extra` detail with some **markdown** things in it.
+
+# v0.1.3
+Just testing
