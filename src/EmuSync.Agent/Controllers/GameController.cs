@@ -40,7 +40,12 @@ public class GameController(
         {
             try
             {
-                await _gameSyncService.ManageWatchersAsync(createSyncTasksIfAutoSync: false, list, cancellationToken);
+                await _gameSyncService.ManageWatchersAsync(
+                    createSyncTasksIfAutoSync: false, 
+                    list, 
+                    checkForExternalSource: false,
+                    cancellationToken
+                );
             }
             catch (Exception ex)
             {

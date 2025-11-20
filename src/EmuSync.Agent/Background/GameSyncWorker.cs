@@ -43,7 +43,12 @@ public class GameSyncWorker(
                     //only create the sync tasks on first load, otherwise we're just managing the file watchers and sync statuses
                     bool createSyncTasksIfAutoSync = _isFirstLoad;
 
-                    await service.ManageWatchersAsync(createSyncTasksIfAutoSync, games: null, cancellationToken);
+                    await service.ManageWatchersAsync(
+                        createSyncTasksIfAutoSync, 
+                        games: null, 
+                        checkForExternalSource: true,
+                        cancellationToken
+                    );
 
                     _isFirstLoad = false;
                 }

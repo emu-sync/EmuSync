@@ -19,7 +19,12 @@ public class GameSyncService(
     private readonly IGameSyncManager _gameSyncManager = gameSyncManager;
     private readonly ISyncSourceManager _syncSourceManager = syncSourceManager;
 
-    public async Task ManageWatchersAsync(bool createSyncTasksIfAutoSync, List<GameEntity>? games = null, CancellationToken cancellationToken = default)
+    public async Task ManageWatchersAsync(
+        bool createSyncTasksIfAutoSync,
+        List<GameEntity>? games = null,
+        bool checkForExternalSource = false,
+        CancellationToken cancellationToken = default
+    )
     {
         using var logScope = _logger.BeginScope("GameSyncService");
 
@@ -37,6 +42,19 @@ public class GameSyncService(
             {
                 _logger.LogWarning("No storage provider configured");
                 return;
+            }
+
+
+            if (checkForExternalSource)
+            {
+                SyncSourceEntity? externalSyncSource = await _syncSourceManager.GetAsync(syncSource.Id, cancellationToken);
+
+                //this device no longer exists in the storage provider? It's probably been removed from another device
+                if (externalSyncSource == null)
+                {
+                    await HandleRemovedDeviceAsync(syncSource, cancellationToken);
+                    return;
+                }
             }
 
             await ManageFileWatchersAsync(
@@ -154,5 +172,11 @@ public class GameSyncService(
             _logger.LogError(ex, "Error while retrieving game list");
             return [];
         }
+    }
+
+    private async Task HandleRemovedDeviceAsync(SyncSourceEntity syncSource, CancellationToken cancellationToken)
+    {
+        _fileWatchService.RemoveAllWatchers();
+        await _syncSourceManager.UnlinkLocalStorageProviderAsync(syncSource, false, cancellationToken);
     }
 }
