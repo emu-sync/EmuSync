@@ -24,6 +24,7 @@ public class SyncTaskWorker(
     private readonly IGameFileWatchService _fileWatchService = fileWatchService;
     private readonly IServiceProvider _serviceProvider = serviceProvider;
     private readonly IGameSyncStatusCache _gameSyncStatusCache = gameSyncStatusCache;
+    private DateTime _nextRunTime = DateTime.MinValue;
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
@@ -32,34 +33,38 @@ public class SyncTaskWorker(
 
         while (!cancellationToken.IsCancellationRequested)
         {
-            try
+            DateTime now = DateTime.UtcNow;
+
+            if (now > _nextRunTime)
             {
-                var serviceScope = _serviceProvider.CreateScope();
+                _nextRunTime = now.Add(_options.LoopDelayTimeSpan);
 
-                ILogger<SyncTaskService> logger = serviceScope.ServiceProvider.GetRequiredService<ILogger<SyncTaskService>>();
-                IGameSyncManager gameSyncManager = serviceScope.ServiceProvider.GetRequiredService<IGameSyncManager>();
-                ISyncSourceManager syncSourceManager = serviceScope.ServiceProvider.GetRequiredService<ISyncSourceManager>();
+                try
+                {
+                    var serviceScope = _serviceProvider.CreateScope();
 
-                SyncTaskService service = new(
-                    logger,
-                    _fileWatchService,
-                    _gameSyncStatusCache,
-                    gameSyncManager,
-                    syncSourceManager
-                );
+                    ILogger<SyncTaskService> logger = serviceScope.ServiceProvider.GetRequiredService<ILogger<SyncTaskService>>();
+                    IGameSyncManager gameSyncManager = serviceScope.ServiceProvider.GetRequiredService<IGameSyncManager>();
+                    ISyncSourceManager syncSourceManager = serviceScope.ServiceProvider.GetRequiredService<ISyncSourceManager>();
 
-                await service.ProcessSyncTasks(cancellationToken);
+                    SyncTaskService service = new(
+                        logger,
+                        _fileWatchService,
+                        _gameSyncStatusCache,
+                        gameSyncManager,
+                        syncSourceManager
+                    );
 
+                    await service.ProcessSyncTasks(cancellationToken);
+
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error caught in SyncTaskWorker");
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error caught in SyncTaskWorker");
-            }
-            finally
-            {
-                await Task.Delay(_options.LoopDelayTimeSpan, cancellationToken);
-            }
 
+            await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
         }
 
     }

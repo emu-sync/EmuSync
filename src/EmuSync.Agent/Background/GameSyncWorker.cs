@@ -22,34 +22,38 @@ public class GameSyncWorker(
     private readonly IGameFileWatchService _fileWatchService = fileWatchService;
     private readonly IServiceProvider _serviceProvider = serviceProvider;
     private bool _isFirstLoad = true;
+    private DateTime _nextRunTime = DateTime.MinValue;
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            try
+            DateTime now = DateTime.UtcNow;
+
+            if (now > _nextRunTime)
             {
-                DateTime now = DateTime.UtcNow;
+                _nextRunTime = now.Add(_options.LoopDelayTimeSpan);
 
-                var serviceScope = _serviceProvider.CreateScope();
-                var service = serviceScope.ServiceProvider.GetRequiredService<IGameSyncService>();
+                try
+                {
 
-                //only create the sync tasks on first load, otherwise we're just managing the file watchers and sync statuses
-                bool createSyncTasksIfAutoSync = _isFirstLoad;
+                    var serviceScope = _serviceProvider.CreateScope();
+                    var service = serviceScope.ServiceProvider.GetRequiredService<IGameSyncService>();
 
-                await service.ManageWatchersAsync(createSyncTasksIfAutoSync, games: null, cancellationToken);
+                    //only create the sync tasks on first load, otherwise we're just managing the file watchers and sync statuses
+                    bool createSyncTasksIfAutoSync = _isFirstLoad;
 
-                _isFirstLoad = false;
+                    await service.ManageWatchersAsync(createSyncTasksIfAutoSync, games: null, cancellationToken);
+
+                    _isFirstLoad = false;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error caught in GameSyncWorker");
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error caught in GameSyncWorker");
-            }
-            finally
-            {
-                await Task.Delay(_options.LoopDelayTimeSpan, cancellationToken);
-            }
 
+            await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
         }
 
     }

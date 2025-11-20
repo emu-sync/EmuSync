@@ -1,35 +1,12 @@
-# v0.1.0
-### This is a test change log
-- Some list
-- With
-- Some stuff on
+# v1.0.0
 
-And some more `stuff` here with some **markdown** things in it.
+This is the launch version of EmuSync - thanks for downloading! 
 
-# v0.1.1
-This version is different
+This has been solo developed for my own use, so if you come across any bugs or have requests for features, please raise them in the issues section of the EmuSync GitHub page.
 
-- Another list
-- With some stuff on
+I plan to keep this maintained as long as there's interest. I work full-time though, so responses to bugs and feature requests might take a while.
 
-That's it for this one
+Otherwise, I hope you enjoy using EmuSync. If you like it, please consider starring it on GitHub or sharing it with your friends.
 
-# v0.1.2
-This version is different again
-
-## H2
-
-### H3 
-
-### H4
-
-#### H5
-
-- List item 1
-- List item 2
-- List item 3
-
-Here is some `extra` detail with some **markdown** things in it.
-
-# v0.1.3
-Just testing
+Many thanks,
+Rhys

@@ -49,7 +49,7 @@ export default function HomeScreen() {
             <AppLogo />
         </Box>
 
-        <VerticalStack gap={5}>
+        <VerticalStack gap={4}>
 
             {
                 isNewVersion &&
@@ -89,6 +89,17 @@ export default function HomeScreen() {
                         markdown={currentChangeLog?.markdown ?? ""}
                     />
                 </LoadingHarness>
+            </ReadmeSection>
+
+            <ReadmeSection
+                title="❓ Need help?"
+            >
+                <ReadmeParagraph>
+                    Just installed EmuSync, but not sure what to do next? You need to <ExternalLinkButton href="https://github.com/emu-sync/EmuSync/wiki/Setting-up-a-storage-provider" text="Set up a storage provider" /> before you can set up any game syncs.
+                </ReadmeParagraph>
+                <ReadmeParagraph>
+                    Otherwise, if you're not sure how to do something or have an issue, please see the <ExternalLinkButton href="https://github.com/emu-sync/EmuSync/wiki/FAQs" text="FAQs" /> page in the wiki, or check out the other pages in the wiki.
+                </ReadmeParagraph>
             </ReadmeSection>
 
             <ReadmeSection
