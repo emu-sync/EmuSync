@@ -272,7 +272,7 @@ public class LudusaviManifestScanner(
 
     private List<string> GetFileLocations(string gameName, GameDefinition game, out Dictionary<string, string?> pathMap)
     {
-        string linuxFormat = string.Format("{0}/.local/share/Steam/steamapps/compatdata/{1}/pfx/drive_c", Environment.SpecialFolder.UserProfile, WildcardDirectory);
+        string linuxFormat = string.Format("{0}/.local/share/Steam/steamapps/compatdata/{1}/pfx/drive_c", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), WildcardDirectory);
 
         var map = LudusaviPathMap.Build(
             _isWindows,
