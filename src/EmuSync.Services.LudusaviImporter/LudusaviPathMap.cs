@@ -12,7 +12,7 @@ public static class LudusaviPathMap
 
         return new Dictionary<string, string?>()
         {
-            ["root"] = "UNKNOWN", //wrong, but don't think we need it
+            ["root"] = isWindows ? "C:\\Program Files (x86)\\Steam" : "UNKNOWN", //probably wrong
             ["game"] = game, //probably wrong, but don't think we need it
             ["base"] = game, //wrong, but don't think we need it
             ["home"] = isWindows ? home : $"{linuxPrefix}/users/steamuser",

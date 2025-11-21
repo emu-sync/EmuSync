@@ -194,36 +194,46 @@ public class LudusaviManifestScanner(
 
     private IEnumerable<string> ExpandWildcardDirectories(string patternPath)
     {
-        var parts = patternPath.Split(Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
-        var current = "/";
+        var parts = patternPath.Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+        return ExpandRecursiveWildcardDirectories(parts, 0, "/");
+    }
 
-        for (int i = 0; i < parts.Length; i++)
+    private IEnumerable<string> ExpandRecursiveWildcardDirectories(string[] parts, int index, string current)
+    {
+        if (index == parts.Length)
         {
-            var part = parts[i];
-
-            if (part == WildcardDirectory)
+            if (Directory.Exists(current))
             {
-                if (Directory.Exists(current))
-                {
-
-                    var dirs = Directory.GetDirectories(current);
-
-                    foreach (var dir in dirs)
-                    {
-                        string rebuilt = Path.Combine(dir, Path.Combine(parts.Skip(i + 1).ToArray()));
-
-                        yield return rebuilt;
-                    }
-                }
-
-                yield break;
+                yield return current;
             }
-
-            current = Path.Combine(current, part);
+                
+            yield break;
         }
 
-        // no wildcard → just return the path
-        if (Directory.Exists(current)) yield return current;
+        var part = parts[index];
+
+        if (part == WildcardDirectory)
+        {
+            if (Directory.Exists(current))
+            {
+                foreach (var dir in Directory.GetDirectories(current))
+                {
+                    foreach (var expanded in ExpandRecursiveWildcardDirectories(parts, index + 1, dir))
+                    {
+                        yield return expanded;
+                    }
+                }
+            }
+        }
+        else
+        {
+            var next = Path.Combine(current, part);
+
+            foreach (var expanded in ExpandRecursiveWildcardDirectories(parts, index + 1, next))
+            {
+                yield return expanded;
+            }
+        }
     }
 
     private static readonly Regex PathVariable = new(@"<([a-zA-Z0-9]+)>", RegexOptions.Compiled);
@@ -284,10 +294,10 @@ public class LudusaviManifestScanner(
 
     private string ReplacePathVariables(string input, Dictionary<string, string?> map)
     {
-        string splitInput = input.Split("/<storeUserId>").First();
-        splitInput = splitInput.Split("/<storeGameId>").First();
+        input = input.Replace("<storeUserId>", WildcardDirectory);
+        input = input.Replace("<storeGameId>", WildcardDirectory);
 
-        return PathVariable.Replace(splitInput, match =>
+        return PathVariable.Replace(input, match =>
         {
             string key = match.Groups[1].Value;
 

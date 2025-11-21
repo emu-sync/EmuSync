@@ -91,12 +91,12 @@ export default function GameSuggestionAutocomplete({
                 const {key, ...remainingProps} = props;
 
                 if (typeof option === "string") {
-                    return <li {...remainingProps}>
+                    return <li key={key} {...remainingProps}>
                         <ListItemText primary={option} />
                     </li>
                 }
 
-                return <li {...remainingProps} style={{ display: "flex", justifyContent: "space-between" }}>
+                return <li key={key} {...remainingProps} style={{ display: "flex", justifyContent: "space-between" }}>
                     <ListItemText primary={option.name} />
                     {option.suggestedFolderPaths.length > 1 && <ChevronRightIcon fontSize="small" />}
                 </li>
@@ -123,7 +123,7 @@ export default function GameSuggestionAutocomplete({
                                         title={
                                             <VerticalStack>
                                                 <Typography>EmuSync will scan your device for known save locations of games using data compiled from PCGamingWiki.</Typography>
-                                                <Typography>If your game isn't detected, it might not exist in the wiki or compiled data yet, or you might need to trigger a rescan in the <Pre>This device</Pre> section.</Typography>
+                                                <Typography>Unfortunately this doesn't work for emulated game saves, and also isn't perfect, so your game may not appear. You can try and trigger a rescan in the <Pre>This device</Pre> section.</Typography>
                                                 <Typography>Always double check the path is correct!</Typography>
                                             </VerticalStack>
                                         }
