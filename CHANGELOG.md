@@ -11,3 +11,11 @@ Otherwise, I hope you enjoy using EmuSync. If you like it, please consider starr
 Many thanks,
 
 Rhys
+
+# v1.0.1
+
+## Changes
+- AutoSync has been reworked so it's more configurable.
+   - In the `This device` section, you can now change how often EmuSync will check for changes to games.
+   - Use the `AutoSync frequency (in minutes)` input to change this.
+- You can also see when the next AutoSync check will next occur.
