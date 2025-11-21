@@ -42,7 +42,7 @@ ipcMain.handle('dialog:openDirectory', async (event, initialPath?: string | null
     const { dialog } = await import('electron');
 
     const result = await dialog.showOpenDialog({
-        properties: ['openDirectory'],        
+        properties: ["openDirectory", "showHiddenFiles"],
         defaultPath: initialPath ?? undefined, // set the starting directory
     });
 

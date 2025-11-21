@@ -26,7 +26,9 @@ public class LudusaviManifestScanner(
     private static readonly List<string> _invalidPaths = [
         "C:",
         "C:\\",
-        "C:/"
+        "C:/",
+        "/home/deck/.local/share/Steam/userdata",
+        "/home/deck/.local/share/Steam/steamapps/compatdata",
     ];
 
     public double GetCompletionProgress()
@@ -202,17 +204,12 @@ public class LudusaviManifestScanner(
             {
                 if (Directory.Exists(current))
                 {
-                    //TODO: remove
-                    _logger.LogInformation("It exists {current}!", current);
 
                     var dirs = Directory.GetDirectories(current);
 
                     foreach (var dir in dirs)
                     {
                         string rebuilt = Path.Combine(dir, Path.Combine(parts.Skip(i + 1).ToArray()));
-
-                        //TODO: remove
-                        _logger.LogInformation("It exists as rebuilt {current}!", rebuilt);
 
                         yield return rebuilt;
                     }
@@ -267,9 +264,6 @@ public class LudusaviManifestScanner(
         return CleanPathName(finalPath);
     }
 
-    //TODO: remove 
-    bool logOnce = true;
-
     private List<string> GetFileLocations(string gameName, GameDefinition game, out Dictionary<string, string?> pathMap)
     {
         string linuxFormat = string.Format("{0}/.local/share/Steam/steamapps/compatdata/{1}/pfx/drive_c", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), WildcardDirectory);
@@ -279,16 +273,6 @@ public class LudusaviManifestScanner(
             game.InstallDir?.FirstOrDefault().Key ?? gameName,
             linuxFormat
         );
-
-
-        //TODO: remove
-        if (logOnce && gameName.ToLower() == "ball x pit")
-        {
-            _logger.LogInformation("Format {format}", linuxFormat);
-            _logger.LogInformation("map {@map}", map);
-
-            logOnce = false;
-        }
 
         pathMap = map;
 
