@@ -2,5 +2,6 @@
 
 public interface IGameSyncService
 {
-    Task ManageWatchersAsync(bool createSyncTasksIfAutoSync, List<GameEntity>? games = null, bool checkForExternalSource = false, CancellationToken cancellationToken = default);
+    Task TryDetectGameChangesAsync(CancellationToken cancellationToken = default);
+    Task TryDetectGameSyncStatusesAsync(List<GameEntity> games, CancellationToken cancellationToken = default);
 }

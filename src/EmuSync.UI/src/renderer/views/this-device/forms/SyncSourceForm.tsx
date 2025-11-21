@@ -1,5 +1,7 @@
 import { cacheKeys } from "@/renderer/api/cache-keys";
-import { getLocalSyncSource, updateLocalSyncSource } from "@/renderer/api/sync-source-api";
+import { getLocalSyncSource, getNextAutoAsyncTime, updateLocalSyncSource } from "@/renderer/api/sync-source-api";
+import InfoAlert from "@/renderer/components/alerts/InfoAlert";
+import CountdownTimer from "@/renderer/components/CountdownTimer";
 import DefaultTextField from "@/renderer/components/inputs/DefaultTextField";
 import LoadingHarness from "@/renderer/components/LoadingHarness";
 import SectionTitle from "@/renderer/components/SectionTitle";
@@ -14,19 +16,25 @@ import { UpdateSyncSource } from "@/renderer/types";
 import DisplayPlatform from "@/renderer/views/this-device/components/DisplayPlatform";
 import { transformSyncSource } from "@/renderer/views/this-device/utils/sync-source-utils";
 import { Box, Button } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
-import { Controller } from "react-hook-form";
+import { Controller, useWatch } from "react-hook-form";
 
 const Icon = routes.thisDevice.icon;
 
 export default function SyncSourceForm() {
+
+    const nextAutoSyncTimeQuery = useQuery({
+        queryKey: [cacheKeys.nextAutoSyncTime],
+        queryFn: getNextAutoAsyncTime
+    });
 
     const {
         query, updateMutation
     } = useEditQuery({
         queryFn: getLocalSyncSource,
         queryKey: [cacheKeys.localSyncSource],
-        relatedQueryKeys: [cacheKeys.localSyncSource, cacheKeys.allSyncSources],
+        relatedQueryKeys: [cacheKeys.localSyncSource, cacheKeys.allSyncSources, cacheKeys.nextAutoSyncTime],
         mutationFn: updateLocalSyncSource
     });
 
@@ -40,6 +48,10 @@ export default function SyncSourceForm() {
 
     const handleFormSubmit = useCallback((data: UpdateSyncSource) => {
 
+        if (!data.autoSyncFrequencyMins) {
+            data.autoSyncFrequencyMins = null;
+        }
+
         updateMutation.mutate(
             data,
             {
@@ -52,6 +64,9 @@ export default function SyncSourceForm() {
 
     const disabled = query.isFetching;
     const isSubmitting = updateMutation.isPending;
+
+    const autoSyncFrequencyMins = useWatch({ control, name: "autoSyncFrequencyMins" });
+    const autoSyncFrequencyMinsHasChanged = autoSyncFrequencyMins !== query.data?.autoSyncFrequencyMins;
 
     return <form onSubmit={handleSubmit(handleFormSubmit)}>
 
@@ -85,6 +100,47 @@ export default function SyncSourceForm() {
                     )}
                 />
 
+                <Controller
+                    name="autoSyncFrequencyMins"
+                    control={control}
+                    rules={{
+                        required: "AutoSync frequency is required",
+                        min: { value: 1, message: "Must be greater than 0" },
+                        validate: (v) => Number.isInteger(Number(v)) || "Must be a whole number"
+                    }}
+                    render={({ field, fieldState }) => (
+                        <DefaultTextField
+                            field={field}
+                            fieldState={fieldState}
+                            label="AutoSync frequency (in minutes)"
+                            type="number"
+                            disabled={disabled || isSubmitting}
+                            placeholder="How often EmuSync will check if files need to uploaded/downloaded"
+                        />
+                    )}
+                />
+
+                {
+                    autoSyncFrequencyMinsHasChanged &&
+                    <InfoAlert
+                        content="Changing the auto sync frequency will trigger AutoSync immediately"
+                    />
+                }
+
+
+                {
+                    nextAutoSyncTimeQuery.data &&
+
+                    <Box sx={{ px: 1 }}>
+                        <CountdownTimer
+                            seconds={nextAutoSyncTimeQuery.data.secondsLeft}
+                            reset={nextAutoSyncTimeQuery.refetch}
+                        />
+                    </Box>
+
+                }
+
+
                 <Box>
                     <Button
                         color="primary"
@@ -113,6 +169,7 @@ export default function SyncSourceForm() {
 
 function LoadingState() {
     return <>
+        <TextFieldSkeleton />
         <TextFieldSkeleton />
         <SaveButtonSkeleton />
         <TextFieldSkeleton />

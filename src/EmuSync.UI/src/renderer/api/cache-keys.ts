@@ -14,6 +14,7 @@ export const cacheKeys = {
     latestRelease: "latestRelease",
     agentSystemInfo: "agentSystemInfo",
     changeLog: "changeLog",
+    nextAutoSyncTime: "nextAutoSyncTime",
 }
 
 export function buildCacheKey(key: string, additionalPart: string) {

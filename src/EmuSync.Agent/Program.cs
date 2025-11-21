@@ -131,21 +131,17 @@ public class Program
 
         #endregion
 
+        builder.Services.AddSingleton<ISyncTasks, SyncTasks>();
         builder.Services.AddSingleton<IApiCache, ApiCache>();
         builder.Services.AddSingleton<IGameSyncStatusCache, GameSyncStatusCache>();
-        builder.Services.AddSingleton<IGameFileWatchService, GameFileWatchService>();
         builder.Services.AddScoped<IGameSyncService, GameSyncService>();
-
+        builder.Services.AddScoped<ISyncTaskProcessor, SyncTaskProcessor>();
 
         services.Configure<GameSyncWorkerConfig>(
             config.GetSection(GameSyncWorkerConfig.Section)
         );
 
         builder.Services.AddHostedService<GameSyncWorker>();
-
-        services.Configure<SyncTaskWorkerConfig>(
-            config.GetSection(SyncTaskWorkerConfig.Section)
-        );
 
         builder.Services.AddHostedService<SyncTaskWorker>();
 

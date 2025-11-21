@@ -16,7 +16,8 @@ public static class SyncSourceMapping
             Id = entity.Id,
             Name = entity.Name,
             StorageProviderId = (int?)entity.StorageProvider,
-            PlatformId = (int)(entity.OsPlatform)
+            PlatformId = (int)(entity.OsPlatform),
+            AutoSyncFrequencyMins = entity.AutoSyncFrequency.HasValue ? entity.AutoSyncFrequency.Value.Minutes : 2,
         };
     }
 
@@ -53,7 +54,8 @@ public static class SyncSourceMapping
         return new()
         {
             Id = id,
-            Name = dto.Name
+            Name = dto.Name,
+            AutoSyncFrequency = dto.AutoSyncFrequencyMins.HasValue ? TimeSpan.FromMinutes(dto.AutoSyncFrequencyMins.Value) : null
         };
     }
 }

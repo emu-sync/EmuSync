@@ -1,5 +1,5 @@
 import { get, postWithNoResponse, put, remove } from "@/renderer/api/api-helper";
-import { SetStorageProvider, SyncSource, SyncSourceSummary, UpdateSyncSource } from "@/renderer/types";
+import { NextAutoSyncTime, SetStorageProvider, SyncSource, SyncSourceSummary, UpdateSyncSource } from "@/renderer/types";
 
 const controller = "SyncSource"
 
@@ -16,6 +16,16 @@ export async function getSyncSourceList(): Promise<SyncSourceSummary[]> {
 export async function getLocalSyncSource(): Promise<SyncSource> {
 
     const path = `${controller}/Local`;
+
+    return await get({
+        path
+    });
+
+}
+
+export async function getNextAutoAsyncTime(): Promise<NextAutoSyncTime> {
+
+    const path = `${controller}/NextAutoSyncTime`;
 
     return await get({
         path

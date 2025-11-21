@@ -7,6 +7,9 @@ public record UpdateSyncSourceDto : ISyncSourceDto
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }
+
+    [JsonPropertyName("autoSyncFrequencyMins")]
+    public int? AutoSyncFrequencyMins { get; set; }
 }
 
 public class UpdateSyncSourceDtoValidator : AbstractValidator<UpdateSyncSourceDto>

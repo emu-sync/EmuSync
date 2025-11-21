@@ -49,7 +49,7 @@ export default function useEditQuery<TResult, TUpdateData, TVariables>({
         },
         onError: async () => {
 
-            let message = "Successfully saved changes"
+            let message = "Failed to save changes"
 
             if (errorMessage && query.data) {
                 message = errorMessage(query.data);

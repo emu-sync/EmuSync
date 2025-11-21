@@ -1,3 +1,4 @@
+using EmuSync.Agent.Background;
 using EmuSync.Agent.Dto.Game;
 using EmuSync.Domain.Enums;
 using EmuSync.Services.Managers.Interfaces;
@@ -10,12 +11,12 @@ public class SyncSourceController(
     ILogger<SyncSourceController> logger,
     IValidationService validator,
     ISyncSourceManager manager,
-    IGameFileWatchService fileWatchService,
+    ISyncTasks syncTasks,
     IApiCache apiCache
 ) : CustomControllerBase(logger, validator)
 {
     private readonly ISyncSourceManager _manager = manager;
-    private readonly IGameFileWatchService _fileWatchService = fileWatchService;
+    private readonly ISyncTasks _syncTasks = syncTasks;
     private readonly IApiCache _apiCache = apiCache;
 
     [HttpGet]
@@ -32,6 +33,22 @@ public class SyncSourceController(
         list ??= [];
 
         List<SyncSourceSummaryDto> response = list.ConvertAll(x => x.ToSummaryDto());
+        return Ok(response);
+    }
+
+    [HttpGet("NextAutoSyncTime")]
+    public async Task<IActionResult> GetNextAutoSyncTime(CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+        var nextRunTime = GameSyncWorker.NextRunTime;
+
+        var diff = nextRunTime - now;
+
+        NextAutoSyncTimeDto response = new()
+        {
+            SecondsLeft = diff.TotalSeconds,
+        };
+
         return Ok(response);
     }
 
@@ -59,7 +76,12 @@ public class SyncSourceController(
         if (bodyErrors.Count > 0) return BadRequestWithErrors(bodyErrors.ToArray());
 
         SyncSourceEntity entity = requestBody.ToEntity();
-        await _manager.UpdateLocalAsync(entity, cancellationToken);
+        bool autoSyncFrequencyChanged = await _manager.UpdateLocalAsync(entity, cancellationToken);
+
+        if (autoSyncFrequencyChanged)
+        {
+            GameSyncWorker.ResetNextRunTime();
+        }
 
         _apiCache.SyncSources.Clear();
 
@@ -124,7 +146,7 @@ public class SyncSourceController(
 
         if (entity?.Id == id)
         {
-            _fileWatchService.RemoveAllWatchers();
+            _syncTasks.Clear();
         }
 
         _apiCache.SyncSources.Clear();

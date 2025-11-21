@@ -18,11 +18,13 @@ export const storageProviderMap = {
 }
 
 export const defaultSyncSource: UpdateSyncSource = {
-    name: ""
+    name: "",
+    autoSyncFrequencyMins: null
 };
 
 export function transformSyncSource(syncSource: SyncSource): UpdateSyncSource {
     return {
-        name: syncSource.name
+        name: syncSource.name,
+        autoSyncFrequencyMins: syncSource.autoSyncFrequencyMins ?? null
     }
 }

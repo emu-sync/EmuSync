@@ -39,7 +39,7 @@ public interface ISyncSourceManager
     /// <param name="entity"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task UpdateLocalAsync(SyncSourceEntity entity, CancellationToken cancellationToken = default);
+    Task<bool> UpdateLocalAsync(SyncSourceEntity entity, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Sets the <paramref name="storageProvider"/> on the local <see cref="SyncSourceEntity"/>, connecting the storage provider
