@@ -1,0 +1,69 @@
+name: Build (Linux Only)
+
+on:
+  workflow_dispatch:   # manual trigger only
+
+env:
+  UI_DIR: src/EmuSync.UI
+  SERVICE_PROJECT: src/EmuSync.Agent/EmuSync.Agent.csproj
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build .NET (Linux)
+        shell: bash
+        run: |
+          PUBLISH_DIR="${{ github.workspace }}/${{ env.UI_DIR }}/release/build/agent-linux"
+          mkdir -p "$PUBLISH_DIR/tmp"
+          
+          dotnet publish "${{ github.workspace }}/${{ env.SERVICE_PROJECT }}" \
+            -c Release -r linux-x64 --self-contained true \
+            -o "$PUBLISH_DIR/tmp" -p:PublishSingleFile=true
+
+          cp "$PUBLISH_DIR/tmp/EmuSync.Agent" "$PUBLISH_DIR/EmuSync.Agent"
+          cp "$PUBLISH_DIR/tmp/appsettings.json" "$PUBLISH_DIR/appsettings.json"
+          rm -rf "$PUBLISH_DIR/tmp"
+
+      - name: Build Electron AppImage
+        working-directory: ${{ env.UI_DIR }}
+        run: |
+          npm ci
+          npm run build:linux
+
+      - name: Package Linux artifacts
+        shell: bash
+        run: |
+          OUT="${{ github.workspace }}/${{ env.UI_DIR }}/release/build/linux-artifacts"
+          AGENT="${{ github.workspace }}/${{ env.UI_DIR }}/release/build/agent-linux"
+
+          mkdir -p "$OUT"
+          cp "${{ github.workspace }}/${{ env.UI_DIR }}/release/build/"*.AppImage "$OUT/EmuSync.AppImage" || true
+          cp "${{ github.workspace }}/${{ env.UI_DIR }}/assets/icon.png" "$OUT/icon.png" || true
+
+          mkdir -p "$OUT/agent"
+          cp "$AGENT/EmuSync.Agent" "$OUT/agent"
+          cp "$AGENT/appsettings.json" "$OUT/agent"
+
+          cd "$OUT"
+          zip -r EmuSync-Linux-x64.zip EmuSync.AppImage agent icon.png
+
+      - name: Upload Linux Build Artifact (private)
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: ${{ env.UI_DIR }}/release/build/linux-artifacts/EmuSync-Linux-x64.zip
