@@ -19,3 +19,6 @@ Rhys
    - In the `This device` section, you can now change how often EmuSync will check for changes to games.
    - Use the `AutoSync frequency (in minutes)` input to change this.
 - You can also see when the next AutoSync check will next occur.
+
+## Fixes
+- Fixed an issue where downloading a game save could incorrectly prompt an unnecessary re-upload.
