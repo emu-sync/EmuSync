@@ -19,6 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\EmuSync.Services.LudusaviImporter\EmuSync.Services.LudusaviImporter.csproj" />
 	  <ProjectReference Include="..\EmuSync.Services.Managers\EmuSync.Services.Managers.csproj" />
 	  <ProjectReference Include="..\EmuSync.Services.Storage\EmuSync.Services.Storage.csproj" />
 	</ItemGroup>

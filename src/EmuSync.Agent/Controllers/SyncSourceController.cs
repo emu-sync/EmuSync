@@ -1,6 +1,7 @@
 using EmuSync.Agent.Background;
 using EmuSync.Agent.Dto.Game;
 using EmuSync.Domain.Enums;
+using EmuSync.Services.LudusaviImporter.Interfaces;
 using EmuSync.Services.Managers.Interfaces;
 
 namespace EmuSync.Agent.Controllers;
@@ -12,12 +13,14 @@ public class SyncSourceController(
     IValidationService validator,
     ISyncSourceManager manager,
     ISyncTasks syncTasks,
-    IApiCache apiCache
+    IApiCache apiCache,
+    ILudusaviManifestScanner manifestScanner
 ) : CustomControllerBase(logger, validator)
 {
     private readonly ISyncSourceManager _manager = manager;
     private readonly ISyncTasks _syncTasks = syncTasks;
     private readonly IApiCache _apiCache = apiCache;
+    private readonly ILudusaviManifestScanner _manifestScanner = manifestScanner;
 
     [HttpGet]
     public async Task<IActionResult> GetList(CancellationToken cancellationToken = default)
@@ -50,6 +53,31 @@ public class SyncSourceController(
         };
 
         return Ok(response);
+    }
+
+    [HttpGet("GameScanDetails")]
+    public async Task<IActionResult> GetGameScanDetails(CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+        var lastScanTime = LudusaviManifestWorker.LastScanTime;
+
+        var diff = lastScanTime - now;
+
+        GameScanDetails response = new()
+        {
+            LastScanSeconds = diff.TotalSeconds,
+            InProgress = LudusaviManifestWorker.ScanInProgress,
+            ProgressPercent = _manifestScanner.GetCompletionProgress()
+        };
+
+        return Ok(response);
+    }
+
+    [HttpPost("ForceGameScan")]
+    public async Task<IActionResult> ForceScan(CancellationToken cancellationToken = default)
+    {
+        LudusaviManifestWorker.ResetNextRunTime();
+        return Ok();
     }
 
     [HttpGet("Local")]

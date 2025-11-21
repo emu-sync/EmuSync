@@ -1,5 +1,9 @@
 using EmuSync.Agent.Dto.Game;
+using EmuSync.Domain;
 using EmuSync.Domain.Extensions;
+using EmuSync.Domain.Services;
+using EmuSync.Domain.Services.Interfaces;
+using EmuSync.Services.LudusaviImporter;
 using EmuSync.Services.Managers.Interfaces;
 
 namespace EmuSync.Agent.Controllers;
@@ -10,6 +14,7 @@ public class GameController(
     ILogger<GameController> logger,
     IValidationService validator,
     IGameManager manager,
+    ILocalDataAccessor localDataAccessor,
     ISyncSourceManager syncSourceManager,
     IGameSyncStatusCache gameSyncStatusCache,
     IGameSyncService gameSyncService,
@@ -18,6 +23,7 @@ public class GameController(
 ) : CustomControllerBase(logger, validator)
 {
     private readonly IGameManager _manager = manager;
+    private readonly ILocalDataAccessor _localDataAccessor = localDataAccessor;
     private readonly ISyncSourceManager _syncSourceManager = syncSourceManager;
     private readonly IGameSyncStatusCache _gameSyncStatusCache = gameSyncStatusCache;
     private readonly IGameSyncService _gameSyncService = gameSyncService;
@@ -71,6 +77,17 @@ public class GameController(
         await TryUpdateSyncTaskAsync(entity, cancellationToken);
 
         GameDto response = entity.ToDto();
+        return Ok(response);
+    }
+
+    [HttpGet("Suggestions")]
+    public async Task<IActionResult> GetSuggestions(CancellationToken cancellationToken = default)
+    {
+
+        string fileName = _localDataAccessor.GetLocalFilePath(DomainConstants.LocalDataLudusaviCachedScanFile);
+        var suggestionsResult = await _localDataAccessor.ReadFileContentsOrDefaultAsync<LatestManifestScanResult>(fileName, cancellationToken);
+
+        List<GameSuggestionDto> response = suggestionsResult?.FoundGames.ConvertAll(x => x.ToDto()) ?? [];
         return Ok(response);
     }
 

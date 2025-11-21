@@ -1,9 +1,9 @@
 import { cacheKeys } from "@/renderer/api/cache-keys";
-import { getLocalSyncSource, getNextAutoAsyncTime, updateLocalSyncSource } from "@/renderer/api/sync-source-api";
+import { getLocalSyncSource, getNextAutoSyncTime, updateLocalSyncSource } from "@/renderer/api/sync-source-api";
 import InfoAlert from "@/renderer/components/alerts/InfoAlert";
-import CountdownTimer from "@/renderer/components/CountdownTimer";
+import CountdownTimer from "@/renderer/components/dates/CountdownTimer";
 import DefaultTextField from "@/renderer/components/inputs/DefaultTextField";
-import LoadingHarness from "@/renderer/components/LoadingHarness";
+import LoadingHarness from "@/renderer/components/harnesses/LoadingHarness";
 import SectionTitle from "@/renderer/components/SectionTitle";
 import SaveButtonSkeleton from "@/renderer/components/skeleton/SaveButtonSkeleton";
 import TextFieldSkeleton from "@/renderer/components/skeleton/TextFieldSkeleton";
@@ -26,7 +26,7 @@ export default function SyncSourceForm() {
 
     const nextAutoSyncTimeQuery = useQuery({
         queryKey: [cacheKeys.nextAutoSyncTime],
-        queryFn: getNextAutoAsyncTime
+        queryFn: getNextAutoSyncTime
     });
 
     const {

@@ -27,3 +27,9 @@ export interface SetStorageProvider {
 export interface NextAutoSyncTime {
   secondsLeft: number;
 }
+
+export interface ScanDetails {
+    lastScanSeconds: number;
+    inProgress: boolean;
+    progressPercent: number;
+}

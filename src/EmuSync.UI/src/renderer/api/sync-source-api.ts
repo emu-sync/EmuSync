@@ -1,5 +1,5 @@
 import { get, postWithNoResponse, put, remove } from "@/renderer/api/api-helper";
-import { NextAutoSyncTime, SetStorageProvider, SyncSource, SyncSourceSummary, UpdateSyncSource } from "@/renderer/types";
+import { NextAutoSyncTime, ScanDetails, SetStorageProvider, SyncSource, SyncSourceSummary, UpdateSyncSource } from "@/renderer/types";
 
 const controller = "SyncSource"
 
@@ -23,11 +23,31 @@ export async function getLocalSyncSource(): Promise<SyncSource> {
 
 }
 
-export async function getNextAutoAsyncTime(): Promise<NextAutoSyncTime> {
+export async function getNextAutoSyncTime(): Promise<NextAutoSyncTime> {
 
     const path = `${controller}/NextAutoSyncTime`;
 
     return await get({
+        path
+    });
+
+}
+
+export async function getGameScanDetails(): Promise<ScanDetails> {
+
+    const path = `${controller}/GameScanDetails`;
+
+    return await get({
+        path
+    });
+
+}
+
+export async function forceGameScan(): Promise<void> {
+
+    const path = `${controller}/ForceGameScan`;
+
+    return await postWithNoResponse({
         path
     });
 

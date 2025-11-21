@@ -22,7 +22,7 @@ const electronHandler = {
             ipcRenderer.once(channel, (_event, ...args) => func(...args));
         },
     },
-    openDirectory: () => ipcRenderer.invoke('dialog:openDirectory'),
+    openDirectory: (path?: string | null) => ipcRenderer.invoke('dialog:openDirectory', path),
     openExternalLink: (link: string) => ipcRenderer.invoke('shell:openExternal', link),
     apiUrl: process.env.API_URL ?? "http://localhost:5353",
     releaseVersion: process.env.RELEASE_VERSION ?? "",

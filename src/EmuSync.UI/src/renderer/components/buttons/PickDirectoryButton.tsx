@@ -4,19 +4,24 @@ import { useCallback } from 'react';
 
 interface PickDirectoryButtonProps {
     disabled?: boolean;
+    defaultPath: string | null;
     onPickDirectory: (directory: string) => void;
 }
 
 export default function PickDirectoryButton({
-    disabled, onPickDirectory
+    disabled, defaultPath, onPickDirectory
 }: PickDirectoryButtonProps) {
 
     const handlePick = useCallback(async () => {
 
-        const path = await window.electron.openDirectory();
-        onPickDirectory(path ?? "");
-        
-    }, []);
+        const path = await window.electron.openDirectory(defaultPath);
+        const pathToUse = path ?? "";
+
+        if (path) {
+            onPickDirectory(pathToUse);
+        }
+
+    }, [defaultPath]);
 
     return <IconButton
         color="primary"

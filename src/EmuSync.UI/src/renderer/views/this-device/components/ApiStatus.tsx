@@ -1,4 +1,4 @@
-import AgentStatusHarness, { AgentStatusAlert } from "@/renderer/components/AgentStatusHarness";
+import AgentStatusHarness, { AgentStatusAlert } from "@/renderer/components/harnesses/AgentStatusHarness";
 import SectionTitle from "@/renderer/components/SectionTitle";
 import VerticalStack from "@/renderer/components/stacks/VerticalStack";
 import { agentStatusAtom } from "@/renderer/state/agent-status";

@@ -1,5 +1,5 @@
 import { get, post, put, remove } from "@/renderer/api/api-helper";
-import { CreateGame, Game, GameSummary, UpdateGame } from "@/renderer/types";
+import { CreateGame, Game, GameSuggestion, GameSummary, UpdateGame } from "@/renderer/types";
 
 const controller = "Game"
 
@@ -12,6 +12,16 @@ export async function getGameList(forceReload: boolean = false): Promise<GameSum
         query: {
             forceReload
         }
+    });
+
+}
+
+export async function getGameSuggestionsList(): Promise<GameSuggestion[]> {
+
+    const path = `${controller}/Suggestions`;
+
+    return await get({
+        path
     });
 
 }

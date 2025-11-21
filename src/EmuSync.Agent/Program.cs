@@ -6,6 +6,8 @@ using EmuSync.Agent.Services;
 using EmuSync.Domain.Enums;
 using EmuSync.Domain.Extensions;
 using EmuSync.Domain.Helpers;
+using EmuSync.Services.LudusaviImporter;
+using EmuSync.Services.LudusaviImporter.Interfaces;
 using EmuSync.Services.Managers.Extensions;
 using EmuSync.Services.Storage.Extensions;
 using FluentValidation;
@@ -132,8 +134,13 @@ public class Program
         #endregion
 
         builder.Services.AddSingleton<ISyncTasks, SyncTasks>();
+
         builder.Services.AddSingleton<IApiCache, ApiCache>();
         builder.Services.AddSingleton<IGameSyncStatusCache, GameSyncStatusCache>();
+
+        builder.Services.AddSingleton<ILudusaviManifestImporter, LudusaviManifestImporter>();
+        builder.Services.AddSingleton<ILudusaviManifestScanner, LudusaviManifestScanner>();
+
         builder.Services.AddScoped<IGameSyncService, GameSyncService>();
         builder.Services.AddScoped<ISyncTaskProcessor, SyncTaskProcessor>();
 
@@ -142,8 +149,8 @@ public class Program
         );
 
         builder.Services.AddHostedService<GameSyncWorker>();
-
         builder.Services.AddHostedService<SyncTaskWorker>();
+        builder.Services.AddHostedService<LudusaviManifestWorker>();
 
 
         services.AddValidatorsFromAssemblyContaining<ErrorResponseDto>();
