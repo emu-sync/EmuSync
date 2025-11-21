@@ -1,79 +1,70 @@
-﻿using EmuSync.Agent.Services;
-using EmuSync.Services.Managers.Interfaces;
-using Microsoft.Extensions.Options;
-
-namespace EmuSync.Agent.Background;
-
-public record SyncTaskWorkerConfig
-{
-    public const string Section = "SyncTaskWorkerConfig";
-    public TimeSpan LoopDelayTimeSpan { get; set; }
-}
+﻿namespace EmuSync.Agent.Background;
 
 public class SyncTaskWorker(
     ILogger<SyncTaskWorker> logger,
-    IOptions<SyncTaskWorkerConfig> options,
-    IGameFileWatchService fileWatchService,
     IServiceProvider serviceProvider,
-    IGameSyncStatusCache gameSyncStatusCache
+    ISyncTasks syncTasks
 ) : BackgroundService
 {
-    private readonly SyncTaskWorkerConfig _options = options.Value;
-
     private readonly ILogger<SyncTaskWorker> _logger = logger;
-    private readonly IGameFileWatchService _fileWatchService = fileWatchService;
     private readonly IServiceProvider _serviceProvider = serviceProvider;
-    private readonly IGameSyncStatusCache _gameSyncStatusCache = gameSyncStatusCache;
-    private DateTime _nextRunTime = DateTime.MinValue;
+    private readonly ISyncTasks _syncTasks = syncTasks;
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        //wait on first load to give the GameSyncWorker a chance to complete first
-        await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
-
         while (!cancellationToken.IsCancellationRequested)
         {
-            DateTime now = DateTime.UtcNow;
 
-            if (now > _nextRunTime)
+            try
             {
-                _nextRunTime = now.Add(_options.LoopDelayTimeSpan);
-
-                try
+                if (_syncTasks.HasTasks())
                 {
-                    var serviceScope = _serviceProvider.CreateScope();
-
-                    ILogger<SyncTaskService> logger = serviceScope.ServiceProvider.GetRequiredService<ILogger<SyncTaskService>>();
-                    IGameSyncManager gameSyncManager = serviceScope.ServiceProvider.GetRequiredService<IGameSyncManager>();
-                    ISyncSourceManager syncSourceManager = serviceScope.ServiceProvider.GetRequiredService<ISyncSourceManager>();
-
-                    SyncTaskService service = new(
-                        logger,
-                        _fileWatchService,
-                        _gameSyncStatusCache,
-                        gameSyncManager,
-                        syncSourceManager
-                    );
-
-                    await service.ProcessSyncTasks(cancellationToken);
-
+                    await TryProcessTasksAsync(cancellationToken);
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error caught in SyncTaskWorker");
-                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error caught in SyncTaskWorker");
+            }
+            finally
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+
         }
 
+    }
+
+    private async Task TryProcessTasksAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var serviceScope = _serviceProvider.CreateScope();
+            ISyncTaskProcessor service = serviceScope.ServiceProvider.GetRequiredService<ISyncTaskProcessor>();
+
+            GameEntity? syncTask = _syncTasks.GetNext();
+
+            while (syncTask != null && !cancellationToken.IsCancellationRequested)
+            {
+
+                await service.ProcessSyncTaskAsync(syncTask, cancellationToken);
+                syncTask = _syncTasks.GetNext();
+            }
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error caught in SyncTaskWorker");
+        }
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         try
         {
-            _fileWatchService.RemoveAllWatchers();
+            _syncTasks.Clear();
         }
         catch (Exception ex)
         {

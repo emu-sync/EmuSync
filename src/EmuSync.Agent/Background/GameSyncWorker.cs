@@ -12,16 +12,13 @@ public record GameSyncWorkerConfig
 public class GameSyncWorker(
     ILogger<GameSyncWorker> logger,
     IOptions<GameSyncWorkerConfig> options,
-    IGameFileWatchService fileWatchService,
     IServiceProvider serviceProvider
 ) : BackgroundService
 {
     private readonly GameSyncWorkerConfig _options = options.Value;
 
     private readonly ILogger<GameSyncWorker> _logger = logger;
-    private readonly IGameFileWatchService _fileWatchService = fileWatchService;
     private readonly IServiceProvider _serviceProvider = serviceProvider;
-    private bool _isFirstLoad = true;
     private DateTime _nextRunTime = DateTime.MinValue;
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -34,23 +31,15 @@ public class GameSyncWorker(
             {
                 _nextRunTime = now.Add(_options.LoopDelayTimeSpan);
 
+                _logger.LogDebug("Checking for new game syncs. Next run time is {runTime}", _nextRunTime);
+
                 try
                 {
 
                     var serviceScope = _serviceProvider.CreateScope();
                     var service = serviceScope.ServiceProvider.GetRequiredService<IGameSyncService>();
 
-                    //only create the sync tasks on first load, otherwise we're just managing the file watchers and sync statuses
-                    bool createSyncTasksIfAutoSync = _isFirstLoad;
-
-                    await service.ManageWatchersAsync(
-                        createSyncTasksIfAutoSync, 
-                        games: null, 
-                        checkForExternalSource: true,
-                        cancellationToken
-                    );
-
-                    _isFirstLoad = false;
+                    await service.TryDetectGameChangesAsync(cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -65,15 +54,6 @@ public class GameSyncWorker(
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
-        try
-        {
-            _fileWatchService.RemoveAllWatchers();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error while running StopAsync");
-        }
-
         await base.StopAsync(cancellationToken);
     }
 }

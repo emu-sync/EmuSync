@@ -9,7 +9,7 @@ export default function ReadmeParagraph({
     children
 }: ReadmeParagraphProps) {
 
-    return <Typography variant="body1">
+    return <Typography variant="body1"  sx={{mb: 1}}>
         {children}
     </Typography>
 }

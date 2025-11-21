@@ -5,7 +5,7 @@ namespace EmuSync.Agent.Services;
 
 public class GameSyncService(
     ILogger<GameSyncService> logger,
-    IGameFileWatchService fileWatchService,
+    ISyncTasks syncTasks,
     IGameSyncStatusCache gameSyncStatusCache,
     IGameManager gameManager,
     IGameSyncManager gameSyncManager,
@@ -13,18 +13,13 @@ public class GameSyncService(
 ) : IGameSyncService
 {
     private readonly ILogger<GameSyncService> _logger = logger;
-    private readonly IGameFileWatchService _fileWatchService = fileWatchService;
+    private readonly ISyncTasks _syncTasks = syncTasks;
     private readonly IGameSyncStatusCache _gameSyncStatusCache = gameSyncStatusCache;
     private readonly IGameManager _gameManager = gameManager;
     private readonly IGameSyncManager _gameSyncManager = gameSyncManager;
     private readonly ISyncSourceManager _syncSourceManager = syncSourceManager;
 
-    public async Task ManageWatchersAsync(
-        bool createSyncTasksIfAutoSync,
-        List<GameEntity>? games = null,
-        bool checkForExternalSource = false,
-        CancellationToken cancellationToken = default
-    )
+    public async Task TryDetectGameChangesAsync(CancellationToken cancellationToken = default)
     {
         using var logScope = _logger.BeginScope("GameSyncService");
 
@@ -45,24 +40,16 @@ public class GameSyncService(
             }
 
 
-            if (checkForExternalSource)
-            {
-                SyncSourceEntity? externalSyncSource = await _syncSourceManager.GetAsync(syncSource.Id, cancellationToken);
+            SyncSourceEntity? externalSyncSource = await _syncSourceManager.GetAsync(syncSource.Id, cancellationToken);
 
-                //this device no longer exists in the storage provider? It's probably been removed from another device
-                if (externalSyncSource == null)
-                {
-                    await HandleRemovedDeviceAsync(syncSource, cancellationToken);
-                    return;
-                }
+            //this device no longer exists in the storage provider? It's probably been removed from another device
+            if (externalSyncSource == null)
+            {
+                await HandleRemovedDeviceAsync(syncSource, cancellationToken);
+                return;
             }
 
-            await ManageFileWatchersAsync(
-                syncSource,
-                createSyncTasksIfAutoSync,
-                games,
-                cancellationToken
-            );
+            await DetectChangesAsync(syncSource, cancellationToken);
 
         }
         catch (Exception ex)
@@ -71,50 +58,52 @@ public class GameSyncService(
         }
     }
 
-    private async Task ManageFileWatchersAsync(
-        SyncSourceEntity syncSource,
-        bool createSyncTasksIfAutoSync,
-        List<GameEntity>? games = null,
-        CancellationToken cancellationToken = default
-    )
+    public async Task TryDetectGameSyncStatusesAsync(List<GameEntity> games, CancellationToken cancellationToken = default)
     {
-        if (games == null)
-        {
-            games = await TryGetGamesAsync(cancellationToken);
-        }
+        using var logScope = _logger.BeginScope("GameSyncService");
 
-        TryRemoveDeletedGames(games);
-
-        foreach (var game in games)
-        {
-            if (cancellationToken.IsCancellationRequested) break;
-
-            await ModifyGameWatcherAsync(syncSource, game, createSyncTasksIfAutoSync, cancellationToken);
-        }
-    }
-
-    private void TryRemoveDeletedGames(List<GameEntity> games)
-    {
         try
         {
-            List<string> existingFileWatchers = _fileWatchService.GetFileWatcherKeys();
+            SyncSourceEntity? syncSource = await _syncSourceManager.GetLocalAsync(cancellationToken);
 
-            List<string> deletedGames = existingFileWatchers
-                .Where(watcherKey => !games.Any(game => game.Id == watcherKey))
-                .ToList();
-
-            deletedGames.ForEach(gameId =>
+            if (syncSource == null)
             {
-                _fileWatchService.RemoveWatcher(gameId);
-            });
+                _logger.LogWarning("No sync source configured");
+                return;
+            }
+
+            if (syncSource.StorageProvider == null)
+            {
+                _logger.LogWarning("No storage provider configured");
+                return;
+            }
+
+            foreach (var game in games)
+            {
+                TryDetermineSyncType(syncSource, game);
+            }
+
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error while removing deleted game watchers");
+            _logger.LogError(ex, "Error in GameSyncService execution");
         }
     }
 
-    private async Task ModifyGameWatcherAsync(SyncSourceEntity syncSource, GameEntity game, bool createSyncTasksIfAutoSync, CancellationToken cancellationToken)
+    private async Task DetectChangesAsync(SyncSourceEntity syncSource, CancellationToken cancellationToken = default)
+    {
+        List<GameEntity> games = await TryGetGamesAsync(cancellationToken);
+
+        foreach (GameEntity game in games)
+        {
+            if (cancellationToken.IsCancellationRequested) break;
+
+            await DetectChangesForGameAsync(syncSource, game, cancellationToken);
+        }
+    }
+
+
+    private async Task DetectChangesForGameAsync(SyncSourceEntity syncSource, GameEntity game, CancellationToken cancellationToken)
     {
         try
         {
@@ -122,19 +111,13 @@ public class GameSyncService(
 
             if (!game.AutoSync)
             {
-                _fileWatchService.RemoveWatcher(game.Id);
+                _syncTasks.Remove(game.Id);
                 return;
             }
 
-            _fileWatchService.ModifyOrRemoveWatcher(syncSource.Id, game);
-
-            //we only really want to create a sync task on first load and if auto sync is enabled
-            //otherwise we're creating sync tasks for games that already have a file watch attached to them
-            if (!createSyncTasksIfAutoSync) return;
-
-            if (gameSyncStatus == GameSyncStatus.RequiresDownload || gameSyncStatus == GameSyncStatus.RequiresDownload)
+            if (gameSyncStatus == GameSyncStatus.RequiresDownload || gameSyncStatus == GameSyncStatus.RequiresUpload)
             {
-                _fileWatchService.AddSyncTask(game);
+                _syncTasks.Add(game);
             }
         }
         catch (Exception ex)
@@ -176,7 +159,7 @@ public class GameSyncService(
 
     private async Task HandleRemovedDeviceAsync(SyncSourceEntity syncSource, CancellationToken cancellationToken)
     {
-        _fileWatchService.RemoveAllWatchers();
+        _syncTasks.Clear();
         await _syncSourceManager.UnlinkLocalStorageProviderAsync(syncSource, false, cancellationToken);
     }
 }

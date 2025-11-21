@@ -10,12 +10,12 @@ public class SyncSourceController(
     ILogger<SyncSourceController> logger,
     IValidationService validator,
     ISyncSourceManager manager,
-    IGameFileWatchService fileWatchService,
+    ISyncTasks syncTasks,
     IApiCache apiCache
 ) : CustomControllerBase(logger, validator)
 {
     private readonly ISyncSourceManager _manager = manager;
-    private readonly IGameFileWatchService _fileWatchService = fileWatchService;
+    private readonly ISyncTasks _syncTasks = syncTasks;
     private readonly IApiCache _apiCache = apiCache;
 
     [HttpGet]
@@ -124,7 +124,7 @@ public class SyncSourceController(
 
         if (entity?.Id == id)
         {
-            _fileWatchService.RemoveAllWatchers();
+            _syncTasks.Clear();
         }
 
         _apiCache.SyncSources.Clear();

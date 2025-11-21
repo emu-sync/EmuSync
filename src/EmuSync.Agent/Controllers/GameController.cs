@@ -10,22 +10,22 @@ public class GameController(
     ILogger<GameController> logger,
     IValidationService validator,
     IGameManager manager,
-    IGameFileWatchService fileWatchService,
     ISyncSourceManager syncSourceManager,
     IGameSyncStatusCache gameSyncStatusCache,
     IGameSyncService gameSyncService,
+    ISyncTasks syncTasks,
     IApiCache apiCache
 ) : CustomControllerBase(logger, validator)
 {
     private readonly IGameManager _manager = manager;
-    private readonly IGameFileWatchService _fileWatchService = fileWatchService;
     private readonly ISyncSourceManager _syncSourceManager = syncSourceManager;
     private readonly IGameSyncStatusCache _gameSyncStatusCache = gameSyncStatusCache;
     private readonly IGameSyncService _gameSyncService = gameSyncService;
+    private readonly ISyncTasks _syncTasks = syncTasks;
     private readonly IApiCache _apiCache = apiCache;
 
     [HttpGet]
-    public async Task<IActionResult> GetList([FromQuery]bool forceReload = false, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetList([FromQuery] bool forceReload = false, CancellationToken cancellationToken = default)
     {
         List<GameEntity>? list = _apiCache.Games.Value;
 
@@ -38,20 +38,7 @@ public class GameController(
         //if we have games, just reprocess all the file watchers that might be attached / re-evaluate the sync statuses
         if (list != null && list.Count > 0)
         {
-            try
-            {
-                await _gameSyncService.ManageWatchersAsync(
-                    createSyncTasksIfAutoSync: false, 
-                    list, 
-                    checkForExternalSource: false,
-                    cancellationToken
-                );
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Failed to manage watchers from GameController");
-            }
-
+            await _gameSyncService.TryDetectGameSyncStatusesAsync(list, cancellationToken);
         }
 
         list ??= [];
@@ -81,7 +68,7 @@ public class GameController(
         }
 
         //even if we fetch, just update the watcher - we might have an outdated on this device
-        await TryUpdateFileWatchAsync(entity, cancellationToken);
+        await TryUpdateSyncTaskAsync(entity, cancellationToken);
 
         GameDto response = entity.ToDto();
         return Ok(response);
@@ -98,7 +85,7 @@ public class GameController(
         var entity = requestBody.ToEntity();
         await _manager.CreateAsync(entity, cancellationToken);
 
-        await TryUpdateFileWatchAsync(entity, cancellationToken);
+        await TryUpdateSyncTaskAsync(entity, cancellationToken);
 
         _apiCache.Games.Value?.AddOrReplaceItem(entity, x => x.Id == entity.Id);
 
@@ -125,7 +112,7 @@ public class GameController(
             return NotFoundWithErrors($"No game found with ID {id}");
         }
 
-        await TryUpdateFileWatchAsync(entity, cancellationToken);
+        await TryUpdateSyncTaskAsync(entity, cancellationToken);
 
         _apiCache.Games.Value?.AddOrReplaceItem(updatedEntity, x => x.Id == id);
 
@@ -144,52 +131,34 @@ public class GameController(
             return NotFoundWithErrors($"No game found with ID {id}");
         }
 
-        TryRemoveFileWatch(id);
+        TryRemoveSyncTask(id);
 
         _apiCache.Games.Value?.RemoveBy(x => x.Id == id);
 
         return NoContent();
     }
 
-    private async Task TryUpdateFileWatchAsync(GameEntity game, CancellationToken cancellationToken)
+    private async Task TryUpdateSyncTaskAsync(GameEntity game, CancellationToken cancellationToken)
     {
-
         try
         {
-            var syncSource = await _syncSourceManager.GetLocalAsync(cancellationToken);
-
-            if (syncSource == null)
-            {
-                Logger.LogWarning("No sync source configured - cannot update file watch for game {gameId}", game.Id);
-                return;
-            }
-
-
-            if (game.AutoSync)
-            {
-                _fileWatchService.ModifyOrRemoveWatcher(syncSource.Id, game);
-            }
-            else
-            {
-                TryRemoveFileWatch(game.Id);
-            }
-
+            _syncTasks.Update(game);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error while updating file watch for game {gameId}", game.Id);
+            Logger.LogError(ex, "Error while updating sync task for game {gameId}", game.Id);
         }
     }
 
-    private void TryRemoveFileWatch(string gameId)
+    private void TryRemoveSyncTask(string gameId)
     {
         try
         {
-            _fileWatchService.RemoveWatcher(gameId);
+            _syncTasks.Remove(gameId);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error while removing file watch for game {gameId}", gameId);
+            Logger.LogError(ex, "Error while removing sync task for game {gameId}", gameId);
         }
     }
 }
