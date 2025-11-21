@@ -81,6 +81,12 @@ public static class ZipHelper
         //stop false positives and ensure we keep the last write time on the local directory the same
         if (forceLastWriteTime.HasValue)
         {
+            foreach (var dir in Directory.GetDirectories(outputDirectory, "*", SearchOption.AllDirectories))
+            {
+                Directory.SetLastWriteTimeUtc(dir, forceLastWriteTime.Value);
+            }
+
+            // finally, set the output directory itself
             Directory.SetLastWriteTimeUtc(outputDirectory, forceLastWriteTime.Value);
         }
     }
