@@ -156,39 +156,40 @@ public class LudusaviManifestScanner(
             //handle wildcard directory segment - really for linux only to account for proton saves
             if (fileLocation.Contains(WildcardDirectory))
             {
-                foreach (var expanded in ExpandWildcardDirectories(fileLocation))
+                foreach (string expanded in ExpandWildcardDirectories(fileLocation))
                 {
-                    if (Directory.Exists(expanded))
-                    {
-                        fileLocationsThatExist.Add(expanded);
-                    }
-
+                    AddLocationIfExists(fileLocationsThatExist, expanded);
                 }
 
                 continue;
             }
 
-            //account for some of the file paths not conforming and expecting a *.sav file or similar - we just want a directory
-            FileInfo file = new FileInfo(fileLocation);
-
-            string fileName = Path.GetFileName(fileLocation); // gets only the last part
-            bool hasWildCardFileName = fileName.Contains("*.");
-
-            if (hasWildCardFileName && Path.Exists(file.DirectoryName))
-            {
-                string path = Path.GetDirectoryName(fileLocation)!;
-                fileLocationsThatExist.Add(CleanPathName(path));
-                continue;
-            }
-
-            //lastly, just check the directory provided
-            if (Directory.Exists(fileLocation))
-            {
-                fileLocationsThatExist.Add(fileLocation);
-            }
+            AddLocationIfExists(fileLocationsThatExist, fileLocation);
         }
 
         return fileLocationsThatExist;
+    }
+
+    private void AddLocationIfExists(List<string> fileLocationsThatExist, string fileLocation)
+    {
+        //account for some of the file paths not conforming and expecting a *.sav file or similar - we just want a directory
+        FileInfo file = new FileInfo(fileLocation);
+
+        string fileName = Path.GetFileName(fileLocation); // gets only the last part
+        bool hasWildCardFileName = fileName.Contains("*.");
+
+        if (hasWildCardFileName && Path.Exists(file.DirectoryName))
+        {
+            string path = Path.GetDirectoryName(fileLocation)!;
+            fileLocationsThatExist.Add(CleanPathName(path));
+            return ;
+        }
+
+        //lastly, just check the directory provided
+        if (Directory.Exists(fileLocation))
+        {
+            fileLocationsThatExist.Add(fileLocation);
+        }
     }
 
     private IEnumerable<string> ExpandWildcardDirectories(string patternPath)
