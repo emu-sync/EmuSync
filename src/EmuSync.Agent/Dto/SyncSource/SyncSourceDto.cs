@@ -15,4 +15,7 @@ public record SyncSourceDto
 
     [JsonPropertyName("platformId")]
     public int PlatformId { get; set; }
+
+    [JsonPropertyName("autoSyncFrequencyMins")]
+    public int? AutoSyncFrequencyMins { get; set; }
 }

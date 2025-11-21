@@ -17,4 +17,6 @@ public class SyncSourceEntity
     public StorageProvider? StorageProvider { get; set; }
 
     public OsPlatform OsPlatform { get; set; }
+
+    public TimeSpan? AutoSyncFrequency { get; set; }
 }

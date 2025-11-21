@@ -1,3 +1,4 @@
+using EmuSync.Agent.Background;
 using EmuSync.Agent.Dto.Game;
 using EmuSync.Domain.Enums;
 using EmuSync.Services.Managers.Interfaces;
@@ -35,6 +36,22 @@ public class SyncSourceController(
         return Ok(response);
     }
 
+    [HttpGet("NextAutoSyncTime")]
+    public async Task<IActionResult> GetNextAutoSyncTime(CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+        var nextRunTime = GameSyncWorker.NextRunTime;
+
+        var diff = nextRunTime - now;
+
+        NextAutoSyncTimeDto response = new()
+        {
+            SecondsLeft = diff.TotalSeconds,
+        };
+
+        return Ok(response);
+    }
+
     [HttpGet("Local")]
     public async Task<IActionResult> GetLocal(CancellationToken cancellationToken = default)
     {
@@ -59,7 +76,12 @@ public class SyncSourceController(
         if (bodyErrors.Count > 0) return BadRequestWithErrors(bodyErrors.ToArray());
 
         SyncSourceEntity entity = requestBody.ToEntity();
-        await _manager.UpdateLocalAsync(entity, cancellationToken);
+        bool autoSyncFrequencyChanged = await _manager.UpdateLocalAsync(entity, cancellationToken);
+
+        if (autoSyncFrequencyChanged)
+        {
+            GameSyncWorker.ResetNextRunTime();
+        }
 
         _apiCache.SyncSources.Clear();
 

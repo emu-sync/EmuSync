@@ -60,18 +60,23 @@ public class SyncSourceManager(
         return syncSource;
     }
 
-    public async Task UpdateLocalAsync(SyncSourceEntity entity, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateLocalAsync(SyncSourceEntity entity, CancellationToken cancellationToken = default)
     {
         SyncSourceEntity? foundEntity = await GetLocalAsync(cancellationToken);
 
-        if (foundEntity == null) return;
+        if (foundEntity == null) return false;
+
+        bool autoSyncFrequencyChanged = foundEntity.AutoSyncFrequency != entity.AutoSyncFrequency;
 
         foundEntity.Name = entity.Name;
+        foundEntity.AutoSyncFrequency = entity.AutoSyncFrequency;
 
         string filePath = GetLocalSyncSourceFilePath();
         await LocalDataAccessor.WriteFileContentsAsync(filePath, foundEntity, cancellationToken);
 
         await WriteToExternalList(foundEntity, ListOperation.Upsert, cancellationToken);
+
+        return autoSyncFrequencyChanged;
     }
 
     public async Task SetLocalStorageProviderAsync(StorageProvider storageProvider, CancellationToken cancellationToken = default)

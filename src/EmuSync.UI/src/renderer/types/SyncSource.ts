@@ -5,6 +5,7 @@ export interface SyncSource {
     name: string;
     storageProviderId?: number | null;
     platformId: OsPlatform;
+    autoSyncFrequencyMins: number | null;
 }
 
 export interface SyncSourceSummary {
@@ -16,8 +17,13 @@ export interface SyncSourceSummary {
 
 export interface UpdateSyncSource {
     name: string;
+    autoSyncFrequencyMins: number | null;
 }
 
 export interface SetStorageProvider {
     storageProviderId: number;
+}
+
+export interface NextAutoSyncTime {
+  secondsLeft: number;
 }
