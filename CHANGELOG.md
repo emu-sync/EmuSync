@@ -22,3 +22,7 @@ Rhys
 
 ## Fixes
 - Fixed an issue where downloading a game save could incorrectly prompt an unnecessary re-upload.
+
+## Upcoming features
+- Support for OneDrive (hopefully).
+- Suggestions for game saves already on your device, making it easier and less manual to set up games.
