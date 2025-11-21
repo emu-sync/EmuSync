@@ -66,7 +66,7 @@ export default function SyncSourceForm() {
     const isSubmitting = updateMutation.isPending;
 
     const autoSyncFrequencyMins = useWatch({ control, name: "autoSyncFrequencyMins" });
-    const autoSyncFrequencyMinsHasChanged = autoSyncFrequencyMins !== query.data?.autoSyncFrequencyMins;
+    const autoSyncFrequencyMinsHasChanged = autoSyncFrequencyMins != query.data?.autoSyncFrequencyMins;
 
     return <form onSubmit={handleSubmit(handleFormSubmit)}>
 
