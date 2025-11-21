@@ -19,6 +19,9 @@ public class LudusaviManifestScanner(
     private readonly ILocalDataAccessor _localDataAccessor = localDataAccessor;
     private int _completedCount = 0;
     private int _totalCount = 0;
+    private static bool _isWindows = PlatformHelper.GetOsPlatform() == Domain.Enums.OsPlatform.Windows;
+
+    private const string WildcardDirectory = "*{WILD_CARD}*";
 
     private static readonly List<string> _invalidPaths = [
         "C:",
@@ -107,44 +110,13 @@ public class LudusaviManifestScanner(
 
     private bool ScanLocalSystemAsync(string gameName, GameDefinition game, out List<string>? suggestedPaths)
     {
-
-        var pathMap = LudusaviPathMap.Build(
-            "UNKNOWN",
-            game.InstallDir?.FirstOrDefault().Key ?? gameName,
-            null,
-            null
-        );
-
-        List<string> fileLocations = game.Files?
-            .Where(x => x.Value.Tags?.Contains(Tag.save) ?? false)
-            .Select(x => ReplacePathVariables(x.Key, pathMap)).ToList() ?? [];
-
-        List<string> fileLocationsThatExist = [];
-
-        foreach (string fileLocation in fileLocations)
-        {
-            FileInfo file = new FileInfo(fileLocation);
-            string fileName = Path.GetFileName(fileLocation); // gets only the last part
-            bool hasWildCardName = fileName.Contains("*.");
-
-            if (hasWildCardName && Path.Exists(file.DirectoryName))
-            {
-                string path = Path.GetDirectoryName(fileLocation)!;
-                fileLocationsThatExist.Add(CleanPathName(path));
-                continue;
-            }
-
-            if (Directory.Exists(fileLocation))
-            {
-                fileLocationsThatExist.Add(fileLocation);
-            }
-        }
+        List<string> fileLocations = GetFileLocations(gameName, game, out var pathMap);
+        List<string> fileLocationsThatExist = SearchForFoundDirectories(fileLocations);
 
         fileLocationsThatExist = fileLocationsThatExist.Distinct().ToList();
 
         if (fileLocationsThatExist.Count > 0)
         {
-
             string? bestPath = GetMostCommonFolder(fileLocationsThatExist, pathMap);
 
             //if we have a best path, just use that on its own
@@ -171,6 +143,83 @@ public class LudusaviManifestScanner(
 
         suggestedPaths = null;
         return false;
+    }
+
+    private List<string> SearchForFoundDirectories(List<string> fileLocations)
+    {
+        List<string> fileLocationsThatExist = [];
+
+        foreach (string fileLocation in fileLocations)
+        {
+            //handle wildcard directory segment - really for linux only to account for proton saves
+            if (fileLocation.Contains(WildcardDirectory))
+            {
+                foreach (var expanded in ExpandWildcardDirectories(fileLocation))
+                {
+                    if (Directory.Exists(expanded))
+                    {
+                        fileLocationsThatExist.Add(expanded);
+                    }
+
+                }
+
+                continue;
+            }
+
+            //account for some of the file paths not conforming and expecting a *.sav file or similar - we just want a directory
+            FileInfo file = new FileInfo(fileLocation);
+
+            string fileName = Path.GetFileName(fileLocation); // gets only the last part
+            bool hasWildCardFileName = fileName.Contains("*.");
+
+            if (hasWildCardFileName && Path.Exists(file.DirectoryName))
+            {
+                string path = Path.GetDirectoryName(fileLocation)!;
+                fileLocationsThatExist.Add(CleanPathName(path));
+                continue;
+            }
+
+            //lastly, just check the directory provided
+            if (Directory.Exists(fileLocation))
+            {
+                fileLocationsThatExist.Add(fileLocation);
+            }
+        }
+
+        return fileLocationsThatExist;
+    }
+
+    private IEnumerable<string> ExpandWildcardDirectories(string patternPath)
+    {
+        var parts = patternPath.Split(Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
+        var current = "/";
+
+        for (int i = 0; i < parts.Length; i++)
+        {
+            var part = parts[i];
+
+            if (part == WildcardDirectory)
+            {
+                if (Directory.Exists(current))
+                {
+                    var dirs = Directory.GetDirectories(current);
+
+                    foreach (var dir in dirs)
+                    {
+                        string rebuilt = Path.Combine(dir, Path.Combine(parts.Skip(i + 1).ToArray()));
+
+                        yield return rebuilt;
+                    }
+                }
+
+                yield break;
+            }
+
+            current = Path.Combine(current, part);
+        }
+
+        // no wildcard → just return the path
+        if (Directory.Exists(current)) yield return current;
     }
 
     private static readonly Regex PathVariable = new(@"<([a-zA-Z0-9]+)>", RegexOptions.Compiled);
@@ -212,6 +261,23 @@ public class LudusaviManifestScanner(
         return CleanPathName(finalPath);
     }
 
+    private List<string> GetFileLocations(string gameName, GameDefinition game, out Dictionary<string, string?> pathMap)
+    {
+        string linuxFormat = string.Format("{0}/.local/share/Steam/steamapps/compatdata/{1}/pfx/drive_c", Environment.SpecialFolder.UserProfile, WildcardDirectory);
+
+        var map = LudusaviPathMap.Build(
+            _isWindows,
+            game.InstallDir?.FirstOrDefault().Key ?? gameName,
+            linuxFormat
+        );
+
+        pathMap = map;
+
+        return game.Files?
+            .Where(x => x.Value.Tags?.Contains(Tag.save) ?? false)
+            .Select(x => ReplacePathVariables(x.Key, map)).ToList() ?? [];
+    }
+
     private string ReplacePathVariables(string input, Dictionary<string, string?> map)
     {
         string splitInput = input.Split("/<storeUserId>").First();
@@ -232,9 +298,7 @@ public class LudusaviManifestScanner(
 
     private string CleanPathName(string path)
     {
-        bool isWindows = PlatformHelper.GetOsPlatform() == Domain.Enums.OsPlatform.Windows;
-
-        if (isWindows)
+        if (_isWindows)
         {
             return path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
         }
