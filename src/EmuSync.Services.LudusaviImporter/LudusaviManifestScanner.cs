@@ -18,8 +18,7 @@ public class LudusaviManifestScanner(
     private readonly ILocalDataAccessor _localDataAccessor = localDataAccessor;
     private int _completedCount = 0;
     private int _totalCount = 0;
-    //private static bool _isWindows = PlatformHelper.GetOsPlatform() == Domain.Enums.OsPlatform.Windows;
-    private static bool _isWindows = false;
+    private static bool _isWindows = PlatformHelper.GetOsPlatform() == Domain.Enums.OsPlatform.Windows;
 
     private static readonly List<string> _invalidPaths = [
         "C:",
@@ -115,13 +114,6 @@ public class LudusaviManifestScanner(
         {
             List<string> fileLocations = GetFileLocations(game, out var pathMap);
             List<string> fileLocationsThatExist = SearchForFoundDirectories(fileLocations);
-
-
-            if (gameName == "Animal Well")
-            {
-                _logger.LogInformation("PATH {@path}", fileLocations);
-                _logger.LogInformation("EXISTING PATHS {@path}", fileLocationsThatExist);
-            }
 
             List<string> allInvalidFinalPaths = new(_invalidPaths);
             allInvalidFinalPaths.AddRange(pathMap.Values.Where(x => !string.IsNullOrEmpty(x)).Select(x => x)!);
@@ -365,8 +357,6 @@ public class LudusaviManifestScanner(
 
     private int DetermineMaxConcurrency()
     {
-        return 1;
-
         //base on logical processors (CPU cores)
         int cores = Environment.ProcessorCount;
 
