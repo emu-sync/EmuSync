@@ -20,8 +20,6 @@ public class LudusaviManifestScanner(
     private int _totalCount = 0;
     private static bool _isWindows = PlatformHelper.GetOsPlatform() == Domain.Enums.OsPlatform.Windows;
 
-    private const string WildcardDirectory = "*{WILD_CARD}*";
-
     private static readonly List<string> _invalidPaths = [
         "C:",
         "C:\\",
@@ -111,42 +109,51 @@ public class LudusaviManifestScanner(
 
     private bool ScanLocalSystemAsync(string gameName, GameDefinition game, out List<string>? suggestedPaths)
     {
-        List<string> fileLocations = GetFileLocations(gameName, game, out var pathMap);
-        List<string> fileLocationsThatExist = SearchForFoundDirectories(fileLocations);
-
-        List<string> allInvalidFinalPaths = new(_invalidPaths);
-        allInvalidFinalPaths.AddRange(pathMap.Values.Where(x => !string.IsNullOrEmpty(x)).Select(x => x)!);
-
-        fileLocationsThatExist = fileLocationsThatExist.Distinct().ToList();
-
-        if (fileLocationsThatExist.Count > 0)
+        try
         {
-            string? bestPath = GetMostCommonFolder(fileLocationsThatExist, pathMap);
+            List<string> fileLocations = GetFileLocations(game, out var pathMap);
+            List<string> fileLocationsThatExist = SearchForFoundDirectories(fileLocations);
 
-            //if we have a best path, just use that on its own
-            if (!string.IsNullOrEmpty(bestPath))
+            List<string> allInvalidFinalPaths = new(_invalidPaths);
+            allInvalidFinalPaths.AddRange(pathMap.Values.Where(x => !string.IsNullOrEmpty(x)).Select(x => x)!);
+
+            fileLocationsThatExist = fileLocationsThatExist.Distinct().ToList();
+
+            if (fileLocationsThatExist.Count > 0)
             {
-                //bit of hack to prevent The Incredible Machine 3 - lol
-                if (allInvalidFinalPaths.Contains(bestPath))
+                string? bestPath = GetMostCommonFolder(fileLocationsThatExist, pathMap);
+
+                //if we have a best path, just use that on its own
+                if (!string.IsNullOrEmpty(bestPath))
                 {
-                    suggestedPaths = null;
-                    return false;
+                    //bit of hack to prevent The Incredible Machine 3 - lol
+                    if (allInvalidFinalPaths.Contains(bestPath))
+                    {
+                        suggestedPaths = null;
+                        return false;
+                    }
+
+                    suggestedPaths = [bestPath];
+                }
+                else
+                {
+                    //otherwise give them all paths to choose from
+                    suggestedPaths = fileLocationsThatExist;
                 }
 
-                suggestedPaths = [bestPath];
-            }
-            else
-            {
-                //otherwise give them all paths to choose from
-                suggestedPaths = fileLocationsThatExist;
+                _logger.LogInformation("Found game {gameName}. All paths were {@allPaths} Suggested paths are {@suggestedPaths}", gameName, fileLocationsThatExist, suggestedPaths);
+                return true;
             }
 
-            _logger.LogInformation("Found game {gameName}. All paths were {@allPaths} Suggested paths are {@suggestedPaths}", gameName, fileLocationsThatExist, suggestedPaths);
-            return true;
+            suggestedPaths = null;
+            return false;
         }
-
-        suggestedPaths = null;
-        return false;
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error caught scanning for game {gameName}", gameName);
+            suggestedPaths = null;
+            return false;
+        }
     }
 
     private List<string> SearchForFoundDirectories(List<string> fileLocations)
@@ -155,8 +162,8 @@ public class LudusaviManifestScanner(
 
         foreach (string fileLocation in fileLocations)
         {
-            //handle wildcard directory segment - really for linux only to account for proton saves
-            if (fileLocation.Contains(WildcardDirectory))
+            //handle wildcard directory segment - useful for linux and anything with a game ID or user Id
+            if (fileLocation.Contains(LudusaviPathMap.WildcardDirectory))
             {
                 foreach (string expanded in ExpandWildcardDirectories(fileLocation))
                 {
@@ -219,7 +226,7 @@ public class LudusaviManifestScanner(
 
         var part = parts[index];
 
-        if (part == WildcardDirectory)
+        if (part == LudusaviPathMap.WildcardDirectory)
         {
             if (Directory.Exists(current))
             {
@@ -280,27 +287,45 @@ public class LudusaviManifestScanner(
         return CleanPathName(finalPath);
     }
 
-    private List<string> GetFileLocations(string gameName, GameDefinition game, out Dictionary<string, string?> pathMap)
+    private List<string> GetFileLocations(GameDefinition game, out Dictionary<string, string?> pathMap)
     {
-        string linuxFormat = string.Format("{0}/.local/share/Steam/steamapps/compatdata/{1}/pfx/drive_c", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), WildcardDirectory);
+        string linuxFormat = string.Format(
+            "{0}/.local/share/Steam/steamapps/compatdata/{1}/pfx/drive_c",
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            LudusaviPathMap.WildcardDirectory
+        );
 
         var map = LudusaviPathMap.Build(
             _isWindows,
-            game.InstallDir?.FirstOrDefault().Key ?? gameName,
+            game,
             linuxFormat
         );
 
         pathMap = map;
 
-        return game.Files?
+
+        List<string> fileLocations = game.Files?
             .Where(x => x.Value.Tags?.Contains(Tag.save) ?? false)
-            .Select(x => ReplacePathVariables(x.Key, map)).ToList() ?? [];
+            .Where(x =>
+            {
+                var path = x.Key.Replace("\\", "/");
+                return !Regex.IsMatch(path, @"^<base>/[^/]+$");
+            })
+            .Select(x => x.Key)
+            .ToList() ?? [];
+
+        fileLocations.AddRange(
+            LudusaviPathMap.GetOtherKnownLocations()
+        );
+
+        return fileLocations
+            .Select(x => ReplacePathVariables(x, map))
+            .ToList();
     }
 
     private string ReplacePathVariables(string input, Dictionary<string, string?> map)
     {
-        input = input.Replace("<storeUserId>", WildcardDirectory);
-        input = input.Replace("<storeGameId>", WildcardDirectory);
+        input = input.Replace("<home>/AppData/LocalLow", map["winLocalAppDataLow"]); //explicitly replace local low - the variable isn't in the manifest
 
         return PathVariable.Replace(input, match =>
         {
