@@ -309,7 +309,11 @@ public class LudusaviManifestScanner(
             .Where(x =>
             {
                 var path = x.Key.Replace("\\", "/");
-                return !Regex.IsMatch(path, @"^<base>/[^/]+$");
+
+                // Ignore: <base>/END OF PATH
+                // Ignore: <base>/users/END OF PATH
+                return !Regex.IsMatch(path, @"^<base>/[^/]+$") &&
+                       !Regex.IsMatch(path, @"^<base>/users/[^/]+$");
             })
             .Select(x => x.Key)
             .ToList() ?? [];
