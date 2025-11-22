@@ -37,7 +37,7 @@ Rhys
     - Picking a game suggestion will automatically populate the sync location for the device you're on.
     - This isn't perfect, so some games may not appear in your suggestions, and emulated gave saves aren't supported for suggestions at the moment.
 - Added the ability to manually trigger a rescan of your device to search for game saves.
+- Added support for OneDrive as a storage provider.
 
 ## Upcoming features
-- Support for OneDrive (hopefully).
-   - I'm still having issues with even setting up an account for this
+- I'm thinking of adding a device specific sync log/history so you can review when saves were uploaded from/downloaded to the device

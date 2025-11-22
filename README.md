@@ -33,6 +33,7 @@ Confirmed working devices (but not limited to):
 - Use your own cloud storage provider.
     - Google Drive
     - Dropbox
+    - OneDrive
 - Define and manage your game save locations.
 - Automatically detect game saves, making the configuration of your game syncs a breeze.
 - Automatically and manually sync game saves.
