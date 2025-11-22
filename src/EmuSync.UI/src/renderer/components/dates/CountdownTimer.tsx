@@ -33,8 +33,6 @@ export default function CountdownTimer({
 
         if (timeLeft > 0) return;
 
-        console.log("ZERO HIT");
-
         const interval = setInterval(() => {
             reset();
         }, 1000);

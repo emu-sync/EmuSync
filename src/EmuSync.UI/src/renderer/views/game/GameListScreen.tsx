@@ -1,6 +1,6 @@
 import { cacheKeys } from "@/renderer/api/cache-keys";
 import { deleteGame, getGameList } from "@/renderer/api/game-api";
-import AgentStatusHarness from "@/renderer/components/AgentStatusHarness";
+import AgentStatusHarness from "@/renderer/components/harnesses/AgentStatusHarness";
 import InfoAlert from "@/renderer/components/alerts/InfoAlert";
 import WarningAlert from "@/renderer/components/alerts/WarningAlert";
 import ListViewDataGrid from "@/renderer/components/datagrid/ListViewDataGrid";
@@ -20,7 +20,7 @@ import { Link } from "react-router-dom";
 import { GameSyncStatusChip } from "@/renderer/components/chips/GameSyncStatusChip";
 import { gameSyncStatusOptions } from "@/renderer/types/enums";
 import { allSyncSourcesAtom } from "@/renderer/state/all-sync-sources";
-import DisplayDate from "@/renderer/components/DisplayDate";
+import DisplayDate from "@/renderer/components/dates/DisplayDate";
 import { size } from "lodash";
 
 

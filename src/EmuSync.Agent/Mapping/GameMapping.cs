@@ -1,4 +1,5 @@
 ﻿using EmuSync.Agent.Dto.Game;
+using EmuSync.Services.LudusaviImporter;
 
 namespace EmuSync.Agent.Mapping;
 
@@ -20,6 +21,20 @@ public static class GameMapping
             LastSyncedFrom = entity.LastSyncedFrom,
             LastSyncTimeUtc = entity.LastSyncTimeUtc,
             StorageBytes = entity.StorageBytes,
+        };
+    }
+
+    /// <summary>
+    /// Maps a <see cref="FoundGame"/> to a <see cref="GameSuggestionDto"/>
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    public static GameSuggestionDto ToDto(this FoundGame game)
+    {
+        return new()
+        {
+            Name = game.Name,
+            SuggestedFolderPaths = game.SuggestedFolderPaths
         };
     }
 

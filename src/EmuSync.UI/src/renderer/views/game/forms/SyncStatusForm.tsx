@@ -2,7 +2,7 @@ import { cacheKeys } from "@/renderer/api/cache-keys";
 import { forceDownloadGame, forceUploadGame, getGameSyncStatus, syncGame } from "@/renderer/api/game-sync-api";
 import ErrorAlert from "@/renderer/components/alerts/ErrorAlert";
 import ButtonRow from "@/renderer/components/buttons/ButtonRow";
-import LoadingHarness from "@/renderer/components/LoadingHarness";
+import LoadingHarness from "@/renderer/components/harnesses/LoadingHarness";
 import SectionTitle from "@/renderer/components/SectionTitle";
 import AlertSkeleton from "@/renderer/components/skeleton/AlertSkeleton";
 import ButtonSkeleton from "@/renderer/components/skeleton/ButtonSkeleton";

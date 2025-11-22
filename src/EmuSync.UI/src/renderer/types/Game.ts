@@ -9,6 +9,11 @@ export interface GameSummary {
     syncStatusId: GameSyncStatus;
 }
 
+export interface GameSuggestion {
+    name: string;
+    suggestedFolderPaths: string[];
+}
+
 export interface Game {
     id: string;
     name: string;

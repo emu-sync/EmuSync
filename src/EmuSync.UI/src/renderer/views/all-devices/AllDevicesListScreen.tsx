@@ -1,6 +1,6 @@
 import { cacheKeys } from "@/renderer/api/cache-keys";
 import { deleteSyncSource, getSyncSourceList } from "@/renderer/api/sync-source-api";
-import AgentStatusHarness from "@/renderer/components/AgentStatusHarness";
+import AgentStatusHarness from "@/renderer/components/harnesses/AgentStatusHarness";
 import WarningAlert from "@/renderer/components/alerts/WarningAlert";
 import Container from "@/renderer/components/Container";
 import SectionTitle from "@/renderer/components/SectionTitle";

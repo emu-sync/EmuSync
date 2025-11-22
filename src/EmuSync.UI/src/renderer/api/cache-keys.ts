@@ -10,11 +10,13 @@ export const cacheKeys = {
         return buildCacheKey("gameSyncStatus", id);
     },
     gameList: "gameList",
+    gameSuggestionList: "gameSuggestionList",
     healthCheck: "healthCheck",
     latestRelease: "latestRelease",
     agentSystemInfo: "agentSystemInfo",
     changeLog: "changeLog",
     nextAutoSyncTime: "nextAutoSyncTime",
+    gameScanDetails: "gameScanDetails",
 }
 
 export function buildCacheKey(key: string, additionalPart: string) {

@@ -3,6 +3,7 @@ import { StorageProvider } from "@/renderer/types/enums";
 
 
 import dropboxLogo from "@assets/images/dropbox-logo.png";
+import oneDriveLogo from "@assets/images/onedrive-logo.png";
 import googleDriveLogo from "@assets/images/google-drive-icon.webp";
 
 export const storageProviderMap = {
@@ -14,6 +15,11 @@ export const storageProviderMap = {
     [StorageProvider.Dropbox]: {
         name: "Dropbox",
         image: dropboxLogo
+    },
+
+    [StorageProvider.OneDrive]: {
+        name: "OneDrive",
+        image: oneDriveLogo
     },
 }
 

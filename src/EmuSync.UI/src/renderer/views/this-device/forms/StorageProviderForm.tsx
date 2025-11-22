@@ -4,7 +4,7 @@ import VerticalStack from "@/renderer/components/stacks/VerticalStack";
 import { CircularProgress, Typography } from "@mui/material";
 import { useCallback } from "react";
 
-import LoadingHarness from "@/renderer/components/LoadingHarness";
+import LoadingHarness from "@/renderer/components/harnesses/LoadingHarness";
 import SectionTitle from "@/renderer/components/SectionTitle";
 import HorizontalStack from "@/renderer/components/stacks/HorizontalStack";
 import DisplayExistingStorageProvider from "@/renderer/views/this-device/components/DisplayExistingStorageProviderSelector";

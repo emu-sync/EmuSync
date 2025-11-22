@@ -1,4 +1,5 @@
 ﻿using Dropbox.Api.Users;
+using EmuSync.Domain;
 using EmuSync.Domain.Extensions;
 using EmuSync.Domain.Helpers;
 using EmuSync.Services.Managers.Abstracts;

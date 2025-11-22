@@ -115,12 +115,12 @@ public class GameSyncManager(
         {
             if (scanResult.DirectoryExists)
             {
-                Logger.LogInformation("No cloud sync exists - game should be uploaded");
+                Logger.LogDebug("No cloud sync exists - game should be uploaded");
 
                 return GameSyncStatus.RequiresUpload;
             }
 
-            Logger.LogInformation("No local files or directories found to upload");
+            Logger.LogDebug("No local files or directories found to upload");
 
             //nothing local to upload
             return GameSyncStatus.Unknown;
@@ -128,7 +128,7 @@ public class GameSyncManager(
 
         if (!scanResult.DirectoryIsSet)
         {
-            Logger.LogInformation("No local directory is set - unknown sync status");
+            Logger.LogDebug("No local directory is set - unknown sync status");
 
             return GameSyncStatus.UnsetDirectory;
         }
@@ -136,7 +136,7 @@ public class GameSyncManager(
         //cloud record exists but local directory missing = need to download
         if (!scanResult.DirectoryExists && !scanResult.LatestDirectoryWriteTimeUtc.HasValue && game.LastSyncTimeUtc.HasValue)
         {
-            Logger.LogInformation("No local directory found - game should be downloaded");
+            Logger.LogDebug("No local directory found - game should be downloaded");
 
             return GameSyncStatus.RequiresDownload;
         }
@@ -147,18 +147,18 @@ public class GameSyncManager(
         //if local is newer than last sync = upload
         if (scanResultLatestWriteTime > gameLatestWriteTime)
         {
-            Logger.LogInformation("Local version is newer - game should be uploaded");
+            Logger.LogDebug("Local version is newer - game should be uploaded");
 
             return GameSyncStatus.RequiresUpload;
         }
         else if (scanResultLatestWriteTime < gameLatestWriteTime)
         {
-            Logger.LogInformation("Cloud version is newer - game should be downloaded");
+            Logger.LogDebug("Cloud version is newer - game should be downloaded");
 
             return GameSyncStatus.RequiresDownload;
         }
 
-        Logger.LogInformation("Local version is in sync with cloud version");
+        Logger.LogDebug("Local version is in sync with cloud version");
         return GameSyncStatus.InSync;
     }
 

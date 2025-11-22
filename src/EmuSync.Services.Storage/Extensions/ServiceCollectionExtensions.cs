@@ -1,6 +1,7 @@
 ﻿using EmuSync.Services.Storage.Dropbox;
 using EmuSync.Services.Storage.GoogleDrive;
 using EmuSync.Services.Storage.Interfaces;
+using EmuSync.Services.Storage.OneDrive;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,6 +20,7 @@ public static class ServiceCollectionExtensions
 
         services.AddGoogleDriveStorageProvider(config);
         services.AddDropboxStorageProvider(config);
+        services.AddOneDriveStorageProvider(config);
     }
 
     /// <summary>
@@ -39,7 +41,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registers the services and confir for <see cref="GoogleDriveStorageProvider"/>
+    /// Registers the services and config for <see cref="DropboxStorageProvider"/>
     /// </summary>
     /// <param name="services"></param>
     /// <param name="config"></param>
@@ -51,5 +53,20 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<DropboxStorageProvider>();
         services.AddSingleton<DropboxAuthHandler>();
+    }
+
+    /// <summary>
+    /// Registers the services and config for <see cref="OneDriveStorageProvider"/>
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="config"></param>
+    public static void AddOneDriveStorageProvider(this IServiceCollection services, IConfiguration config)
+    {
+        services.Configure<OneDriveStorageProviderConfig>(
+            config.GetSection(OneDriveStorageProviderConfig.Section)
+        );
+
+        services.AddScoped<OneDriveStorageProvider>();
+        services.AddSingleton<MicrosoftAuthHandler>();
     }
 }

@@ -7,3 +7,7 @@ export interface DropboxAuthUrlResponse {
 export interface GoogleAuthUrlResponse {
     url: string;
 }
+
+export interface MicrosoftAuthUrlResponse {
+    url: string;
+}

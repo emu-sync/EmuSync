@@ -1,6 +1,6 @@
 import ButtonRow from "@/renderer/components/buttons/ButtonRow";
 import PickDirectoryButton from "@/renderer/components/buttons/PickDirectoryButton";
-import LoadingHarness from "@/renderer/components/LoadingHarness";
+import LoadingHarness from "@/renderer/components/harnesses/LoadingHarness";
 import SectionTitle from "@/renderer/components/SectionTitle";
 import HorizontalStack from "@/renderer/components/stacks/HorizontalStack";
 import VerticalStack from "@/renderer/components/stacks/VerticalStack";
@@ -8,9 +8,9 @@ import useEditForm from "@/renderer/hooks/use-edit-form";
 import { routes } from "@/renderer/routes";
 import { allSyncSourcesAtom } from "@/renderer/state/all-sync-sources";
 import { localSyncSourceAtom } from "@/renderer/state/local-sync-source";
-import { BaseFormProps as BaseEditFormProps, CreateGame, Game, GameSummary, UpdateGame } from "@/renderer/types";
+import { BaseFormProps as BaseEditFormProps, CreateGame, Game, GameSuggestion, GameSummary, UpdateGame } from "@/renderer/types";
 import { defaultCreateGame, defaultUpdateGame, transformCreateGame, transformUpdateGame } from "@/renderer/views/game/utils/game-utils";
-import { Button, Paper, Typography } from "@mui/material";
+import { Button, Divider, Paper, Typography } from "@mui/material";
 import { UseQueryResult } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { useCallback } from "react";
@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import WarningAlert from "@/renderer/components/alerts/WarningAlert";
 import DefaultCheckbox from "@/renderer/components/inputs/DefaultCheckbox";
 import DefaultTextField from "@/renderer/components/inputs/DefaultTextField";
+import GameSuggestionAutocomplete from "@/renderer/components/inputs/GameSuggestionAutocomplete";
 import CheckboxSkeleton from "@/renderer/components/skeleton/CheckboxSkeleton";
 import SaveButtonSkeleton from "@/renderer/components/skeleton/SaveButtonSkeleton";
 import TextFieldSkeleton from "@/renderer/components/skeleton/TextFieldSkeleton";
@@ -51,7 +52,7 @@ export default function GameForm({
     const [allSyncSources] = useAtom(allSyncSourcesAtom);
 
     const {
-        handleSubmit, control, formState, reset
+        handleSubmit, control, formState, reset, setValue
     } = useEditForm({
         query,
         defaultValues: isEdit ? defaultUpdateGame : defaultCreateGame,
@@ -89,6 +90,17 @@ export default function GameForm({
 
     }, [saveMutation, isEdit]);
 
+    const handleGameSuggestionSelect = useCallback((game: GameSuggestion, filePath: string) => {
+
+        //update the name on new games, but if someone is editing, let them keep the name they've set
+        if (!isEdit) {
+            setValue("name", game.name, { shouldDirty: true });
+        }
+
+        setValue(`syncSourceIdLocations.${localSyncSource.id}`, filePath, { shouldDirty: true });
+
+    }, [setValue, isEdit, localSyncSource]);
+
     return <VerticalStack>
 
         <SectionTitle
@@ -107,6 +119,12 @@ export default function GameForm({
             <form onSubmit={handleSubmit(handleFormSubmit)}>
 
                 <VerticalStack>
+
+                    <GameSuggestionAutocomplete
+                        onSelect={handleGameSuggestionSelect}
+                    />
+
+                    <Divider />
 
                     <Controller
                         name="name"
@@ -186,6 +204,7 @@ export default function GameForm({
                                                 isThisDevice &&
                                                 <PickDirectoryButton
                                                     disabled={isSubmitting}
+                                                    defaultPath={field.value}
                                                     onPickDirectory={(directory) => field.onChange(directory)}
                                                 />
                                             }
@@ -220,6 +239,8 @@ function LoadingState() {
     const [allSyncSources] = useAtom(allSyncSourcesAtom);
 
     return <VerticalStack>
+        <TextFieldSkeleton />
+        <Divider />
         <TextFieldSkeleton />
         <CheckboxSkeleton
             width={204}

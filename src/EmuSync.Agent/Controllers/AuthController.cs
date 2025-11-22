@@ -3,6 +3,7 @@ using EmuSync.Domain.Enums;
 using EmuSync.Services.Managers.Interfaces;
 using EmuSync.Services.Storage.Dropbox;
 using EmuSync.Services.Storage.GoogleDrive;
+using EmuSync.Services.Storage.OneDrive;
 
 namespace EmuSync.Agent.Controllers;
 
@@ -11,11 +12,13 @@ namespace EmuSync.Agent.Controllers;
 public class AuthController(
     DropboxAuthHandler dropboxAuthHandler,
     GoogleAuthHandler googleAuthHandler,
+    MicrosoftAuthHandler microsoftAuthHandler,
     ISyncSourceManager syncSourceManager
 ) : ControllerBase
 {
     private readonly DropboxAuthHandler _dropboxAuthHandler = dropboxAuthHandler;
     private readonly GoogleAuthHandler _googleAuthHandler = googleAuthHandler;
+    private readonly MicrosoftAuthHandler _microsoftAuthHandler = microsoftAuthHandler;
     private readonly ISyncSourceManager _syncSourceManager = syncSourceManager;
 
     [HttpGet("Dropbox/AuthUrl")]
@@ -63,6 +66,30 @@ public class AuthController(
         await _googleAuthHandler.SaveCodeAsync(code, cancellationToken);
 
         StorageProvider storageProvider = StorageProvider.GoogleDrive;
+        await _syncSourceManager.SetLocalStorageProviderAsync(storageProvider, cancellationToken);
+
+        return SuccessfulAuth();
+    }
+
+    [HttpGet("Microsoft/AuthUrl")]
+    public IActionResult GetMicrosoftAuthUrl()
+    {
+        string url = _microsoftAuthHandler.GetAuthUrl();
+
+        MicrosoftAuthUrlResponseDto response = new()
+        {
+            Url = url,
+        };
+
+        return Ok(response);
+    }
+
+    [HttpGet("Microsoft/AuthFinish")]
+    public async Task<IActionResult> MicrosoftAuthFinish([FromQuery] string code, CancellationToken cancellationToken)
+    {
+        await _microsoftAuthHandler.SaveCodeAsync(code, cancellationToken);
+
+        StorageProvider storageProvider = StorageProvider.OneDrive;
         await _syncSourceManager.SetLocalStorageProviderAsync(storageProvider, cancellationToken);
 
         return SuccessfulAuth();

@@ -1,5 +1,5 @@
 import InfoAlert from "@/renderer/components/alerts/InfoAlert";
-import LoadingHarness from "@/renderer/components/LoadingHarness";
+import LoadingHarness from "@/renderer/components/harnesses/LoadingHarness";
 import DeleteModal, { DeleteItemDetails } from "@/renderer/components/modals/DeleteModal";
 import HorizontalStack from "@/renderer/components/stacks/HorizontalStack";
 import { SyncSourceSummary } from "@/renderer/types";
