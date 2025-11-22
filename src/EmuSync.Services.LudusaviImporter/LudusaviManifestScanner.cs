@@ -122,13 +122,15 @@ public class LudusaviManifestScanner(
 
             if (fileLocationsThatExist.Count > 0)
             {
-                string? bestPath = GetMostCommonFolder(fileLocationsThatExist, pathMap);
+                var absolutePaths = fileLocationsThatExist.Where(x => !x.StartsWith("\\")).ToList();
+
+                string? bestPath = GetMostCommonFolder(absolutePaths, pathMap);
 
                 //if we have a best path, just use that on its own
                 if (!string.IsNullOrEmpty(bestPath))
                 {
                     //bit of hack to prevent The Incredible Machine 3 - lol
-                    if (allInvalidFinalPaths.Contains(bestPath))
+                    if (allInvalidFinalPaths.Contains(bestPath) || bestPath.StartsWith("\\"))
                     {
                         suggestedPaths = null;
                         return false;
@@ -139,11 +141,14 @@ public class LudusaviManifestScanner(
                 else
                 {
                     //otherwise give them all paths to choose from
-                    suggestedPaths = fileLocationsThatExist;
+                    suggestedPaths = absolutePaths;
                 }
 
-                _logger.LogInformation("Found game {gameName}. All paths were {@allPaths} Suggested paths are {@suggestedPaths}", gameName, fileLocationsThatExist, suggestedPaths);
-                return true;
+                if (suggestedPaths.Count > 0)
+                {
+                    _logger.LogInformation("Found game {gameName}. All paths were {@allPaths} Suggested paths are {@suggestedPaths}", gameName, absolutePaths, suggestedPaths);
+                    return true;
+                }
             }
 
             suggestedPaths = null;
