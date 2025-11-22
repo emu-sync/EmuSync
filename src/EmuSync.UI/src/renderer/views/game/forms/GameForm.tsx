@@ -92,10 +92,14 @@ export default function GameForm({
 
     const handleGameSuggestionSelect = useCallback((game: GameSuggestion, filePath: string) => {
 
-        setValue("name", game.name, { shouldDirty: true });
+        //update the name on new games, but if someone is editing, let them keep the name they've set
+        if (!isEdit) {
+            setValue("name", game.name, { shouldDirty: true });
+        }
+
         setValue(`syncSourceIdLocations.${localSyncSource.id}`, filePath, { shouldDirty: true });
 
-    }, [setValue]);
+    }, [setValue, isEdit, localSyncSource]);
 
     return <VerticalStack>
 

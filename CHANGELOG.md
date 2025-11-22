@@ -26,3 +26,17 @@ Rhys
 ## Upcoming features
 - Support for OneDrive (hopefully).
 - Suggestions for game saves already on your device, making it easier and less manual to set up games.
+
+
+
+# v1.0.2
+
+## Changes
+- Game suggestions are now available for when you're configuring your game syncs!
+    - EmuSync will scan your device for known game save locations and show them to you as suggestions.
+    - Picking a game suggestion will automatically populate the sync location for the device you're on.
+    - This isn't perfect, so some games may not appear in your suggestions, and emulated gave saves aren't supported for suggestions at the moment.
+- Added the ability to manually trigger a rescan of your device to search for game saves.
+
+## Upcoming features
+- Support for OneDrive (hopefully).

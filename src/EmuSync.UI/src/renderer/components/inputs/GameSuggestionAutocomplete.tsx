@@ -88,7 +88,7 @@ export default function GameSuggestionAutocomplete({
             }}
             renderOption={(props, option) => {
 
-                const {key, ...remainingProps} = props;
+                const { key, ...remainingProps } = props;
 
                 if (typeof option === "string") {
                     return <li key={key} {...remainingProps}>
@@ -122,8 +122,10 @@ export default function GameSuggestionAutocomplete({
                                     <Tooltip
                                         title={
                                             <VerticalStack>
+                                                <Typography>Can't find your game?</Typography>
                                                 <Typography>EmuSync will scan your device for known save locations of games using data compiled from PCGamingWiki.</Typography>
                                                 <Typography>Unfortunately this doesn't work for emulated game saves, and also isn't perfect, so your game may not appear. You can try and trigger a rescan in the <Pre>This device</Pre> section.</Typography>
+                                                <Typography>This also may not work if you've acquired your game through illegitimate means, as sometimes the save location is different.</Typography>
                                                 <Typography>Always double check the path is correct!</Typography>
                                             </VerticalStack>
                                         }

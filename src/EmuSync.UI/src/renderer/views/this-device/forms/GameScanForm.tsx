@@ -12,6 +12,7 @@ import { useCallback, useEffect } from "react";
 import TimeAgo from "@/renderer/components/dates/TimeAgo";
 import LinearProgressWithLabel from "@/renderer/views/this-device/components/LinearProgressWithLabel";
 import ExternalLinkButton from "@/renderer/components/buttons/ExternalLinkButton";
+import { Pre } from "@/renderer/components/Pre";
 
 export default function GameScanForm() {
 
@@ -21,7 +22,8 @@ export default function GameScanForm() {
         queryFn: getGameScanDetails,
         queryKey: [cacheKeys.gameScanDetails],
         relatedQueryKeys: [cacheKeys.gameScanDetails],
-        mutationFn: forceGameScan
+        mutationFn: forceGameScan,
+        disableAlerts: true
     });
 
     const handleMutation = useCallback(() => {
@@ -79,7 +81,7 @@ export default function GameScanForm() {
 
                         <>
                             <Typography>
-                                The last game scan was <TimeAgo secondsAgo={query.data?.lastScanSeconds ?? 0} />.
+                                The last game scan was <TimeAgo secondsAgo={query.data?.lastScanSeconds ?? 0} /> and found <Pre>{query.data?.countOfGames}</Pre> games.
                             </Typography>
 
                             <Button

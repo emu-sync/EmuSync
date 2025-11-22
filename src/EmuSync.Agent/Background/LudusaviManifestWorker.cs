@@ -16,15 +16,18 @@ public class LudusaviManifestWorker(
     private static DateTime _nextRunTime = DateTime.MinValue;
     private static DateTime _lastScanTime = DateTime.MinValue;
     private static bool _scanInProgress = false;
+    private static int _countOfGamesFound = 0;
 
     public static DateTime NextRunTime => _nextRunTime;
     public static DateTime LastScanTime => _lastScanTime;
     public static bool ScanInProgress => _scanInProgress;
+    public static int CountOfGamesFound => _countOfGamesFound;
 
     public static void ResetNextRunTime()
     {
         _nextRunTime = DateTime.MinValue;
         _scanInProgress = true;
+        _countOfGamesFound = 0;
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -47,8 +50,10 @@ public class LudusaviManifestWorker(
 
                     if (gameDefinitions != null)
                     {
-                        await _manifestScanner.ScanForSaveFilesAsync(gameDefinitions, cancellationToken);
+                        var result = await _manifestScanner.ScanForSaveFilesAsync(gameDefinitions, cancellationToken);
+
                         _lastScanTime = DateTime.UtcNow;
+                        _countOfGamesFound = result.FoundGames.Count;
                     }
                 }
                 catch (Exception ex)

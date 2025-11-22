@@ -10,14 +10,18 @@ interface useEditQueryParams<TResult, TUpdateData, TVariables> {
     errorCallback?: () => Promise<void>;
     successMessage?: (data: TUpdateData | TResult) => string;
     errorMessage?: (data: TResult) => string;
+    disableAlerts?: boolean;
 }
 
 export default function useEditQuery<TResult, TUpdateData, TVariables>({
     queryKey, relatedQueryKeys, queryFn, mutationFn,
     successCallback, errorCallback,
-    successMessage, errorMessage
+    successMessage, errorMessage,
+    disableAlerts
 }: useEditQueryParams<TResult, TUpdateData, TVariables>) {
 
+    const alertsEnabed = disableAlerts === undefined || disableAlerts === false;
+     
     const { successAlert, errorAlert } = useAlerts();
     const queryClient = useQueryClient();
 
@@ -41,7 +45,7 @@ export default function useEditQuery<TResult, TUpdateData, TVariables>({
                 message = successMessage(messageData as never);
             }
 
-            successAlert(message ?? "Successfully saved changes");
+            if (alertsEnabed) successAlert(message ?? "Successfully saved changes");
 
             if (successCallback) {
                 await successCallback(data);
@@ -55,7 +59,7 @@ export default function useEditQuery<TResult, TUpdateData, TVariables>({
                 message = errorMessage(query.data);
             }
 
-            errorAlert(message ?? "Failed to save changes");
+            if (alertsEnabed) errorAlert(message ?? "Failed to save changes");
 
             if (errorCallback) {
                 await errorCallback();

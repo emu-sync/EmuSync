@@ -12,4 +12,7 @@ public class GameScanDetails
 
     [JsonPropertyName("progressPercent")]
     public double ProgressPercent { get; set; }
+
+    [JsonPropertyName("countOfGames")]
+    public int CountOfGames { get; set; }
 }

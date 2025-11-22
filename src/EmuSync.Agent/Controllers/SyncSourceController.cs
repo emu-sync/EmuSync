@@ -67,7 +67,8 @@ public class SyncSourceController(
         {
             LastScanSeconds = diff.TotalSeconds,
             InProgress = LudusaviManifestWorker.ScanInProgress,
-            ProgressPercent = _manifestScanner.GetCompletionProgress()
+            ProgressPercent = _manifestScanner.GetCompletionProgress(),
+            CountOfGames = LudusaviManifestWorker.CountOfGamesFound
         };
 
         return Ok(response);

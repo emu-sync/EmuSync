@@ -34,6 +34,7 @@ Confirmed working devices (but not limited to):
     - Google Drive
     - Dropbox
 - Define and manage your game save locations.
+- Automatically detect game saves, making the configuration of your game syncs a breeze.
 - Automatically and manually sync game saves.
 
 ## 🛠️ Installation
@@ -100,12 +101,10 @@ Now you've linked a storage provider, you can start defining your games and wher
 ### 🎮 Setting up a game sync
 1. Go to `Games`.
 1. In the top left, use the `Add new game` button.
-1. Enter a name for the game.
-1. If you want EmuSync to keep the game synced in the background, check the `Automatically sync this game?` checkbox. I recommend **NOT** enabling this until you're comfortable with how EmuSync works.
-1. Enter the sync locations for each device you have connected to EmuSync.
+1. Enter a name for the game OR search for a game in the suggestions.
+1. If you want EmuSync to keep the game synced in the background, check the `Automatically sync this game?` checkbox.
+1. Enter the sync locations for each device you have connected to EmuSync OR if you selected a suggested game, the current device will be populated for you. Always double check the path is correct!
 1. Use the `Save changes` button.
-
-To edit an existing game, click on it in the games list. Here, you can also manually sync the save files on the device.
 
 ## ❓ FAQs
 Please see the [FAQs](https://github.com/emu-sync/EmuSync/wiki/FAQs) page in our wiki.
@@ -114,3 +113,6 @@ Please see the [FAQs](https://github.com/emu-sync/EmuSync/wiki/FAQs) page in our
 EmuSync is free and always will be. However, if you like EmuSync and want to support it, you can contribute via our [Patreon](https://www.patreon.com/cw/EmuSync) page.
 
 Many thanks if you want to support EmuSync, but please only do so if you want to and can afford to.
+
+## ⭐ Honourable mentions
+- Big thanks to the [ludusavi-manifest](https://github.com/mtkennerly/ludusavi-manifest) for making game save detection posible.

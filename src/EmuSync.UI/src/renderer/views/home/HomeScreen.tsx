@@ -12,8 +12,7 @@ import ReadmeParagraph from "@/renderer/views/home/componenets/ReadmeParagraph";
 import ReadmeSection from "@/renderer/views/home/componenets/ReadmeSection";
 import { CircularProgress, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { useEffect, useMemo } from "react";
-import { useRemark } from 'react-remark';
+import { useMemo } from "react";
 
 //TODO: may put in the ability to see previous version change logs
 

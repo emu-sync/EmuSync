@@ -3,9 +3,8 @@ using EmuSync.Domain.Helpers;
 using EmuSync.Domain.Services.Interfaces;
 using EmuSync.Services.LudusaviImporter.Interfaces;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Concurrent;
-using System.IO;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace EmuSync.Services.LudusaviImporter;
@@ -115,6 +114,9 @@ public class LudusaviManifestScanner(
         List<string> fileLocations = GetFileLocations(gameName, game, out var pathMap);
         List<string> fileLocationsThatExist = SearchForFoundDirectories(fileLocations);
 
+        List<string> allInvalidFinalPaths = new(_invalidPaths);
+        allInvalidFinalPaths.AddRange(pathMap.Values.Where(x => !string.IsNullOrEmpty(x)).Select(x => x)!);
+
         fileLocationsThatExist = fileLocationsThatExist.Distinct().ToList();
 
         if (fileLocationsThatExist.Count > 0)
@@ -125,7 +127,7 @@ public class LudusaviManifestScanner(
             if (!string.IsNullOrEmpty(bestPath))
             {
                 //bit of hack to prevent The Incredible Machine 3 - lol
-                if (_invalidPaths.Contains(bestPath))
+                if (allInvalidFinalPaths.Contains(bestPath))
                 {
                     suggestedPaths = null;
                     return false;
@@ -170,7 +172,7 @@ public class LudusaviManifestScanner(
         return fileLocationsThatExist;
     }
 
-    private void AddLocationIfExists(List<string> fileLocationsThatExist, string fileLocation)
+    private bool AddLocationIfExists(List<string> fileLocationsThatExist, string fileLocation)
     {
         //account for some of the file paths not conforming and expecting a *.sav file or similar - we just want a directory
         FileInfo file = new FileInfo(fileLocation);
@@ -182,14 +184,17 @@ public class LudusaviManifestScanner(
         {
             string path = Path.GetDirectoryName(fileLocation)!;
             fileLocationsThatExist.Add(CleanPathName(path));
-            return ;
+            return true;
         }
 
         //lastly, just check the directory provided
         if (Directory.Exists(fileLocation))
         {
             fileLocationsThatExist.Add(fileLocation);
+            return true;
         }
+
+        return false;
     }
 
     private IEnumerable<string> ExpandWildcardDirectories(string patternPath)
@@ -202,11 +207,13 @@ public class LudusaviManifestScanner(
     {
         if (index == parts.Length)
         {
-            if (Directory.Exists(current))
+            bool exists = AddLocationIfExists([], current);
+
+            if (exists)
             {
                 yield return current;
             }
-                
+
             yield break;
         }
 
@@ -269,8 +276,6 @@ public class LudusaviManifestScanner(
         if (commonLength == 0) return null;
 
         string finalPath = string.Join(Path.DirectorySeparatorChar.ToString(), first.Take(commonLength));
-
-        if (mapPaths.Contains(finalPath)) return null;
 
         return CleanPathName(finalPath);
     }

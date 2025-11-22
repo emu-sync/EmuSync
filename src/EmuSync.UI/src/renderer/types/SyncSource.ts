@@ -32,4 +32,5 @@ export interface ScanDetails {
     lastScanSeconds: number;
     inProgress: boolean;
     progressPercent: number;
+    countOfGames: number;
 }
