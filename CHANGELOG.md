@@ -40,3 +40,4 @@ Rhys
 
 ## Upcoming features
 - Support for OneDrive (hopefully).
+   - I'm still having issues with even setting up an account for this

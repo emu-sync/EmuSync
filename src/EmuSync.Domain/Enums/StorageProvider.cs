@@ -6,5 +6,6 @@
 public enum StorageProvider
 {
     GoogleDrive = 1,
-    Dropbox = 2
+    Dropbox = 2,
+    OneDrive = 3,
 }

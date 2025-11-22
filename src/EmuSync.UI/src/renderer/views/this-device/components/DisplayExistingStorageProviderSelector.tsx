@@ -84,6 +84,7 @@ export default function DisplayExistingStorageProvider({
                 action={
                     <Button
                         onClick={handleMutationForce}
+                        variant="contained"
                         title="Force unlink this device from the provider"
                         color="error"
                         disabled={isMutating}

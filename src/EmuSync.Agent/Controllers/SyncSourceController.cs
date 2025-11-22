@@ -146,11 +146,6 @@ public class SyncSourceController(
             return BadRequestWithErrors("No sync source exists");
         }
 
-        if (entity.StorageProvider == null)
-        {
-            return BadRequestWithErrors("No storage provider has been set");
-        }
-
         await _manager.UnlinkLocalStorageProviderAsync(entity, writeToExternalList: !force, cancellationToken);
 
         _apiCache.SyncSources.Clear();

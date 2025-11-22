@@ -9,7 +9,7 @@ import InfoAlert from "@/renderer/components/alerts/InfoAlert";
 import ShowModal from "@/renderer/components/modals/ShowModal";
 import HorizontalStack from "@/renderer/components/stacks/HorizontalStack";
 
-import { getDropboxAuthUrl, getGoogleAuthUrl } from "@/renderer/api/auth-api";
+import { getDropboxAuthUrl, getGoogleAuthUrl, getMicrosoftAuthUrl } from "@/renderer/api/auth-api";
 import StorageProviderDetails from "@/renderer/views/this-device/components/StorageProviderDetails";
 import { storageProviderMap } from "@/renderer/views/this-device/utils/sync-source-utils";
 import useAlerts from "@/renderer/hooks/use-alerts";
@@ -29,6 +29,7 @@ export default function StorageProviderSelector({
 
     const [dropboxIsLoading, setDropboxIsLoading] = useState(false);
     const [googleIsLoading, setGoogleIsLoading] = useState(false);
+    const [onedriveIsLoading, setOnedriveIsLoading] = useState(false);
 
     const handleSelect = useCallback(async (url: string) => {
 
@@ -36,7 +37,11 @@ export default function StorageProviderSelector({
             openWindow.close();
         }
 
-        const newOpenWindow = window.open(url);
+        const newOpenWindow = window.open(
+            url,
+            "_blank",
+            "menubar=no,toolbar=no,location=no,status=no"
+        );
 
         setOpenWindow(newOpenWindow);
         setModalIsOpen(true);
@@ -59,6 +64,25 @@ export default function StorageProviderSelector({
             setModalIsOpen(false);
         } finally {
             setDropboxIsLoading(false);
+        }
+
+    }, [handleSelect]);
+
+    const handleSelectOneDrive = useCallback(async () => {
+
+        setOnedriveIsLoading(true);
+
+        try {
+
+            const authUrlResponse = await getMicrosoftAuthUrl();
+            handleSelect(authUrlResponse.url);
+
+        } catch (ex) {
+            console.error(ex);
+            errorAlert("Failed to get OneDrive auth URL");
+            setModalIsOpen(false);
+        } finally {
+            setOnedriveIsLoading(false);
         }
 
     }, [handleSelect]);
@@ -128,6 +152,13 @@ export default function StorageProviderSelector({
                     onSelect={handleSelectDropbox}
                     loading={dropboxIsLoading}
                 />
+
+                <ProviderSelector
+                    provider={StorageProvider.OneDrive}
+                    onSelect={handleSelectOneDrive}
+                    loading={onedriveIsLoading}
+                />
+
             </HorizontalStack>
 
         </VerticalStack>
