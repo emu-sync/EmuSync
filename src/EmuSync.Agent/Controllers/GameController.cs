@@ -15,7 +15,6 @@ public class GameController(
     IValidationService validator,
     IGameManager manager,
     ILocalDataAccessor localDataAccessor,
-    ISyncSourceManager syncSourceManager,
     IGameSyncStatusCache gameSyncStatusCache,
     IGameSyncService gameSyncService,
     ISyncTasks syncTasks,
@@ -24,7 +23,6 @@ public class GameController(
 {
     private readonly IGameManager _manager = manager;
     private readonly ILocalDataAccessor _localDataAccessor = localDataAccessor;
-    private readonly ISyncSourceManager _syncSourceManager = syncSourceManager;
     private readonly IGameSyncStatusCache _gameSyncStatusCache = gameSyncStatusCache;
     private readonly IGameSyncService _gameSyncService = gameSyncService;
     private readonly ISyncTasks _syncTasks = syncTasks;

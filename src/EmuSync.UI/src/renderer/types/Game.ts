@@ -7,6 +7,7 @@ export interface GameSummary {
     lastSyncedFrom?: string | null;
     lastSyncTimeUtc?: Date | null;
     syncStatusId: GameSyncStatus;
+    storageBytes: number;
 }
 
 export interface GameSuggestion {

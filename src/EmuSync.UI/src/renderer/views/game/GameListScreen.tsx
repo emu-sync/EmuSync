@@ -22,6 +22,8 @@ import { gameSyncStatusOptions } from "@/renderer/types/enums";
 import { allSyncSourcesAtom } from "@/renderer/state/all-sync-sources";
 import DisplayDate from "@/renderer/components/dates/DisplayDate";
 import { size } from "lodash";
+import HorizontalStack from "@/renderer/components/stacks/HorizontalStack";
+import StorageSizeChip from "@/renderer/components/chips/StorageSizeChip";
 
 
 export default function GameListScreen() {
@@ -44,10 +46,31 @@ export default function GameListScreen() {
                 }
 
             },
-            { field: "name", headerName: "Name", flex: 10, type: "string", minWidth: 250 },
+            {
+                field: "name", headerName: "Name", flex: 10, type: "string", minWidth: 250
+            },
             {
                 field: "autoSync", headerName: "Auto sync", flex: 1, type: "boolean", minWidth: 100, headerAlign: "center", align: "center",
 
+            },
+            {
+                field: "storageBytes", headerName: "Size", flex: 1, type: "number", minWidth: 120, headerAlign: "center", align: "center",
+                renderCell: (params,) => {
+
+                    const { storageBytes } = params.row;
+
+                    if (!storageBytes) {
+                        return "";
+                    }
+
+                    return <StorageSizeChip
+                        bytes={storageBytes}
+                        size="small"
+                        sx={{
+                            minWidth: 100
+                        }}
+                    />
+                }
             },
             {
                 field: "lastSyncedFrom", headerName: "Last uploaded from", flex: 2, minWidth: 200, headerAlign: "center", align: "center",
@@ -69,14 +92,7 @@ export default function GameListScreen() {
                     const value = params.row.lastSyncTimeUtc;
 
                     if (!value) {
-                        return <Chip
-                            label="Never"
-                            color="error"
-                            size="small"
-                            sx={{
-                                minWidth: 100
-                            }}
-                        />
+                        return "";
                     }
 
                     return <DisplayDate

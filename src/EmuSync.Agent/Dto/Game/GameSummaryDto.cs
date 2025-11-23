@@ -21,4 +21,7 @@ public record GameSummaryDto
 
     [JsonPropertyName("syncStatusId")]
     public int SyncStatusId { get; set; }
+
+    [JsonPropertyName("storageBytes")]
+    public long? StorageBytes { get; set; }
 }

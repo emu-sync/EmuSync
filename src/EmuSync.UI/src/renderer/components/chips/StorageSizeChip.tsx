@@ -1,4 +1,4 @@
-import { Chip, ChipOwnProps } from "@mui/material";
+import { Chip, ChipOwnProps, SxProps } from "@mui/material";
 import StorageIcon from '@mui/icons-material/Storage';
 import { useMemo } from "react";
 
@@ -13,11 +13,12 @@ const formatBytes = (bytes: number, decimals = 2): string => {
 interface StorageChipProps {
     bytes: number;
     size?: ChipOwnProps["size"];
+    sx?: SxProps;
 }
 
 
 export default function StorageChip({
-    bytes, size
+    bytes, size, sx
 }: StorageChipProps) {
 
     const storageSize = useMemo(() => {
@@ -29,5 +30,6 @@ export default function StorageChip({
         label={storageSize}
         size={size ?? "small"}
         title={`The size of all files is ${storageSize}`}
+        sx={sx}
     />;
 }
