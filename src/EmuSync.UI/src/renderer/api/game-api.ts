@@ -1,17 +1,14 @@
-import { get, post, put, remove } from "@/renderer/api/api-helper";
+import { get, post, postWithNoResponse, put, remove } from "@/renderer/api/api-helper";
 import { CreateGame, Game, GameSuggestion, GameSummary, UpdateGame } from "@/renderer/types";
 
 const controller = "Game"
 
-export async function getGameList(forceReload: boolean = false): Promise<GameSummary[]> {
+export async function getGameList(): Promise<GameSummary[]> {
 
     const path = `${controller}`;
 
     return await get({
-        path,
-        query: {
-            forceReload
-        }
+        path
     });
 
 }
@@ -43,6 +40,16 @@ export async function createGame(body: CreateGame): Promise<GameSummary> {
     return await post({
         path,
         body
+    });
+
+}
+
+export async function clearGameCache(): Promise<void> {
+
+    const path = `${controller}/ClearCache`;
+
+    return await postWithNoResponse({
+        path,
     });
 
 }

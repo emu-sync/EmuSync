@@ -1,5 +1,5 @@
 import { cacheKeys } from "@/renderer/api/cache-keys";
-import { deleteGame, getGameList } from "@/renderer/api/game-api";
+import { clearGameCache, deleteGame, getGameList } from "@/renderer/api/game-api";
 import AgentStatusHarness from "@/renderer/components/harnesses/AgentStatusHarness";
 import InfoAlert from "@/renderer/components/alerts/InfoAlert";
 import WarningAlert from "@/renderer/components/alerts/WarningAlert";
@@ -89,9 +89,10 @@ export default function GameListScreen() {
     }, [gameSyncStatusOptions, allSyncSources]);
 
     const {
-        query, deleteMutation
+        query, deleteMutation, resetCacheMutation
     } = useListQuery({
         queryFn: async () => getGameList(),
+        resetCacheFn: clearGameCache,
         queryKey: [cacheKeys.gameList],
         relatedQueryKeys: [cacheKeys.gameList],
         mutationFn: deleteGame
@@ -127,7 +128,7 @@ export default function GameListScreen() {
                 <ListViewDataGrid
                     columns={columns}
                     rows={query.data ?? []}
-                    loading={query.isFetching}
+                    loading={query.isFetching || resetCacheMutation.isPending}
 
                     editHref={routes.gameEdit.href}
 
@@ -135,7 +136,7 @@ export default function GameListScreen() {
                     addButtonRedirect={routes.gameAdd.href}
 
                     hasError={query.isError}
-                    reloadFunc={query.refetch}
+                    reloadFunc={async () => resetCacheMutation.mutateAsync(undefined)}
 
                     deleteFunc={handleDelete}
                     getDeleteItemDetails={getDeleteItemDeails}

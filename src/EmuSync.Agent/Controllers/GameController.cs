@@ -31,11 +31,11 @@ public class GameController(
     private readonly IApiCache _apiCache = apiCache;
 
     [HttpGet]
-    public async Task<IActionResult> GetList([FromQuery] bool forceReload = false, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetList( CancellationToken cancellationToken = default)
     {
         List<GameEntity>? list = _apiCache.Games.Value;
 
-        if (list == null || forceReload)
+        if (list == null)
         {
             list = await _manager.GetListAsync(cancellationToken);
             if (list != null) _apiCache.Games.Set(list);
@@ -153,6 +153,13 @@ public class GameController(
         _apiCache.Games.Value?.RemoveBy(x => x.Id == id);
 
         return NoContent();
+    }
+
+    [HttpPost("ClearCache")]
+    public async Task<IActionResult> ClearCache(CancellationToken cancellationToken = default)
+    {
+        _apiCache.Games.Clear();
+        return Ok();
     }
 
     private async Task TryUpdateSyncTaskAsync(GameEntity game, CancellationToken cancellationToken)

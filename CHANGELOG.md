@@ -44,7 +44,7 @@ Rhys
 
 # v1.0.3
 
-This is the same release as 1.0.2, but with a fix for Windows not correctly identifying game saves.
+This is the same release as 1.0.2, but with a fix for Windows not correctly identifying game saves. If you're on Linux, you can skip this update.
 
 ## Changes
 - Game suggestions are now available for when you're configuring your game syncs!
