@@ -7,13 +7,15 @@ public class SyncTaskProcessor(
     ILogger<SyncTaskProcessor> logger,
     IGameSyncStatusCache gameSyncStatusCache,
     IGameSyncManager gameSyncManager,
-    ISyncSourceManager syncSourceManager
+    ISyncSourceManager syncSourceManager,
+    IApiCache apiCache
 ) : ISyncTaskProcessor
 {
     private readonly ILogger<SyncTaskProcessor> _logger = logger;
     private readonly IGameSyncStatusCache _gameSyncStatusCache = gameSyncStatusCache;
     private readonly IGameSyncManager _gameSyncManager = gameSyncManager;
     private readonly ISyncSourceManager _syncSourceManager = syncSourceManager;
+    private readonly IApiCache _apiCache = apiCache;
 
     public async Task ProcessSyncTaskAsync(GameEntity game, CancellationToken cancellationToken)
     {
@@ -72,6 +74,7 @@ public class SyncTaskProcessor(
 
             _logger.LogInformation("Sync task complete for game {gameName} / {gameId} - status of {status}", gameToSync.Name, gameToSync.Id, status);
             _gameSyncStatusCache.AddOrUpdate(gameToSync.Id, status);
+            _apiCache.UpdateGame(gameToSync);
         }
         catch (Exception ex)
         {

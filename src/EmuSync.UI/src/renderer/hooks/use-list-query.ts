@@ -5,6 +5,7 @@ interface useEditQueryParams<TResult, TUpdateData, TVariables> {
     queryKey: string[]; //the query key used to cache the query
     relatedQueryKeys: string[]; //the query key that gets cleared after a successful mutation
     queryFn: QueryFunction<TResult>;
+    resetCacheFn: MutationFunction;
     mutationFn: MutationFunction<TUpdateData, TVariables>;
     successCallback?: (data: TUpdateData) => Promise<void>;
     errorCallback?: () => Promise<void>;
@@ -13,7 +14,7 @@ interface useEditQueryParams<TResult, TUpdateData, TVariables> {
 }
 
 export default function useListQuery<TResult, TUpdateData, TVariables>({
-    queryKey, relatedQueryKeys, queryFn, mutationFn,
+    queryKey, relatedQueryKeys, queryFn, resetCacheFn, mutationFn,
     successCallback, errorCallback,
     successMessage, errorMessage
 }: useEditQueryParams<TResult, TUpdateData, TVariables>) {
@@ -50,9 +51,19 @@ export default function useListQuery<TResult, TUpdateData, TVariables>({
         },
     });
 
+    const resetCacheMutation = useMutation({
+        mutationFn: resetCacheFn,
+        onSuccess: async (data) => {
+            relatedQueryKeys.forEach(key => {
+                queryClient.invalidateQueries({ queryKey: [key] });
+            });
+        },
+    });
+
 
     return {
         query,
-        deleteMutation
+        deleteMutation,
+        resetCacheMutation
     }
 }

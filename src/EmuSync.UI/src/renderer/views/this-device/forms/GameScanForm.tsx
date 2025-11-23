@@ -90,6 +90,9 @@ export default function GameScanForm() {
                                 disabled={updateMutation.isPending}
                                 loading={updateMutation.isPending}
                                 onClick={handleMutation}
+                                sx={{
+                                    minWidth: 100
+                                }}
                             >
                                 Scan now
                             </Button>

@@ -51,7 +51,8 @@ public static class GameMapping
             Name = entity.Name,
             AutoSync = entity.AutoSync,
             LastSyncedFrom = entity.LastSyncedFrom,
-            LastSyncTimeUtc = entity.LastSyncTimeUtc
+            LastSyncTimeUtc = entity.LastSyncTimeUtc,
+            StorageBytes = entity.StorageBytes,
         };
     }
 

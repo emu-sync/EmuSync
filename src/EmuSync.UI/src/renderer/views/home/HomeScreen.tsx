@@ -6,6 +6,7 @@ import NewReleaseAlert from "@/renderer/components/NewReleaseAlert";
 import HorizontalStack from "@/renderer/components/stacks/HorizontalStack";
 import VerticalStack from "@/renderer/components/stacks/VerticalStack";
 import { useChangeLog } from "@/renderer/hooks/use-change-log";
+import { useNews } from "@/renderer/hooks/use-news";
 import { useReleaseVersionChecker } from "@/renderer/hooks/use-release-version-checker";
 import MarkdownRenderer from "@/renderer/views/home/componenets/MarkdownRenderer";
 import ReadmeParagraph from "@/renderer/views/home/componenets/ReadmeParagraph";
@@ -25,6 +26,7 @@ export default function HomeScreen() {
     } = useReleaseVersionChecker();
 
     const changeLog = useChangeLog();
+    const news = useNews();
 
     const currentChangeLog = useMemo(() => {
         if (!changeLog.data) return null;
@@ -86,6 +88,21 @@ export default function HomeScreen() {
                 >
                     <MarkdownRenderer
                         markdown={currentChangeLog?.markdown ?? ""}
+                    />
+                </LoadingHarness>
+            </ReadmeSection>
+            
+            <ReadmeSection
+                title="✨ Upcoming features & news"
+            >
+
+                <LoadingHarness
+                    query={changeLog}
+                    loadingState={<ChangeLogLoadingState />}
+
+                >
+                    <MarkdownRenderer
+                        markdown={news?.data ?? "### No news"}
                     />
                 </LoadingHarness>
             </ReadmeSection>
