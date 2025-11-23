@@ -8,10 +8,6 @@ I plan to keep this maintained as long as there's interest. I work full-time tho
 
 Otherwise, I hope you enjoy using EmuSync. If you like it, please consider starring it on GitHub or sharing it with your friends.
 
-Many thanks,
-
-Rhys
-
 # v1.0.1
 
 ## Changes
@@ -23,11 +19,6 @@ Rhys
 ## Fixes
 - Fixed an issue where downloading a game save could incorrectly prompt an unnecessary re-upload.
 
-## Upcoming features
-- Support for OneDrive (hopefully).
-- Suggestions for game saves already on your device, making it easier and less manual to set up games.
-
-
 
 # v1.0.2
 
@@ -38,9 +29,6 @@ Rhys
     - This isn't perfect, so some games may not appear in your suggestions, and emulated gave saves aren't supported for suggestions at the moment.
 - Added the ability to manually trigger a rescan of your device to search for game saves.
 - Added support for OneDrive as a storage provider.
-
-## Upcoming features
-- I'm thinking of adding a device specific sync log/history so you can review when saves were uploaded from/downloaded to the device
 
 # v1.0.3
 
@@ -57,5 +45,10 @@ This is the same release as 1.0.2, but with a fix for Windows not correctly iden
 ## Fixes
 - Fixed an issue with Windows not detecting games due to service being installed under a different user account.
 
-## Upcoming features
-- I'm thinking of adding a device specific sync log/history so you can review when saves were uploaded from/downloaded to the device
+# v1.0.4
+
+## Changes
+- Improved the local device game caching.
+    - The reload button in the list should always clear cache now.
+    - Whenever AutoSync changes something, the game cache is updated too.
+- Added the game save file size to the game list.

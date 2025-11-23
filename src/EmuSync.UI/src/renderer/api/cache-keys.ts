@@ -15,6 +15,7 @@ export const cacheKeys = {
     latestRelease: "latestRelease",
     agentSystemInfo: "agentSystemInfo",
     changeLog: "changeLog",
+    news: "news",
     nextAutoSyncTime: "nextAutoSyncTime",
     gameScanDetails: "gameScanDetails",
 }
