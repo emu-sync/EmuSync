@@ -7,17 +7,21 @@ public static class LudusaviPathMap
     public static Dictionary<string, string?> Build(
         bool isWindows,
         GameDefinition game,
+        string gameName,
         string? linuxPrefix
     )
     {
         string user = GetUserName(isWindows);
         string home = GetHome(isWindows, user, linuxPrefix);
 
+        string root = isWindows ? "C:\\Program Files (x86)\\Steam" : string.Format("{0}/.steam/steam", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)); //probably wrong
+        string gamePath = game.InstallDir?.FirstOrDefault().Key ?? gameName; //probably wrong, but don't think we need it
+
         return new Dictionary<string, string?>()
         {
-            ["root"] = isWindows ? "C:\\Program Files (x86)\\Steam" : string.Format("{0}/.steam/steam", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)), //probably wrong
-            ["game"] = game.InstallDir?.FirstOrDefault().Key ?? game.Alias, //probably wrong, but don't think we need it
-            ["base"] = WildcardDirectory,
+            ["root"] = root,
+            ["game"] = gamePath,
+            ["base"] = Path.Combine(root, gamePath),
             ["home"] = GetHome(isWindows, user, linuxPrefix),
 
             ["storeGameId"] = WildcardDirectory,
@@ -43,7 +47,7 @@ public static class LudusaviPathMap
 
     private static string GetUserName(bool isWindows)
     {
-        if(isWindows)
+        if (isWindows)
         {
             return WindowsUserHelper.GetActiveUserProfile();
         }
