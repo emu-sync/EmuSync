@@ -1,4 +1,5 @@
 ﻿using System.IO.Compression;
+using System.Security;
 
 namespace EmuSync.Domain.Helpers;
 
@@ -33,27 +34,35 @@ public static class ZipHelper
     }
 
     /// <summary>
-    /// Extracts the in-memory zip to <paramref name="outputDirectory"/>
+    /// Extracts the in-memory zip to <paramref name="cleanOutputDirectory"/>
     /// </summary>
     /// <param name="zipStream"></param>
-    /// <param name="outputDirectory"></param>
+    /// <param name="cleanOutputDirectory"></param>
     /// <param name="forceLastWriteTime"></param>
     public static void ExtractToDirectory(MemoryStream zipStream, string outputDirectory, DateTime? forceLastWriteTime = null)
     {
+        string? cleanOutputDirectory = GetOsSafePath(outputDirectory);
+        if (string.IsNullOrEmpty(cleanOutputDirectory)) return;
+
         zipStream.Position = 0; //ensure start
         using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read, leaveOpen: false);
 
-        if (!Directory.Exists(outputDirectory))
+
+        if (!Directory.Exists(cleanOutputDirectory))
         {
-            Directory.CreateDirectory(outputDirectory);
+            Directory.CreateDirectory(cleanOutputDirectory);
         }
 
         foreach (var entry in archive.Entries)
         {
-            var filePath = Path.Combine(outputDirectory, entry.FullName);
+            var filePath = GetOsSafePath(
+                Path.Combine(cleanOutputDirectory, entry.FullName)
+            )!;
 
             //create directories if needed
-            var directory = Path.GetDirectoryName(filePath);
+            var directory = GetOsSafePath(
+                Path.GetDirectoryName(filePath)
+            );
 
             if (!string.IsNullOrEmpty(directory))
             {
@@ -81,13 +90,27 @@ public static class ZipHelper
         //stop false positives and ensure we keep the last write time on the local directory the same
         if (forceLastWriteTime.HasValue)
         {
-            foreach (var dir in Directory.GetDirectories(outputDirectory, "*", SearchOption.AllDirectories))
+            foreach (var dir in Directory.GetDirectories(cleanOutputDirectory, "*", SearchOption.AllDirectories))
             {
                 Directory.SetLastWriteTimeUtc(dir, forceLastWriteTime.Value);
             }
 
             // finally, set the output directory itself
-            Directory.SetLastWriteTimeUtc(outputDirectory, forceLastWriteTime.Value);
+            Directory.SetLastWriteTimeUtc(cleanOutputDirectory, forceLastWriteTime.Value);
         }
+    }
+
+    private static string? GetOsSafePath(string? path)
+    {
+        if (string.IsNullOrEmpty(path)) return path;
+
+        bool isWindows = PlatformHelper.GetOsPlatform() == Enums.OsPlatform.Windows;
+
+        if (isWindows)
+        {
+            return path.Replace("/", "\\");
+        }
+
+        return path.Replace("\\", "");
     }
 }
