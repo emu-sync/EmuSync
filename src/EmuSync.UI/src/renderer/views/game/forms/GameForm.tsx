@@ -9,7 +9,7 @@ import { routes } from "@/renderer/routes";
 import { allSyncSourcesAtom } from "@/renderer/state/all-sync-sources";
 import { localSyncSourceAtom } from "@/renderer/state/local-sync-source";
 import { BaseFormProps as BaseEditFormProps, CreateGame, Game, GameSuggestion, GameSummary, UpdateGame } from "@/renderer/types";
-import { defaultCreateGame, defaultUpdateGame, transformCreateGame, transformUpdateGame } from "@/renderer/views/game/utils/game-utils";
+import { defaultCreateGame, defaultUpdateGame, replacePathDelims, transformCreateGame, transformUpdateGame } from "@/renderer/views/game/utils/game-utils";
 import { Button, Divider, Paper, Typography } from "@mui/material";
 import { UseQueryResult } from "@tanstack/react-query";
 import { useAtom } from "jotai";
@@ -24,6 +24,7 @@ import GameSuggestionAutocomplete from "@/renderer/components/inputs/GameSuggest
 import CheckboxSkeleton from "@/renderer/components/skeleton/CheckboxSkeleton";
 import SaveButtonSkeleton from "@/renderer/components/skeleton/SaveButtonSkeleton";
 import TextFieldSkeleton from "@/renderer/components/skeleton/TextFieldSkeleton";
+import { OsPlatform } from "@/renderer/types/enums";
 
 type GameFormCreateProps = BaseEditFormProps<CreateGame, GameSummary> & {
     isEdit: false;
@@ -63,9 +64,11 @@ export default function GameForm({
 
     const handleFormSubmit = useCallback((data: UpdateGame | CreateGame) => {
 
+        const cleanData = replacePathDelims(allSyncSources, data);
+
         if (isEdit) {
 
-            const updateData = data as UpdateGame;
+            const updateData = cleanData as UpdateGame;
 
             saveMutation.mutate(
                 updateData,
@@ -78,8 +81,10 @@ export default function GameForm({
 
         } else {
 
+            const createData = cleanData as CreateGame;
+
             saveMutation.mutate(
-                data,
+                createData,
                 {
                     onSuccess: (newData) => {
                         navigate(`${routes.gameEdit.href}?id=${newData.id}`);
@@ -88,7 +93,7 @@ export default function GameForm({
             );
         }
 
-    }, [saveMutation, isEdit]);
+    }, [saveMutation, isEdit, allSyncSources]);
 
     const handleGameSuggestionSelect = useCallback((game: GameSuggestion, filePath: string) => {
 
@@ -178,6 +183,7 @@ export default function GameForm({
                         {
                             allSyncSources.map((src) => {
 
+                                const isWindows = src.platformId === OsPlatform.Windows;
                                 const isThisDevice = src.id === localSyncSource.id;
                                 let label = src.name;
 

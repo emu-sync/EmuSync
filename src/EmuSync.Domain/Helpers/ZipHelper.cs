@@ -47,10 +47,12 @@ public static class ZipHelper
         zipStream.Position = 0; //ensure start
         using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read, leaveOpen: false);
 
-        if (!Directory.Exists(cleanOutputDirectory))
+        if (Directory.Exists(cleanOutputDirectory))
         {
-            Directory.CreateDirectory(cleanOutputDirectory);
+            Directory.Delete(cleanOutputDirectory, recursive: true);
         }
+
+        Directory.CreateDirectory(cleanOutputDirectory);
 
         foreach (var entry in archive.Entries)
         {
