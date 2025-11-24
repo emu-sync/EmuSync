@@ -52,3 +52,8 @@ This is the same release as 1.0.2, but with a fix for Windows not correctly iden
     - The reload button in the list should always clear cache now.
     - Whenever AutoSync changes something, the game cache is updated too.
 - Added the game save file size to the game list.
+
+# v1.0.5
+
+## Fixes
+- Fixed an issue where nested folder structure wasn't being retained on restore from Windows to Linux.
