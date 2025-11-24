@@ -313,15 +313,6 @@ public class LudusaviManifestScanner(
 
         List<string> fileLocations = game.Files?
             .Where(x => x.Value.Tags?.Contains(Tag.save) ?? false)
-            .Where(x =>
-            {
-                var path = x.Key.Replace("\\", "/");
-
-                // Ignore: <base>/END OF PATH
-                // Ignore: <base>/users/END OF PATH
-                return !Regex.IsMatch(path, @"^<base>/[^/]+$") &&
-                       !Regex.IsMatch(path, @"^<base>/users/[^/]+$");
-            })
             .Select(x => x.Key)
             .ToList() ?? [];
 
