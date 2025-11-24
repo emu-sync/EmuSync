@@ -112,7 +112,7 @@ public class LudusaviManifestScanner(
 
         try
         {
-            List<string> fileLocations = GetFileLocations(game, out var pathMap);
+            List<string> fileLocations = GetFileLocations(game, gameName, out var pathMap);
             List<string> fileLocationsThatExist = SearchForFoundDirectories(fileLocations);
 
             List<string> allInvalidFinalPaths = new(_invalidPaths);
@@ -293,7 +293,7 @@ public class LudusaviManifestScanner(
         return CleanPathName(finalPath);
     }
 
-    private List<string> GetFileLocations(GameDefinition game, out Dictionary<string, string?> pathMap)
+    private List<string> GetFileLocations(GameDefinition game, string gameName, out Dictionary<string, string?> pathMap)
     {
         string linuxFormat = string.Format(
             "{0}/.local/share/Steam/steamapps/compatdata/{1}/pfx/drive_c",
@@ -304,6 +304,7 @@ public class LudusaviManifestScanner(
         var map = LudusaviPathMap.Build(
             _isWindows,
             game,
+            gameName,
             linuxFormat
         );
 

@@ -34,10 +34,10 @@ public static class ZipHelper
     }
 
     /// <summary>
-    /// Extracts the in-memory zip to <paramref name="cleanOutputDirectory"/>
+    /// Extracts the in-memory zip to <paramref name="outputDirectory"/>
     /// </summary>
     /// <param name="zipStream"></param>
-    /// <param name="cleanOutputDirectory"></param>
+    /// <param name="outputDirectory"></param>
     /// <param name="forceLastWriteTime"></param>
     public static void ExtractToDirectory(MemoryStream zipStream, string outputDirectory, DateTime? forceLastWriteTime = null)
     {
@@ -46,7 +46,6 @@ public static class ZipHelper
 
         zipStream.Position = 0; //ensure start
         using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read, leaveOpen: false);
-
 
         if (!Directory.Exists(cleanOutputDirectory))
         {
@@ -111,6 +110,6 @@ public static class ZipHelper
             return path.Replace("/", "\\");
         }
 
-        return path.Replace("\\", "");
+        return path.Replace("\\", "/");
     }
 }
