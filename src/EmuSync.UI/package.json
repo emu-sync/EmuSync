@@ -1,7 +1,7 @@
 {
     "name": "emusync",
-    "version": "0.1.0",
-    "description": "Keep your emulator game saves in sync across your devices",
+    "version": "1.0.5",
+    "description": "EmuSync",
     "homepage": "https://github.com/emu-sync/EmuSync",
     "bugs": {
         "url": "https://github.com/emu-sync/EmuSync/issues"
