@@ -1,3 +1,8 @@
+## Decky plugin for SteamDeck users
+There is a now Decky plugin available for SteamDeck users! Please check out how to download it <a href="https://github.com/emu-sync/EmuSync-DeckyPlugin" target="_blank">here</a>.
+
+The status of your game syncs can now be checked via the Decky plugin, as well as manually syncing your game saves - no more hopping into desktop mode each time.
+
 ## Features I plan to add
 
 - Device specific sync log/history so you can review when saves were uploaded from/downloaded to the device.
