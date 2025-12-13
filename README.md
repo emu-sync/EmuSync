@@ -37,6 +37,8 @@ Confirmed working devices (but not limited to):
 - Define and manage your game save locations.
 - Automatically detect game saves, making the configuration of your game syncs a breeze.
 - Automatically and manually sync game saves.
+- A Decky plugin for SteamDeck users so you can check on the status of your game syncs without having to hop into desktop mode
+    - [EmuSync-DeckyPlugin](https://github.com/emu-sync/EmuSync-DeckyPlugin)
 
 ## 🛠️ Installation
 
