@@ -14,7 +14,7 @@ public class LocalSyncLogController(
     private readonly ILocalSyncLog _localSyncLog = localSyncLog;
 
     [HttpGet]
-    public async Task<IActionResult> GetAllLogs( CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetAllLogs(CancellationToken cancellationToken = default)
     {
         List<LocalSyncLogEntity> localSyncLogs = await _localSyncLog.GetAllLogsAsync(cancellationToken);
 

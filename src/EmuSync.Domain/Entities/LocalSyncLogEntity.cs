@@ -19,7 +19,7 @@ public class LocalSyncLogEntity
     /// <summary>
     /// When the sync occurred
     /// </summary>
-    public DateTime SyncTimeUtc { get; set;  }
+    public DateTime SyncTimeUtc { get; set; }
 
     /// <summary>
     /// Upload/download

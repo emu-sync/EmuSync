@@ -4,7 +4,6 @@ using EmuSync.Domain.Services.Interfaces;
 using EmuSync.Services.LudusaviImporter.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace EmuSync.Services.LudusaviImporter;

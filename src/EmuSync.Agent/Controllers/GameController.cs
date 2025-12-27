@@ -1,7 +1,6 @@
 using EmuSync.Agent.Dto.Game;
 using EmuSync.Domain;
 using EmuSync.Domain.Extensions;
-using EmuSync.Domain.Services;
 using EmuSync.Domain.Services.Interfaces;
 using EmuSync.Services.LudusaviImporter;
 using EmuSync.Services.Managers.Interfaces;
@@ -29,7 +28,7 @@ public class GameController(
     private readonly IApiCache _apiCache = apiCache;
 
     [HttpGet]
-    public async Task<IActionResult> GetList( CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetList(CancellationToken cancellationToken = default)
     {
         List<GameEntity>? list = _apiCache.Games.Value;
 

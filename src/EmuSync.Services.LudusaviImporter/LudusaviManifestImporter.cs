@@ -64,7 +64,7 @@ public class LudusaviManifestImporter(
 
         var definitions = new GameDefinitions()
         {
-            Items = data.Where(x=> (x.Value.Files?.Keys.Count ?? 0) > 0).ToDictionary()
+            Items = data.Where(x => (x.Value.Files?.Keys.Count ?? 0) > 0).ToDictionary()
         };
 
         var latestManifestResponse = new LatestManifestResponse(definitions, true, latestEtag);

@@ -80,7 +80,7 @@ public class LocalSyncLog(ILocalDataAccessor localDataAccessor) : ILocalSyncLog
         if (info.Length <= _maxBytes)
         {
             return;
-        }            
+        }
 
         //remove the oldest line
         var lines = File.ReadLines(logPath).Skip(1);
