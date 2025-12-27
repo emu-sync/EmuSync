@@ -60,7 +60,7 @@ function DeleteModal({ deleteDetails, isOpen, maxWidth, slotComponent, isLoading
                     setIsSubmitting(false);
                 }
             }
-        }, maxWidth: maxWidth, fullWidth: true, children: [(0, jsx_runtime_1.jsx)(DialogTitle_1.default, { children: (0, jsx_runtime_1.jsx)(material_1.Typography, { variant: "h6", children: "Delete item" }) }), (0, jsx_runtime_1.jsx)(material_1.Divider, { variant: "middle" }), (0, jsx_runtime_1.jsx)(DialogContent_1.default, { children: loading ?
+        }, maxWidth: maxWidth, fullWidth: true, children: [(0, jsx_runtime_1.jsx)(DialogTitle_1.default, { variant: "h6", children: "Delete item" }), (0, jsx_runtime_1.jsx)(material_1.Divider, { variant: "middle" }), (0, jsx_runtime_1.jsx)(DialogContent_1.default, { children: loading ?
                     (0, jsx_runtime_1.jsxs)(material_1.Typography, { children: ["Loading information... ", (0, jsx_runtime_1.jsx)(material_1.CircularProgress, { size: 16 })] })
                     :
                         preventDelete ?

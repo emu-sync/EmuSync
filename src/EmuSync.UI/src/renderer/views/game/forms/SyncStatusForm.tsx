@@ -29,6 +29,10 @@ export default function SyncStatusForm({
     const { successAlert, errorAlert } = useAlerts();
     const queryClient = useQueryClient();
 
+    const gameLocalSyncLogsKey = useMemo(() => {
+        return cacheKeys.gameLocalSyncLogs(gameId);
+    }, [gameId]);
+
     const gameSyncStatusKey = useMemo(() => {
         return cacheKeys.gameSyncStatus(gameId);
     }, [gameId]);
@@ -38,7 +42,7 @@ export default function SyncStatusForm({
     } = useEditQuery({
         queryFn: () => getGameSyncStatus(gameId),
         queryKey: [gameSyncStatusKey],
-        relatedQueryKeys: [gameSyncStatusKey, cacheKeys.gameList],
+        relatedQueryKeys: [gameSyncStatusKey, cacheKeys.gameList, gameLocalSyncLogsKey],
         mutationFn: syncGame,
         successMessage: () => `Successfully synced game: ${gameName}`,
         errorMessage: () => `Failed to sync game: ${gameName}`,
@@ -49,6 +53,7 @@ export default function SyncStatusForm({
         onSuccess: async (data) => {
 
             queryClient.invalidateQueries({ queryKey: [gameSyncStatusKey] });
+            queryClient.invalidateQueries({ queryKey: [gameLocalSyncLogsKey] });
             successAlert(`Successfully downloaded game files for: ${gameName}`);
         },
         onError: async () => {
@@ -61,6 +66,7 @@ export default function SyncStatusForm({
         onSuccess: async (data) => {
 
             queryClient.invalidateQueries({ queryKey: [gameSyncStatusKey] });
+            queryClient.invalidateQueries({ queryKey: [gameLocalSyncLogsKey] });
             successAlert(`Successfully uploaded game files for: ${gameName}`);
         },
         onError: async () => {

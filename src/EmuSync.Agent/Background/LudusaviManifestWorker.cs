@@ -52,7 +52,6 @@ public class LudusaviManifestWorker(
                     {
                         var result = await _manifestScanner.ScanForSaveFilesAsync(gameDefinitions, cancellationToken);
 
-                        _lastScanTime = DateTime.UtcNow;
                         _countOfGamesFound = result.FoundGames.Count;
                     }
                 }
@@ -62,6 +61,7 @@ public class LudusaviManifestWorker(
                 }
                 finally
                 {
+                    _lastScanTime = DateTime.UtcNow;
                     _scanInProgress = false;
                 }
             }

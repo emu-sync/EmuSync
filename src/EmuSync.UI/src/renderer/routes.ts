@@ -6,6 +6,7 @@ import VideogameAssetIcon from '@mui/icons-material/VideogameAsset';
 import DevicesIcon from '@mui/icons-material/Devices';
 
 import { SvgIconComponent } from "@mui/icons-material";
+import HistoryIcon from '@mui/icons-material/History';
 
 export interface Route {
     href: string;
@@ -16,6 +17,8 @@ export interface Route {
 
 export interface Routes {
     home: Route;
+
+    localSyncHistory: Route;
 
     game: Route;
     gameAdd: Route;
@@ -34,6 +37,12 @@ export const routes: Routes = {
         title: "Home",
         pathMatcher: exactPathMatch,
         icon: HomeIcon
+    },
+    localSyncHistory: {
+        href: "/local-sync-history",
+        title: "Local sync history",
+        pathMatcher: exactPathMatch,
+        icon: HistoryIcon
     },
     game: {
         href: "/game",

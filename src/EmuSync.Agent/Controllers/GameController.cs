@@ -39,7 +39,7 @@ public class GameController(
             if (list != null) _apiCache.Games.Set(list);
         }
 
-        //if we have games, just reprocess all the file watchers that might be attached / re-evaluate the sync statuses
+        //if we have games, just re-evaluate the sync statuses
         if (list != null && list.Count > 0)
         {
             await _gameSyncService.TryDetectGameSyncStatusesAsync(list, cancellationToken);
@@ -71,7 +71,6 @@ public class GameController(
             return NotFoundWithErrors($"No game found with ID {id}");
         }
 
-        //even if we fetch, just update the watcher - we might have an outdated on this device
         await TryUpdateSyncTaskAsync(entity, cancellationToken);
 
         GameDto response = entity.ToDto();

@@ -20,9 +20,19 @@ export enum GameSyncStatus {
 }
 
 export const gameSyncStatusOptions = [
-  { value: GameSyncStatus.Unknown, label: "Unknown" },
-  { value: GameSyncStatus.RequiresDownload, label: "Requires download" },
-  { value: GameSyncStatus.RequiresUpload, label: "Requires upload" },
-  { value: GameSyncStatus.InSync, label: "In sync" },
-  { value: GameSyncStatus.UnsetDirectory, label: "Unset directory" },
+    { value: GameSyncStatus.Unknown, label: "Unknown" },
+    { value: GameSyncStatus.RequiresDownload, label: "Requires download" },
+    { value: GameSyncStatus.RequiresUpload, label: "Requires upload" },
+    { value: GameSyncStatus.InSync, label: "In sync" },
+    { value: GameSyncStatus.UnsetDirectory, label: "Unset directory" },
+];
+
+export enum SyncType {
+    Upload = 1,
+    Download = 2
+}
+
+export const syncTypeOptions = [
+    { value: SyncType.Upload, label: "Upload" },
+    { value: SyncType.Download, label: "Download" },
 ];

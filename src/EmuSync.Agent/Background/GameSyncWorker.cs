@@ -71,7 +71,7 @@ public class GameSyncWorker(
 
             return syncSource?.AutoSyncFrequency ?? _options.LoopDelayTimeSpan;
         }
-        catch (Exception ex)
+        catch
         {
             return _options.LoopDelayTimeSpan;
         }

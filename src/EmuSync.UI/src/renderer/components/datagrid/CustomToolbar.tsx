@@ -58,8 +58,8 @@ const StyledTextField = styled(TextField)<{
 }));
 
 interface CustomToolbarProps {
-    addButtonRedirect: string;
-    itemName: string;
+    addButtonRedirect?: string;
+    itemName?: string;
     loading: boolean;
     hasError?: boolean;
     reloadFunc: () => Promise<any>;
@@ -76,18 +76,22 @@ export default function CustomToolbar({
 
     return (
         <Toolbar>
-            <Box sx={{ mx: 0.5 }}>
-                <Link to={addButtonRedirect}>
-                    <Button
-                        color="primary"
-                        size="small"
-                        startIcon={<AddCircleOutlineIcon />}
-                        disabled={loading}
-                    >
-                        Add new {itemName}
-                    </Button>
-                </Link>
-            </Box>
+
+            {
+                addButtonRedirect &&
+                <Box sx={{ mx: 0.5 }}>
+                    <Link to={addButtonRedirect}>
+                        <Button
+                            color="primary"
+                            size="small"
+                            startIcon={<AddCircleOutlineIcon />}
+                            disabled={loading}
+                        >
+                            Add new {itemName}
+                        </Button>
+                    </Link>
+                </Box>
+            }
 
             <Box
                 sx={{

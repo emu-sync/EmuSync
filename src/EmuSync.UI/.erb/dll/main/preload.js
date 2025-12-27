@@ -19,10 +19,13 @@ const electronHandler = {
             electron_1.ipcRenderer.once(channel, (_event, ...args) => func(...args));
         },
     },
-    openDirectory: () => electron_1.ipcRenderer.invoke('dialog:openDirectory'),
+    openDirectory: (path) => electron_1.ipcRenderer.invoke('dialog:openDirectory', path),
     openExternalLink: (link) => electron_1.ipcRenderer.invoke('shell:openExternal', link),
     apiUrl: process.env.API_URL ?? "http://localhost:5353",
-    releaseVersion: process.env.RELEASE_VERSION ?? "Unknown"
+    releaseVersion: process.env.RELEASE_VERSION ?? "",
+    isWindows: process.platform === 'win32',
+    isLinux: process.platform === 'linux',
+    isMac: process.platform === 'darwin'
 };
 electron_1.contextBridge.exposeInMainWorld('electron', electronHandler);
 //# sourceMappingURL=preload.js.map

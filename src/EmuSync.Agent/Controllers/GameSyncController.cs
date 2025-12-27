@@ -79,7 +79,7 @@ public class GameSyncController(
             return NotFoundWithErrors($"No game found with ID {id}");
         }
 
-        await _manager.SyncGameAsync(syncSource.Id, game, cancellationToken);
+        await _manager.SyncGameAsync(syncSource.Id, game, isAutoSync: false, cancellationToken);
 
         _gameSyncStatusCache.AddOrUpdate(id, GameSyncStatus.InSync);
 
@@ -106,7 +106,7 @@ public class GameSyncController(
             return NotFoundWithErrors($"No game found with ID {id}");
         }
 
-        await _manager.ForceUploadGameAsync(syncSource.Id, game, cancellationToken);
+        await _manager.ForceUploadGameAsync(syncSource.Id, game, isAutoSync: false, cancellationToken);
 
         _gameSyncStatusCache.AddOrUpdate(id, GameSyncStatus.InSync);
 
@@ -133,7 +133,7 @@ public class GameSyncController(
             return NotFoundWithErrors($"No game found with ID {id}");
         }
 
-        await _manager.ForceDownloadGameAsync(syncSource.Id, game, cancellationToken);
+        await _manager.ForceDownloadGameAsync(syncSource.Id, game, isAutoSync: false, cancellationToken);
 
         _gameSyncStatusCache.AddOrUpdate(id, GameSyncStatus.InSync);
 

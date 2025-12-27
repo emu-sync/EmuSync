@@ -39,7 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = DeviceList;
 const jsx_runtime_1 = require("react/jsx-runtime");
 const InfoAlert_1 = __importDefault(require("@/renderer/components/alerts/InfoAlert"));
-const LoadingHarness_1 = __importDefault(require("@/renderer/components/LoadingHarness"));
+const LoadingHarness_1 = __importDefault(require("@/renderer/components/harnesses/LoadingHarness"));
 const DeleteModal_1 = __importDefault(require("@/renderer/components/modals/DeleteModal"));
 const HorizontalStack_1 = __importDefault(require("@/renderer/components/stacks/HorizontalStack"));
 const material_1 = require("@mui/material");

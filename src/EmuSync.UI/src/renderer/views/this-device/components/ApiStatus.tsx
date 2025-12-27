@@ -16,13 +16,8 @@ export default function ApiStatus() {
             title="EmuSync agent status"
             icon={<MonitorHeartIcon />}
         />
-
-        <AgentStatusHarness
-            agentStatus={agentStatus}
-        >
-            <AgentStatusAlert
-                running
-            />
-        </AgentStatusHarness>
+        <AgentStatusAlert
+            running={agentStatus.isRunning}
+        />
     </VerticalStack>
 }

@@ -51,6 +51,7 @@ export const navLinks = [
             getNavLink(routes.game, [routes.gameEdit, routes.gameAdd]),
             getNavLink(routes.thisDevice),
             getNavLink(routes.allDevices),
+            getNavLink(routes.localSyncHistory),
             getNavLink(routes.about),
         ],
     },

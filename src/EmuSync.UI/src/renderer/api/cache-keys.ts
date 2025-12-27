@@ -9,6 +9,11 @@ export const cacheKeys = {
     gameSyncStatus: (id: string) => {
         return buildCacheKey("gameSyncStatus", id);
     },
+
+    gameLocalSyncLogsList: "gameLocalSyncLogs",
+    gameLocalSyncLogs: (id: string) => {
+        return buildCacheKey("gameLocalSyncLogs", id);
+    },
     gameList: "gameList",
     gameSuggestionList: "gameSuggestionList",
     healthCheck: "healthCheck",
