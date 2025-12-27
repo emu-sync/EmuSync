@@ -8,4 +8,3 @@ The status of your game syncs can now be checked via the Decky plugin, as well a
 - Device specific sync log/history so you can review when saves were uploaded from/downloaded to the device.
 - Local backups of game save files whenever new files are downloaded to a device.
   - This will also include a restore from backup mechanism.
-- For SteamDeck users, there is an EmuSync Decky plugin in the works. I'll announce it here once it's available.
