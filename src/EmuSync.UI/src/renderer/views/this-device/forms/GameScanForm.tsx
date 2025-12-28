@@ -13,6 +13,7 @@ import TimeAgo from "@/renderer/components/dates/TimeAgo";
 import LinearProgressWithLabel from "@/renderer/views/this-device/components/LinearProgressWithLabel";
 import ExternalLinkButton from "@/renderer/components/buttons/ExternalLinkButton";
 import { Pre } from "@/renderer/components/Pre";
+import Section from "@/renderer/components/Section";
 
 export default function GameScanForm() {
 
@@ -44,7 +45,7 @@ export default function GameScanForm() {
 
     }, [isInProgress]);
 
-    return <VerticalStack>
+    return <Section>
 
         <SectionTitle
             title="Game save detection"
@@ -104,7 +105,7 @@ export default function GameScanForm() {
 
         </LoadingHarness>
 
-    </VerticalStack>
+    </Section>
 }
 
 

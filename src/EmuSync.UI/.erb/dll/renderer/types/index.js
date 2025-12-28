@@ -18,6 +18,6 @@ __exportStar(require("./Common"), exports);
 __exportStar(require("./Auth"), exports);
 __exportStar(require("./Game"), exports);
 __exportStar(require("./GameSync"), exports);
-__exportStar(require("./SyncSouce"), exports);
+__exportStar(require("./SyncSource"), exports);
 __exportStar(require("./SystemInfo"), exports);
 //# sourceMappingURL=index.js.map

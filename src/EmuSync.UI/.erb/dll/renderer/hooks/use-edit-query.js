@@ -6,7 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = useEditQuery;
 const use_alerts_1 = __importDefault(require("@/renderer/hooks/use-alerts"));
 const react_query_1 = require("@tanstack/react-query");
-function useEditQuery({ queryKey, relatedQueryKeys, queryFn, mutationFn, successCallback, errorCallback, successMessage, errorMessage }) {
+function useEditQuery({ queryKey, relatedQueryKeys, queryFn, mutationFn, successCallback, errorCallback, successMessage, errorMessage, disableAlerts }) {
+    const alertsEnabed = disableAlerts === undefined || disableAlerts === false;
     const { successAlert, errorAlert } = (0, use_alerts_1.default)();
     const queryClient = (0, react_query_1.useQueryClient)();
     const query = (0, react_query_1.useQuery)({
@@ -24,17 +25,19 @@ function useEditQuery({ queryKey, relatedQueryKeys, queryFn, mutationFn, success
             if (successMessage) {
                 message = successMessage(messageData);
             }
-            successAlert(message ?? "Successfully saved changes");
+            if (alertsEnabed)
+                successAlert(message ?? "Successfully saved changes");
             if (successCallback) {
                 await successCallback(data);
             }
         },
         onError: async () => {
-            let message = "Successfully saved changes";
+            let message = "Failed to save changes";
             if (errorMessage && query.data) {
                 message = errorMessage(query.data);
             }
-            errorAlert(message ?? "Failed to save changes");
+            if (alertsEnabed)
+                errorAlert(message ?? "Failed to save changes");
             if (errorCallback) {
                 await errorCallback();
             }

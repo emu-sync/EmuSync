@@ -16,10 +16,10 @@ const formatBytes = (bytes, decimals = 2) => {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(decimals))} ${sizes[i]}`;
 };
-function StorageChip({ bytes, size }) {
+function StorageChip({ bytes, size, sx }) {
     const storageSize = (0, react_1.useMemo)(() => {
         return formatBytes(bytes);
     }, [bytes]);
-    return (0, jsx_runtime_1.jsx)(material_1.Chip, { icon: (0, jsx_runtime_1.jsx)(Storage_1.default, {}), label: storageSize, size: size ?? "small", title: `The size of all files is ${storageSize}` });
+    return (0, jsx_runtime_1.jsx)(material_1.Chip, { icon: (0, jsx_runtime_1.jsx)(Storage_1.default, {}), label: storageSize, size: size ?? "small", title: `The size of all files is ${storageSize}`, sx: sx });
 }
 //# sourceMappingURL=StorageSizeChip.js.map

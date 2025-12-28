@@ -5,14 +5,12 @@ import SuccessAlert from "@/renderer/components/alerts/SuccessAlert";
 import WarningAlert from "@/renderer/components/alerts/WarningAlert";
 import StorageChip from "@/renderer/components/chips/StorageSizeChip";
 import DisplayDate from "@/renderer/components/dates/DisplayDate";
-import DisplayDateDiff from "@/renderer/components/dates/DisplayDateDiff";
 import { Pre } from "@/renderer/components/Pre";
 import VerticalStack from "@/renderer/components/stacks/VerticalStack";
 import useSyncSourceMapper from "@/renderer/hooks/use-sync-source-mapper";
 import { GameSyncStatus } from "@/renderer/types";
 import { determineGameSyncStatus } from "@/renderer/views/game/utils/game-utils";
 import { Typography } from "@mui/material";
-import dayjs from "dayjs";
 
 import { useMemo } from "react";
 

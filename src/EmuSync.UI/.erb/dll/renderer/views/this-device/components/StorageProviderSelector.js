@@ -23,11 +23,12 @@ function StorageProviderSelector({ onConnected }) {
     const [openWindow, setOpenWindow] = (0, react_1.useState)(null);
     const [dropboxIsLoading, setDropboxIsLoading] = (0, react_1.useState)(false);
     const [googleIsLoading, setGoogleIsLoading] = (0, react_1.useState)(false);
+    const [onedriveIsLoading, setOnedriveIsLoading] = (0, react_1.useState)(false);
     const handleSelect = (0, react_1.useCallback)(async (url) => {
         if (openWindow) {
             openWindow.close();
         }
-        const newOpenWindow = window.open(url);
+        const newOpenWindow = window.open(url, "_blank", "menubar=no,toolbar=no,location=no,status=no");
         setOpenWindow(newOpenWindow);
         setModalIsOpen(true);
     }, [openWindow]);
@@ -44,6 +45,21 @@ function StorageProviderSelector({ onConnected }) {
         }
         finally {
             setDropboxIsLoading(false);
+        }
+    }, [handleSelect]);
+    const handleSelectOneDrive = (0, react_1.useCallback)(async () => {
+        setOnedriveIsLoading(true);
+        try {
+            const authUrlResponse = await (0, auth_api_1.getMicrosoftAuthUrl)();
+            handleSelect(authUrlResponse.url);
+        }
+        catch (ex) {
+            console.error(ex);
+            errorAlert("Failed to get OneDrive auth URL");
+            setModalIsOpen(false);
+        }
+        finally {
+            setOnedriveIsLoading(false);
         }
     }, [handleSelect]);
     const handleSelectGoogle = (0, react_1.useCallback)(async () => {
@@ -74,7 +90,7 @@ function StorageProviderSelector({ onConnected }) {
         }, 500); // check every 500ms
         return () => clearInterval(interval);
     }, [openWindow]);
-    return (0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(InfoAlert_1.default, { content: (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(material_1.Typography, { children: "Please select a provider where your game data will be stored." }), (0, jsx_runtime_1.jsx)(material_1.Typography, { children: "Selecting a provider for the first time will open a browser window for you to log in and grant EmuSync permission to your storage." })] }) }), (0, jsx_runtime_1.jsxs)(HorizontalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(ProviderSelector, { provider: enums_1.StorageProvider.GoogleDrive, onSelect: handleSelectGoogle, loading: googleIsLoading }), (0, jsx_runtime_1.jsx)(ProviderSelector, { provider: enums_1.StorageProvider.Dropbox, onSelect: handleSelectDropbox, loading: dropboxIsLoading })] })] }), (0, jsx_runtime_1.jsx)(ShowModal_1.default, { isOpen: modalIsOpen, setIsOpen: () => { }, title: "Connecting to provider", children: (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(InfoAlert_1.default, { content: (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(material_1.Typography, { children: "A window should open for you to log in to your provider. EmuSync only has access to the file and folders it creates." }), (0, jsx_runtime_1.jsx)(material_1.Typography, { children: "If you've used this provider on this device before, it should automatically log in after a few seconds." })] }) }), (0, jsx_runtime_1.jsx)(material_1.Typography, { textAlign: "center", children: (0, jsx_runtime_1.jsx)(material_2.CircularProgress, { size: 20 }) })] }) })] });
+    return (0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(InfoAlert_1.default, { content: (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(material_1.Typography, { children: "Please select a provider where your game data will be stored." }), (0, jsx_runtime_1.jsx)(material_1.Typography, { children: "Selecting a provider for the first time will open a browser window for you to log in and grant EmuSync permission to your storage." })] }) }), (0, jsx_runtime_1.jsxs)(HorizontalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(ProviderSelector, { provider: enums_1.StorageProvider.GoogleDrive, onSelect: handleSelectGoogle, loading: googleIsLoading }), (0, jsx_runtime_1.jsx)(ProviderSelector, { provider: enums_1.StorageProvider.Dropbox, onSelect: handleSelectDropbox, loading: dropboxIsLoading }), (0, jsx_runtime_1.jsx)(ProviderSelector, { provider: enums_1.StorageProvider.OneDrive, onSelect: handleSelectOneDrive, loading: onedriveIsLoading })] })] }), (0, jsx_runtime_1.jsx)(ShowModal_1.default, { isOpen: modalIsOpen, setIsOpen: () => { }, title: "Connecting to provider", children: (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(InfoAlert_1.default, { content: (0, jsx_runtime_1.jsx)(VerticalStack_1.default, { children: (0, jsx_runtime_1.jsx)(material_1.Typography, { children: "A window should open for you to log in to your provider. EmuSync only has access to the files and folders it creates." }) }) }), (0, jsx_runtime_1.jsx)(material_1.Typography, { textAlign: "center", children: (0, jsx_runtime_1.jsx)(material_2.CircularProgress, { size: 20 }) })] }) })] });
 }
 function ProviderSelector({ provider, onSelect, loading }) {
     const providerDetails = (0, react_1.useMemo)(() => {

@@ -70,6 +70,7 @@ public class SyncSourceManager(
 
         foundEntity.Name = entity.Name;
         foundEntity.AutoSyncFrequency = entity.AutoSyncFrequency;
+        foundEntity.MaximumLocalGameBackups = entity.MaximumLocalGameBackups;
 
         string filePath = GetLocalSyncSourceFilePath();
         await LocalDataAccessor.WriteFileContentsAsync(filePath, foundEntity, cancellationToken);

@@ -1,36 +1,28 @@
 import { cacheKeys } from "@/renderer/api/cache-keys";
 import { clearGameCache, deleteGame, getGameList } from "@/renderer/api/game-api";
-import AgentStatusHarness from "@/renderer/components/harnesses/AgentStatusHarness";
 import InfoAlert from "@/renderer/components/alerts/InfoAlert";
-import WarningAlert from "@/renderer/components/alerts/WarningAlert";
 import ListViewDataGrid from "@/renderer/components/datagrid/ListViewDataGrid";
+import AgentStatusHarness from "@/renderer/components/harnesses/AgentStatusHarness";
 import { DeleteItemDetails } from "@/renderer/components/modals/DeleteModal";
 import useListQuery from "@/renderer/hooks/use-list-query";
 import { routes } from "@/renderer/routes";
-import { agentStatusAtom } from "@/renderer/state/agent-status";
-import { localSyncSourceAtom } from "@/renderer/state/local-sync-source";
 import { GameSummary } from "@/renderer/types";
-import { Chip, Divider, Typography } from "@mui/material";
+import { Divider } from "@mui/material";
 
 import { GridColDef } from '@mui/x-data-grid';
 import { useAtom } from "jotai";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useMemo } from "react";
 
 import { GameSyncStatusChip } from "@/renderer/components/chips/GameSyncStatusChip";
-import { gameSyncStatusOptions } from "@/renderer/types/enums";
-import { allSyncSourcesAtom } from "@/renderer/state/all-sync-sources";
-import DisplayDate from "@/renderer/components/dates/DisplayDate";
-import { size } from "lodash";
-import HorizontalStack from "@/renderer/components/stacks/HorizontalStack";
 import StorageSizeChip from "@/renderer/components/chips/StorageSizeChip";
+import DisplayDate from "@/renderer/components/dates/DisplayDate";
+import { allSyncSourcesAtom } from "@/renderer/state/all-sync-sources";
+import { gameSyncStatusOptions } from "@/renderer/types/enums";
 
 
 export default function GameListScreen() {
 
-    const [localSyncSource] = useAtom(localSyncSourceAtom);
     const [allSyncSources] = useAtom(allSyncSourcesAtom);
-    const [agentStatus] = useAtom(agentStatusAtom);
 
     const columns: GridColDef<GameSummary>[] = useMemo(() => {
 
@@ -135,38 +127,22 @@ export default function GameListScreen() {
 
     }, []);
 
-    return <AgentStatusHarness
-        agentStatus={agentStatus}
-    >
+    return <AgentStatusHarness>
+        <ListViewDataGrid
+            columns={columns}
+            rows={query.data ?? []}
+            loading={query.isFetching || resetCacheMutation.isPending}
 
-        {
-            localSyncSource.storageProviderId ?
-                <ListViewDataGrid
-                    columns={columns}
-                    rows={query.data ?? []}
-                    loading={query.isFetching || resetCacheMutation.isPending}
+            editHref={routes.gameEdit.href}
 
-                    editHref={routes.gameEdit.href}
+            addButtonItemName="game"
+            addButtonRedirect={routes.gameAdd.href}
 
-                    addButtonItemName="game"
-                    addButtonRedirect={routes.gameAdd.href}
+            hasError={query.isError}
+            reloadFunc={async () => resetCacheMutation.mutateAsync(undefined)}
 
-                    hasError={query.isError}
-                    reloadFunc={async () => resetCacheMutation.mutateAsync(undefined)}
-
-                    deleteFunc={handleDelete}
-                    getDeleteItemDetails={getDeleteItemDeails}
-                />
-                :
-
-                <WarningAlert
-
-                    content={
-                        <Typography>
-                            You need to configure a storage provider in the <Link to={routes.thisDevice.href}>{routes.thisDevice.title}</Link> section before you can manage games.
-                        </Typography>
-                    }
-                />
-        }
+            deleteFunc={handleDelete}
+            getDeleteItemDetails={getDeleteItemDeails}
+        />
     </AgentStatusHarness>
 }

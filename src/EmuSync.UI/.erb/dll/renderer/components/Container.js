@@ -1,10 +1,13 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Container;
 const jsx_runtime_1 = require("react/jsx-runtime");
-const material_1 = require("@mui/material");
+const VerticalStack_1 = __importDefault(require("@/renderer/components/stacks/VerticalStack"));
 function Container({ children }) {
-    return (0, jsx_runtime_1.jsx)(material_1.Paper, { sx: {
+    return (0, jsx_runtime_1.jsx)(VerticalStack_1.default, { sx: {
             margin: "auto",
             maxWidth: {
                 xs: "unset",
@@ -14,8 +17,7 @@ function Container({ children }) {
                 xs: "100%",
                 lg: 650,
                 xl: 800,
-            },
-            p: 2
-        }, elevation: 2, children: children });
+            }
+        }, children: children });
 }
 //# sourceMappingURL=Container.js.map

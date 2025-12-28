@@ -1,6 +1,4 @@
-﻿using Dropbox.Api.Users;
-using EmuSync.Domain;
-using EmuSync.Domain.Extensions;
+﻿using EmuSync.Domain.Extensions;
 using EmuSync.Domain.Helpers;
 using EmuSync.Services.Managers.Abstracts;
 using EmuSync.Services.Managers.Enums;
@@ -9,7 +7,6 @@ using EmuSync.Services.Storage;
 using EmuSync.Services.Storage.Interfaces;
 using EmuSync.Services.Storage.Objects;
 using Microsoft.Extensions.Logging;
-using static Dropbox.Api.Files.ListRevisionsMode;
 
 namespace EmuSync.Services.Managers;
 

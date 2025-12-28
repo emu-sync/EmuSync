@@ -14,10 +14,14 @@ public class GameSyncManager(
     ILogger<GameManager> logger,
     ILocalDataAccessor localDataAccessor,
     IStorageProviderFactory storageProviderFactory,
-    IGameManager gameManager
+    IGameManager gameManager,
+    ILocalSyncLog localSyncLog,
+    ILocalGameSaveBackupService localGameSaveBackupService
 ) : BaseManager(logger, localDataAccessor, storageProviderFactory), IGameSyncManager
 {
     private readonly IGameManager _gameManager = gameManager;
+    private readonly ILocalSyncLog _localSyncLog = localSyncLog;
+    private readonly ILocalGameSaveBackupService _localGameSaveBackupService = localGameSaveBackupService;
 
     public GetSyncTypeResult GetSyncType(string syncSourceId, GameEntity game)
     {
@@ -35,7 +39,12 @@ public class GameSyncManager(
         return result;
     }
 
-    public async Task<GameSyncStatus> SyncGameAsync(string syncSourceId, GameEntity game, CancellationToken cancellationToken = default)
+    public async Task<GameSyncStatus> SyncGameAsync(
+        string syncSourceId,
+        GameEntity game,
+        bool isAutoSync,
+        CancellationToken cancellationToken = default
+    )
     {
         GetSyncTypeResult syncTypeResult = GetSyncType(syncSourceId, game);
 
@@ -46,6 +55,7 @@ public class GameSyncManager(
                 await DownloadGameFilesAsync(
                     syncTypeResult.FolderPath,
                     game,
+                    isAutoSync,
                     cancellationToken
                 );
 
@@ -57,6 +67,7 @@ public class GameSyncManager(
                     syncSourceId,
                     syncTypeResult.FolderPath,
                     game,
+                    isAutoSync,
                     syncTypeResult.DirectoryScanResult,
                     cancellationToken
                 );
@@ -68,7 +79,12 @@ public class GameSyncManager(
         }
     }
 
-    public async Task ForceDownloadGameAsync(string syncSourceId, GameEntity game, CancellationToken cancellationToken = default)
+    public async Task ForceDownloadGameAsync(
+        string syncSourceId,
+        GameEntity game,
+        bool isAutoSync,
+        CancellationToken cancellationToken = default
+    )
     {
         string? folderPath = null;
         game.SyncSourceIdLocations?.TryGetValue(syncSourceId, out folderPath);
@@ -81,11 +97,17 @@ public class GameSyncManager(
         await DownloadGameFilesAsync(
             folderPath,
             game,
+            isAutoSync,
             cancellationToken
         );
     }
 
-    public async Task ForceUploadGameAsync(string syncSourceId, GameEntity game, CancellationToken cancellationToken = default)
+    public async Task ForceUploadGameAsync(
+        string syncSourceId,
+        GameEntity game,
+        bool isAutoSync,
+        CancellationToken cancellationToken = default
+    )
     {
         string? folderPath = null;
         game.SyncSourceIdLocations?.TryGetValue(syncSourceId, out folderPath);
@@ -101,6 +123,35 @@ public class GameSyncManager(
             syncSourceId,
             folderPath,
             game,
+            isAutoSync,
+            scanResult,
+            cancellationToken
+        );
+    }
+
+    public async Task RestoreFromBackup(
+        string syncSourceId,
+        GameEntity game,
+        string backupId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        string? folderPath = null;
+        game.SyncSourceIdLocations?.TryGetValue(syncSourceId, out folderPath);
+
+        if (string.IsNullOrEmpty(folderPath))
+        {
+            throw new ArgumentNullException("No sync location has been set");
+        }
+
+        await _localGameSaveBackupService.RestoreBackupAsync(game.Id, backupId, folderPath, cancellationToken);
+        DirectoryScanResult scanResult = LocalDataAccessor.ScanDirectory(folderPath);
+
+        await UploadGameFilesAsync(
+            syncSourceId,
+            folderPath,
+            game,
+            isAutoSync: false,
             scanResult,
             cancellationToken
         );
@@ -165,6 +216,7 @@ public class GameSyncManager(
     private async Task DownloadGameFilesAsync(
         string path,
         GameEntity game,
+        bool isAutoSync,
         CancellationToken cancellationToken = default
     )
     {
@@ -175,20 +227,30 @@ public class GameSyncManager(
 
         if (stream == null) return;
 
+        //create a backup first before we download the latest files
+        await _localGameSaveBackupService.CreateBackupAsync(game.Id, path, cancellationToken);
+
         ZipHelper.ExtractToDirectory(stream, path, game.LatestWriteTimeUtc);
+
+        try
+        {
+            await _localSyncLog.WriteLogAsync(game.Id, SyncType.Download, isAutoSync, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to wite local sync log");
+        }
     }
 
     private async Task UploadGameFilesAsync(
         string syncSourceId,
         string path,
         GameEntity game,
+        bool isAutoSync,
         DirectoryScanResult scanResult,
         CancellationToken cancellationToken = default
     )
     {
-
-        //TODO: need to account for files being used by another process (I.e., the game is running)
-
         var storageProvider = await GetRequiredStorageProviderAsync(cancellationToken);
 
         using var stream = ZipHelper.CreateZipFromFolder(path);
@@ -206,5 +268,14 @@ public class GameSyncManager(
 
         Logger.LogInformation("Saving game data {gameName}", game.Name);
         await _gameManager.UpdateMetaDataAsync(game, cancellationToken);
+
+        try
+        {
+            await _localSyncLog.WriteLogAsync(game.Id, SyncType.Upload, isAutoSync, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to wite local sync log");
+        }
     }
 }

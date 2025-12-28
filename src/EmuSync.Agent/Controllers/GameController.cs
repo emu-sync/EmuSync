@@ -1,7 +1,6 @@
 using EmuSync.Agent.Dto.Game;
 using EmuSync.Domain;
 using EmuSync.Domain.Extensions;
-using EmuSync.Domain.Services;
 using EmuSync.Domain.Services.Interfaces;
 using EmuSync.Services.LudusaviImporter;
 using EmuSync.Services.Managers.Interfaces;
@@ -18,7 +17,8 @@ public class GameController(
     IGameSyncStatusCache gameSyncStatusCache,
     IGameSyncService gameSyncService,
     ISyncTasks syncTasks,
-    IApiCache apiCache
+    IApiCache apiCache,
+    ILocalGameSaveBackupService localGameSaveBackupService
 ) : CustomControllerBase(logger, validator)
 {
     private readonly IGameManager _manager = manager;
@@ -27,9 +27,10 @@ public class GameController(
     private readonly IGameSyncService _gameSyncService = gameSyncService;
     private readonly ISyncTasks _syncTasks = syncTasks;
     private readonly IApiCache _apiCache = apiCache;
+    private readonly ILocalGameSaveBackupService _localGameSaveBackupService = localGameSaveBackupService;
 
     [HttpGet]
-    public async Task<IActionResult> GetList( CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetList(CancellationToken cancellationToken = default)
     {
         List<GameEntity>? list = _apiCache.Games.Value;
 
@@ -39,7 +40,7 @@ public class GameController(
             if (list != null) _apiCache.Games.Set(list);
         }
 
-        //if we have games, just reprocess all the file watchers that might be attached / re-evaluate the sync statuses
+        //if we have games, just re-evaluate the sync statuses
         if (list != null && list.Count > 0)
         {
             await _gameSyncService.TryDetectGameSyncStatusesAsync(list, cancellationToken);
@@ -61,7 +62,7 @@ public class GameController(
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetById([FromRoute]string id, CancellationToken cancellationToken = default)
     {
         GameEntity? entity = _apiCache.GetGame(id);
         entity ??= await _manager.GetAsync(id, cancellationToken);
@@ -71,7 +72,6 @@ public class GameController(
             return NotFoundWithErrors($"No game found with ID {id}");
         }
 
-        //even if we fetch, just update the watcher - we might have an outdated on this device
         await TryUpdateSyncTaskAsync(entity, cancellationToken);
 
         GameDto response = entity.ToDto();
@@ -86,6 +86,16 @@ public class GameController(
         var suggestionsResult = await _localDataAccessor.ReadFileContentsOrDefaultAsync<LatestManifestScanResult>(fileName, cancellationToken);
 
         List<GameSuggestionDto> response = suggestionsResult?.FoundGames.ConvertAll(x => x.ToDto()) ?? [];
+        return Ok(response);
+    }
+
+    [HttpGet("{id}/Backups")]
+    public async Task<IActionResult> GetGameBackups([FromRoute] string id, CancellationToken cancellationToken = default)
+    {
+        List<LocalGameBackupManifestEntity> manifests = await _localGameSaveBackupService.GetBackupsAsync(id, cancellationToken);
+
+        List<GameBackupManifestDto> response = manifests.ConvertAll(x => x.ToDto());
+
         return Ok(response);
     }
 

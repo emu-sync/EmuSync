@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = useListQuery;
 const use_alerts_1 = __importDefault(require("@/renderer/hooks/use-alerts"));
 const react_query_1 = require("@tanstack/react-query");
-function useListQuery({ queryKey, relatedQueryKeys, queryFn, mutationFn, successCallback, errorCallback, successMessage, errorMessage }) {
+function useListQuery({ queryKey, relatedQueryKeys, queryFn, resetCacheFn, mutationFn, successCallback, errorCallback, successMessage, errorMessage }) {
     const { successAlert, errorAlert } = (0, use_alerts_1.default)();
     const queryClient = (0, react_query_1.useQueryClient)();
     const query = (0, react_query_1.useQuery)({
@@ -31,9 +31,18 @@ function useListQuery({ queryKey, relatedQueryKeys, queryFn, mutationFn, success
             }
         },
     });
+    const resetCacheMutation = (0, react_query_1.useMutation)({
+        mutationFn: resetCacheFn,
+        onSuccess: async (data) => {
+            relatedQueryKeys.forEach(key => {
+                queryClient.invalidateQueries({ queryKey: [key] });
+            });
+        },
+    });
     return {
         query,
-        deleteMutation
+        deleteMutation,
+        resetCacheMutation
     };
 }
 //# sourceMappingURL=use-list-query.js.map

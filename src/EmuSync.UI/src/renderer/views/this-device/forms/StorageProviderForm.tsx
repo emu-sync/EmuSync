@@ -11,6 +11,7 @@ import DisplayExistingStorageProvider from "@/renderer/views/this-device/compone
 import StorageProviderSelector from "@/renderer/views/this-device/components/StorageProviderSelector";
 import BackupIcon from '@mui/icons-material/Backup';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import Section from "@/renderer/components/Section";
 
 export default function StorageProviderForm() {
 
@@ -31,7 +32,7 @@ export default function StorageProviderForm() {
 
     }, []);
 
-    return <VerticalStack>
+    return <Section>
 
         <SectionTitle
             title="Storage provider"
@@ -59,7 +60,7 @@ export default function StorageProviderForm() {
 
         </LoadingHarness>
 
-    </VerticalStack>
+    </Section>
 }
 
 

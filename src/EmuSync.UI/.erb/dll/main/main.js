@@ -12,19 +12,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-const path_1 = __importDefault(require("path"));
 const electron_1 = require("electron");
-const electron_updater_1 = require("electron-updater");
-const electron_log_1 = __importDefault(require("electron-log"));
+const path_1 = __importDefault(require("path"));
 const menu_1 = __importDefault(require("./menu"));
 const util_1 = require("./util");
-class AppUpdater {
-    constructor() {
-        electron_log_1.default.transports.file.level = 'info';
-        electron_updater_1.autoUpdater.logger = electron_log_1.default;
-        electron_updater_1.autoUpdater.checkForUpdatesAndNotify();
-    }
-}
+// class AppUpdater {
+//     constructor() {
+//         log.transports.file.level = 'info';
+//         autoUpdater.logger = log;
+//         autoUpdater.checkForUpdatesAndNotify();
+//     }
+// }
 let mainWindow = null;
 if (process.env.NODE_ENV === 'production') {
     const sourceMapSupport = require('source-map-support');
@@ -35,14 +33,22 @@ if (isDebug) {
     require('electron-debug').default();
 }
 //IPC handler for directory picking
-electron_1.ipcMain.handle('dialog:openDirectory', async () => {
+electron_1.ipcMain.handle('dialog:openDirectory', async (event, initialPath) => {
     const { dialog } = await import('electron');
     const result = await dialog.showOpenDialog({
-        properties: ['openDirectory'],
+        properties: ["openDirectory", "showHiddenFiles"],
+        defaultPath: initialPath ?? undefined, // set the starting directory
     });
     return result.canceled ? null : result.filePaths[0];
 });
 electron_1.ipcMain.handle('shell:openExternal', async (e, link) => {
+    //steam deck isn't opening links properly, so just open them in electron
+    if (process.platform === 'linux') {
+        const win = new electron_1.BrowserWindow({ width: 1000, height: 650 });
+        win.loadURL(link);
+        return;
+    }
+    //fall through and try open with openExternal
     electron_1.shell.openExternal(link);
 });
 const installExtensions = async () => {
@@ -66,7 +72,7 @@ const createWindow = async () => {
     mainWindow = new electron_1.BrowserWindow({
         show: false,
         width: 1000,
-        height: 720,
+        height: 650,
         minWidth: 635,
         minHeight: 635,
         icon: getAssetPath('icon.png'),
@@ -115,9 +121,7 @@ electron_1.app.on('window-all-closed', () => {
         electron_1.app.quit();
     }
 });
-electron_1.app
-    .whenReady()
-    .then(() => {
+electron_1.app.whenReady().then(() => {
     createWindow();
     electron_1.app.on('activate', () => {
         // On macOS it's common to re-create a window in the app when the
@@ -125,6 +129,5 @@ electron_1.app
         if (mainWindow === null)
             createWindow();
     });
-})
-    .catch(console.log);
+}).catch(console.log);
 //# sourceMappingURL=main.js.map

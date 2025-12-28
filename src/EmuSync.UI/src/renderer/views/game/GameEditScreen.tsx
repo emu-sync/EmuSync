@@ -7,6 +7,7 @@ import useEditQuery from "@/renderer/hooks/use-edit-query";
 import useIdParam from "@/renderer/hooks/use-id-query-param";
 import { routes } from "@/renderer/routes";
 import GameForm from "@/renderer/views/game/forms/GameForm";
+import LocalSyncLogForm from "@/renderer/views/game/forms/LocalSyncLogForm";
 import SyncStatusForm from "@/renderer/views/game/forms/SyncStatusForm";
 import { Divider } from "@mui/material";
 import { useMemo } from "react";
@@ -50,11 +51,13 @@ export default function GameEditScreen() {
                     saveMutation={updateMutation}
                 />
 
-                <Divider />
-
                 <SyncStatusForm
                     gameId={id}
                     gameName={query.data?.name ?? ""}
+                />
+
+                <LocalSyncLogForm
+                    gameId={id}
                 />
             </VerticalStack>
 

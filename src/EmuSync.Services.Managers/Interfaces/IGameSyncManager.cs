@@ -18,25 +18,38 @@ public interface IGameSyncManager
     /// </summary>
     /// <param name="syncSourceId"></param>
     /// <param name="game"></param>
+    /// <param name="isAutoSync"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<GameSyncStatus> SyncGameAsync(string syncSourceId, GameEntity game, CancellationToken cancellationToken = default);
+    Task<GameSyncStatus> SyncGameAsync(string syncSourceId, GameEntity game, bool isAutoSync, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Downloads the game files regardless of if that's the suggested option
     /// </summary>
     /// <param name="syncSourceId"></param>
     /// <param name="game"></param>
+    /// <param name="isAutoSync"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task ForceDownloadGameAsync(string syncSourceId, GameEntity game, CancellationToken cancellationToken = default);
+    Task ForceDownloadGameAsync(string syncSourceId, GameEntity game, bool isAutoSync, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Uploads the game files regardless of if that's the suggested option
     /// </summary>
     /// <param name="syncSourceId"></param>
     /// <param name="game"></param>
+    /// <param name="isAutoSync"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task ForceUploadGameAsync(string syncSourceId, GameEntity game, CancellationToken cancellationToken = default);
+    Task ForceUploadGameAsync(string syncSourceId, GameEntity game, bool isAutoSync, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Restores a local backup for the game, then uploads the new games files as the latest
+    /// </summary>
+    /// <param name="syncSourceId"></param>
+    /// <param name="game"></param>
+    /// <param name="backupId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task RestoreFromBackup(string syncSourceId, GameEntity game, string backupId, CancellationToken cancellationToken = default);
 }

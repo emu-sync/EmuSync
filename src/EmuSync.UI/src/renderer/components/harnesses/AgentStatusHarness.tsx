@@ -1,18 +1,25 @@
 import ErrorAlert from "@/renderer/components/alerts/ErrorAlert";
 import SuccessAlert from "@/renderer/components/alerts/SuccessAlert";
+import WarningAlert from "@/renderer/components/alerts/WarningAlert";
 import HorizontalStack from "@/renderer/components/stacks/HorizontalStack";
-import { AgentStatus } from "@/renderer/state/agent-status";
+import { routes } from "@/renderer/routes";
+import { agentStatusAtom } from "@/renderer/state/agent-status";
+import { localSyncSourceAtom } from "@/renderer/state/local-sync-source";
 import { CircularProgress, Typography } from "@mui/material";
+import { useAtom } from "jotai";
 import React from "react";
+import { Link } from "react-router-dom";
 
 interface AgentStatusHarnessProps {
-    agentStatus: AgentStatus;
     children: React.ReactNode;
 }
 
 export default function AgentStatusHarness({
-    agentStatus, children
+    children
 }: AgentStatusHarnessProps) {
+
+    const [agentStatus] = useAtom(agentStatusAtom);
+    const [localSyncSource] = useAtom(localSyncSourceAtom);
 
     if (!agentStatus.hasChecked) {
         return <AgentStatusLoadingState />
@@ -24,6 +31,17 @@ export default function AgentStatusHarness({
         />
     }
 
+    if (!(localSyncSource.storageProviderId)) {
+        return <WarningAlert
+
+            content={
+                <Typography>
+                    You need to configure a storage provider in the <Link to={routes.thisDevice.href}>{routes.thisDevice.title}</Link> section first.
+                </Typography>
+            }
+        />
+    }
+    
     return children;
 }
 

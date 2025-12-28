@@ -13,9 +13,15 @@ const jotai_1 = require("jotai");
 const notistack_1 = require("notistack");
 const notistack_2 = require("notistack");
 const relativeTime_1 = __importDefault(require("dayjs/plugin/relativeTime"));
+const duration_1 = __importDefault(require("dayjs/plugin/duration"));
 const dayjs_1 = __importDefault(require("dayjs"));
 require("dayjs/locale/en-gb");
+const utc_1 = __importDefault(require("dayjs/plugin/utc")); // import the plugin
+const timezone_1 = __importDefault(require("dayjs/plugin/timezone")); // import the plugin
 dayjs_1.default.extend(relativeTime_1.default); //allows the use of the dayjs time plugin. E.g., "... 10 minutes ago"
+dayjs_1.default.extend(utc_1.default);
+dayjs_1.default.extend(duration_1.default);
+dayjs_1.default.extend(timezone_1.default);
 const react_query_1 = require("@tanstack/react-query");
 const queryClient = new react_query_1.QueryClient({
     defaultOptions: {

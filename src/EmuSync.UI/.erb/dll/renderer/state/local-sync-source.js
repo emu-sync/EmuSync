@@ -6,7 +6,9 @@ exports.defaultSyncSource = {
     id: "",
     name: "",
     storageProviderId: null,
-    platformId: 0
+    platformId: 0,
+    autoSyncFrequencyMins: 0,
+    maximumLocalGameBackups: 0
 };
 exports.localSyncSourceAtom = (0, jotai_1.atom)(exports.defaultSyncSource);
 //# sourceMappingURL=local-sync-source.js.map

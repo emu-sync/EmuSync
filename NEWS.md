@@ -3,8 +3,7 @@ There is a now Decky plugin available for SteamDeck users! Please check out how 
 
 The status of your game syncs can now be checked via the Decky plugin, as well as manually syncing your game saves - no more hopping into desktop mode each time.
 
-## Features I plan to add
+## Local game backups & restore mechanism
+The latest version of EmuSync will now keep local backups whenever it downloads new files, so if something goes horribly wrong, there is a now a disaster recovery option!
 
-- Device specific sync log/history so you can review when saves were uploaded from/downloaded to the device.
-- Local backups of game save files whenever new files are downloaded to a device.
-  - This will also include a restore from backup mechanism.
+Read more about game backups [here](https://github.com/emu-sync/EmuSync/wiki/Local-game-backups).

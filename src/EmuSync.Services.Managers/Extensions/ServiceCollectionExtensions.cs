@@ -1,4 +1,5 @@
-﻿using EmuSync.Services.Managers.Interfaces;
+﻿using EmuSync.Domain.Services;
+using EmuSync.Services.Managers.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,5 +17,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISyncSourceManager, SyncSourceManager>();
         services.AddScoped<IGameManager, GameManager>();
         services.AddScoped<IGameSyncManager, GameSyncManager>();
+
+        services.AddSingleton<ILocalSyncLog, LocalSyncLog>();
+        services.AddSingleton<ILocalGameSaveBackupService, LocalGameSaveBackupService>();
     }
 }

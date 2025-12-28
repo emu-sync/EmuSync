@@ -80,7 +80,7 @@ const electronHandler = {
     openDirectory: (path) => electron_1.ipcRenderer.invoke('dialog:openDirectory', path),
     openExternalLink: (link) => electron_1.ipcRenderer.invoke('shell:openExternal', link),
     apiUrl: process.env.API_URL ?? "http://localhost:5353",
-    releaseVersion: "1.0.0" ?? 0,
+    releaseVersion: "1.0.5" ?? 0,
     isWindows: process.platform === 'win32',
     isLinux: process.platform === 'linux',
     isMac: process.platform === 'darwin'

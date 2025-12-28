@@ -25,6 +25,7 @@ import CheckboxSkeleton from "@/renderer/components/skeleton/CheckboxSkeleton";
 import SaveButtonSkeleton from "@/renderer/components/skeleton/SaveButtonSkeleton";
 import TextFieldSkeleton from "@/renderer/components/skeleton/TextFieldSkeleton";
 import { OsPlatform } from "@/renderer/types/enums";
+import Section from "@/renderer/components/Section";
 
 type GameFormCreateProps = BaseEditFormProps<CreateGame, GameSummary> & {
     isEdit: false;
@@ -53,14 +54,15 @@ export default function GameForm({
     const [allSyncSources] = useAtom(allSyncSourcesAtom);
 
     const {
-        handleSubmit, control, formState, reset, setValue
+        handleSubmit, control, formState, reset, setValue,
+        watch
     } = useEditForm({
         query,
         defaultValues: isEdit ? defaultUpdateGame : defaultCreateGame,
         transformData: isEdit ? transformUpdateGame : transformCreateGame
     });
 
-    const autoSyncEnabled = useWatch({ control, name: "autoSync" });
+    const autoSyncEnabled = watch("autoSync");
 
     const handleFormSubmit = useCallback((data: UpdateGame | CreateGame) => {
 
@@ -106,7 +108,7 @@ export default function GameForm({
 
     }, [setValue, isEdit, localSyncSource]);
 
-    return <VerticalStack>
+    return <Section>
 
         <SectionTitle
             title="Game details"
@@ -236,7 +238,7 @@ export default function GameForm({
                 </VerticalStack>
             </form>
         </LoadingHarness>
-    </VerticalStack>
+    </Section>
 }
 
 

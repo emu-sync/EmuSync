@@ -6,12 +6,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = SettingsMenu;
 const jsx_runtime_1 = require("react/jsx-runtime");
+const InfoAlert_1 = __importDefault(require("@/renderer/components/alerts/InfoAlert"));
+const use_release_version_checker_1 = require("@/renderer/hooks/use-release-version-checker");
 const ColourSchemeSelector_1 = __importDefault(require("@/renderer/layout/Header/ColourSchemeSelector"));
+const routes_1 = require("@/renderer/routes");
 const site_settings_1 = require("@/renderer/site-settings");
 const SettingsOutlined_1 = __importDefault(require("@mui/icons-material/SettingsOutlined"));
 const material_1 = require("@mui/material");
 const react_1 = require("react");
+const react_router_dom_1 = require("react-router-dom");
 function SettingsMenu() {
+    const { latestVersion, currentVersion, isNewVersion } = (0, use_release_version_checker_1.useReleaseVersionChecker)();
     const [anchorElUser, setAnchorElUser] = (0, react_1.useState)(null);
     const handleOpenUserMenu = (event) => {
         setAnchorElUser(event.currentTarget);
@@ -19,7 +24,7 @@ function SettingsMenu() {
     const handleCloseUserMenu = () => {
         setAnchorElUser(null);
     };
-    return (0, jsx_runtime_1.jsxs)(material_1.Box, { children: [(0, jsx_runtime_1.jsx)(material_1.IconButton, { onClick: handleOpenUserMenu, title: "Open settings", children: (0, jsx_runtime_1.jsx)(SettingsOutlined_1.default, {}) }), (0, jsx_runtime_1.jsx)(material_1.Menu, { disableScrollLock: true, disablePortal: true, sx: {
+    return (0, jsx_runtime_1.jsxs)(material_1.Box, { children: [(0, jsx_runtime_1.jsx)(material_1.IconButton, { onClick: handleOpenUserMenu, title: "Open settings", children: (0, jsx_runtime_1.jsx)(material_1.Badge, { color: "primary", variant: "dot", badgeContent: isNewVersion ? 1 : 0, children: (0, jsx_runtime_1.jsx)(SettingsOutlined_1.default, {}) }) }), (0, jsx_runtime_1.jsx)(material_1.Menu, { disableScrollLock: true, disablePortal: true, sx: {
                     marginTop: `${site_settings_1.siteSettings.layoutProperties.headerHeight - 20}px`
                 }, anchorEl: anchorElUser, anchorOrigin: {
                     vertical: 'top',
@@ -36,11 +41,15 @@ function SettingsMenu() {
                             filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))'
                         },
                     }
-                }, children: (0, jsx_runtime_1.jsx)(material_1.Box, { sx: { px: 1 }, children: (0, jsx_runtime_1.jsx)(material_1.MenuItem, { sx: {
-                            cursor: "default",
-                            "&:hover": {
-                                background: "none"
-                            }
-                        }, disableTouchRipple: true, children: (0, jsx_runtime_1.jsx)(ColourSchemeSelector_1.default, {}) }) }) })] });
+                }, children: (0, jsx_runtime_1.jsxs)(material_1.Box, { sx: { px: 1 }, children: [(0, jsx_runtime_1.jsx)(material_1.MenuItem, { sx: {
+                                cursor: "default",
+                                "&:hover": {
+                                    background: "none"
+                                }
+                            }, disableTouchRipple: true, children: (0, jsx_runtime_1.jsx)(ColourSchemeSelector_1.default, {}) }), isNewVersion &&
+                            (0, jsx_runtime_1.jsx)(InfoAlert_1.default, { sx: {
+                                    maxWidth: 275,
+                                    m: 1
+                                }, content: (0, jsx_runtime_1.jsxs)(material_1.Typography, { children: ["There is ", (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, { onClick: handleCloseUserMenu, to: routes_1.routes.about.href, children: "new version" }), " of EmuSync available!"] }) })] }) })] });
 }
 //# sourceMappingURL=SettingsMenu.js.map

@@ -13,6 +13,7 @@ const system_1 = require("@mui/system");
 const x_data_grid_1 = require("@mui/x-data-grid");
 const react_1 = require("react");
 const react_router_dom_1 = require("react-router-dom");
+require("./overrides.css");
 function ListViewDataGrid({ columns, rows, loading, editHref, addButtonRedirect, addButtonItemName, hasError, reloadFunc, deleteFunc, getDeleteItemDetails }) {
     const [deleteModalIsOpen, setDeleteModalIsOpen] = (0, react_1.useState)(false);
     const [currentDeleteModel, setCurrentDeleteModel] = (0, react_1.useState)(null);

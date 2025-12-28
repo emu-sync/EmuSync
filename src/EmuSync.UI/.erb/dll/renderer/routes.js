@@ -10,6 +10,7 @@ const Home_1 = __importDefault(require("@mui/icons-material/Home"));
 const Info_1 = __importDefault(require("@mui/icons-material/Info"));
 const VideogameAsset_1 = __importDefault(require("@mui/icons-material/VideogameAsset"));
 const Devices_1 = __importDefault(require("@mui/icons-material/Devices"));
+const History_1 = __importDefault(require("@mui/icons-material/History"));
 //create a strongly typed object of our site routes so we can reference them throughout the site
 //each route will also have a callback function to determine if the user can access it, accepting the user permissions object
 exports.routes = {
@@ -18,6 +19,12 @@ exports.routes = {
         title: "Home",
         pathMatcher: exactPathMatch,
         icon: Home_1.default
+    },
+    localSyncHistory: {
+        href: "/local-sync-history",
+        title: "Local sync history",
+        pathMatcher: exactPathMatch,
+        icon: History_1.default
     },
     game: {
         href: "/game",

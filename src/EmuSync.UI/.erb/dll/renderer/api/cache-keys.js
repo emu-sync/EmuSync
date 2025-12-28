@@ -11,9 +11,22 @@ exports.cacheKeys = {
     gameSyncStatus: (id) => {
         return buildCacheKey("gameSyncStatus", id);
     },
+    gameBackups: (id) => {
+        return buildCacheKey("gameBackups", id);
+    },
+    gameLocalSyncLogsList: "gameLocalSyncLogs",
+    gameLocalSyncLogs: (id) => {
+        return buildCacheKey("gameLocalSyncLogs", id);
+    },
     gameList: "gameList",
+    gameSuggestionList: "gameSuggestionList",
     healthCheck: "healthCheck",
+    latestRelease: "latestRelease",
     agentSystemInfo: "agentSystemInfo",
+    changeLog: "changeLog",
+    news: "news",
+    nextAutoSyncTime: "nextAutoSyncTime",
+    gameScanDetails: "gameScanDetails",
 };
 function buildCacheKey(key, additionalPart) {
     return `${key}-${additionalPart}`;

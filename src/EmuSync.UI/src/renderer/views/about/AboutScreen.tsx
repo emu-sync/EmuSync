@@ -1,10 +1,8 @@
-import InfoAlert from "@/renderer/components/alerts/InfoAlert";
-import ExternalLinkButton from "@/renderer/components/buttons/ExternalLinkButton";
 import Container from "@/renderer/components/Container";
 import NewReleaseAlert from "@/renderer/components/NewReleaseAlert";
 import { Pre } from "@/renderer/components/Pre";
+import Section from "@/renderer/components/Section";
 import SectionTitle from "@/renderer/components/SectionTitle";
-import VerticalStack from "@/renderer/components/stacks/VerticalStack";
 import { useReleaseVersionChecker } from "@/renderer/hooks/use-release-version-checker";
 import { routes } from "@/renderer/routes";
 
@@ -22,7 +20,7 @@ export default function AboutScreen() {
     } = useReleaseVersionChecker();
 
     return <Container>
-        <VerticalStack>
+        <Section>
             <SectionTitle
                 title="About EmuSync"
                 icon={<Icon />}
@@ -38,7 +36,7 @@ export default function AboutScreen() {
                     latestVersion={latestVersion}
                 />
             }
-        </VerticalStack>
+        </Section>
     </Container>
 }
 

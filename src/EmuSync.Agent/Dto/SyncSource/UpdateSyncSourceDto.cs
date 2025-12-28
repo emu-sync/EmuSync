@@ -10,6 +10,9 @@ public record UpdateSyncSourceDto : ISyncSourceDto
 
     [JsonPropertyName("autoSyncFrequencyMins")]
     public int? AutoSyncFrequencyMins { get; set; }
+
+    [JsonPropertyName("maximumLocalGameBackups")]
+    public int? MaximumLocalGameBackups { get; set; }
 }
 
 public class UpdateSyncSourceDtoValidator : AbstractValidator<UpdateSyncSourceDto>

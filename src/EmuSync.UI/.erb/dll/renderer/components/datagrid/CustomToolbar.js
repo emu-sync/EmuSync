@@ -47,7 +47,8 @@ function CustomToolbar({ addButtonRedirect, itemName, loading, reloadFunc, hasEr
     const handleReloadClick = (0, react_1.useCallback)(async () => {
         await reloadFunc();
     }, [reloadFunc]);
-    return ((0, jsx_runtime_1.jsxs)(x_data_grid_1.Toolbar, { children: [(0, jsx_runtime_1.jsx)(system_1.Box, { sx: { mx: 0.5 }, children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, { to: addButtonRedirect, children: (0, jsx_runtime_1.jsxs)(material_1.Button, { color: "primary", size: "small", startIcon: (0, jsx_runtime_1.jsx)(AddCircleOutline_1.default, {}), disabled: loading, children: ["Add new ", itemName] }) }) }), (0, jsx_runtime_1.jsx)(system_1.Box, { sx: {
+    return ((0, jsx_runtime_1.jsxs)(x_data_grid_1.Toolbar, { children: [addButtonRedirect &&
+                (0, jsx_runtime_1.jsx)(system_1.Box, { sx: { mx: 0.5 }, children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, { to: addButtonRedirect, children: (0, jsx_runtime_1.jsxs)(material_1.Button, { color: "primary", size: "small", startIcon: (0, jsx_runtime_1.jsx)(AddCircleOutline_1.default, {}), disabled: loading, children: ["Add new ", itemName] }) }) }), (0, jsx_runtime_1.jsx)(system_1.Box, { sx: {
                     flex: 1,
                     mx: 0.5,
                     display: "flex",

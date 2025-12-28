@@ -1,4 +1,4 @@
-import { Box, Paper } from "@mui/material";
+import VerticalStack from "@/renderer/components/stacks/VerticalStack";
 import React from "react";
 
 interface ContainerProps {
@@ -8,7 +8,7 @@ interface ContainerProps {
 export default function Container({
     children
 }: ContainerProps) {
-    return <Paper
+    return <VerticalStack
         sx={{
             margin: "auto",
             maxWidth: {
@@ -19,11 +19,9 @@ export default function Container({
                 xs: "100%",
                 lg: 650,
                 xl: 800,
-            },
-            p: 2            
+            }         
         }}
-        elevation={2}
     >
         {children}
-    </Paper>
+    </VerticalStack>
 }

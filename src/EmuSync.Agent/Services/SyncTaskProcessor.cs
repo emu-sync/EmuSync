@@ -57,12 +57,12 @@ public class SyncTaskProcessor(
             switch (status)
             {
                 case GameSyncStatus.RequiresDownload:
-                    await _gameSyncManager.ForceDownloadGameAsync(syncSource.Id, gameToSync, cancellationToken);
+                    await _gameSyncManager.ForceDownloadGameAsync(syncSource.Id, gameToSync, isAutoSync: true, cancellationToken);
                     status = GameSyncStatus.InSync;
                     break;
 
                 case GameSyncStatus.RequiresUpload:
-                    await _gameSyncManager.ForceUploadGameAsync(syncSource.Id, gameToSync, cancellationToken);
+                    await _gameSyncManager.ForceUploadGameAsync(syncSource.Id, gameToSync, isAutoSync: true, cancellationToken);
                     status = GameSyncStatus.InSync;
                     break;
 

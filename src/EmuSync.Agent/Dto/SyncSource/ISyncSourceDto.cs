@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using System.Text.Json.Serialization;
 
 namespace EmuSync.Agent.Dto.SyncSource;
 
@@ -10,6 +9,7 @@ public interface ISyncSourceDto
 {
     string Name { get; set; }
     int? AutoSyncFrequencyMins { get; set; }
+    int? MaximumLocalGameBackups { get; set; }
 }
 
 /// <summary>
@@ -20,6 +20,7 @@ public class SyncSourceDtoValidator : AbstractValidator<ISyncSourceDto>
     public SyncSourceDtoValidator()
     {
         RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.AutoSyncFrequencyMins).GreaterThan(0).When(x=> x.AutoSyncFrequencyMins != null);
+        RuleFor(x => x.AutoSyncFrequencyMins).GreaterThan(0).When(x => x.AutoSyncFrequencyMins != null);
+        RuleFor(x => x.MaximumLocalGameBackups).GreaterThan(-1).When(x => x.MaximumLocalGameBackups != null);
     }
 }
