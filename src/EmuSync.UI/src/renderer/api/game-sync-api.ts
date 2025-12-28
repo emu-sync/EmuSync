@@ -41,3 +41,13 @@ export async function forceUploadGame(id: string): Promise<void> {
     });
 
 }
+
+export async function restoreGameFromBackup(id: string, backupId: string): Promise<void> {
+
+    const path = `${controller}/${id}/RestoreFromBackup/${backupId}`;
+
+    await postWithNoResponse({
+        path
+    });
+
+}

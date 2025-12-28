@@ -1,8 +1,9 @@
 import { cacheKeys } from "@/renderer/api/cache-keys";
 import { getLocalSyncLogsForGame } from "@/renderer/api/local-sync-log-api";
 import InfoAlert from "@/renderer/components/alerts/InfoAlert";
-import LoadingHarness from "@/renderer/components/harnesses/LoadingHarness";
 import LocalSyncLogDataGrid from "@/renderer/components/datagrid/LocalSyncLogDataGrid";
+import LoadingHarness from "@/renderer/components/harnesses/LoadingHarness";
+import Section from "@/renderer/components/Section";
 import SectionTitle from "@/renderer/components/SectionTitle";
 import AlertSkeleton from "@/renderer/components/skeleton/AlertSkeleton";
 import VerticalStack from "@/renderer/components/stacks/VerticalStack";
@@ -30,7 +31,7 @@ export default function LocalSyncLogForm({
         queryFn: () => getLocalSyncLogsForGame(gameId)
     });
 
-    return <VerticalStack>
+    return <Section>
         <SectionTitle
             title="Local sync history"
             icon={<Icon />}
@@ -47,7 +48,7 @@ export default function LocalSyncLogForm({
                         style={{
                             display: "flex",
                             flexDirection: "column",
-                            maxHeight: 500,
+                            maxHeight: 420,
                         }}
                     >
                         <LocalSyncLogDataGrid
@@ -67,7 +68,7 @@ export default function LocalSyncLogForm({
                     />
             }
         </LoadingHarness>
-    </VerticalStack>
+    </Section>
 }
 
 

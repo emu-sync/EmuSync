@@ -51,14 +51,11 @@ export default function GameEditScreen() {
                     saveMutation={updateMutation}
                 />
 
-                <Divider />
-
                 <SyncStatusForm
                     gameId={id}
                     gameName={query.data?.name ?? ""}
                 />
 
-                <Divider />
                 <LocalSyncLogForm
                     gameId={id}
                 />

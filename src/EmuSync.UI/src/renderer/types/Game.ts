@@ -37,3 +37,9 @@ export interface UpdateGame {
     autoSync: boolean;
     syncSourceIdLocations?: Record<string, string> | null;
 }
+
+export interface GameBackupManifest {
+    id: string;
+    backupFileName: string;
+    createdOnUtc: string;
+}

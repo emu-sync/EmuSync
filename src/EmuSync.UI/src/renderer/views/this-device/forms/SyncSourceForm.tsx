@@ -19,6 +19,7 @@ import { Box, Button } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { Controller, useWatch } from "react-hook-form";
+import Section from "@/renderer/components/Section";
 
 const Icon = routes.thisDevice.icon;
 
@@ -70,7 +71,7 @@ export default function SyncSourceForm() {
 
     return <form onSubmit={handleSubmit(handleFormSubmit)}>
 
-        <VerticalStack>
+        <Section>
 
             <SectionTitle
                 title="Device details"
@@ -163,7 +164,7 @@ export default function SyncSourceForm() {
 
             </LoadingHarness>
 
-        </VerticalStack>
+        </Section>
     </form >
 }
 

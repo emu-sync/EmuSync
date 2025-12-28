@@ -19,5 +19,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGameSyncManager, GameSyncManager>();
 
         services.AddSingleton<ILocalSyncLog, LocalSyncLog>();
+        services.AddSingleton<ILocalGameSaveBackupService, LocalGameSaveBackupService>();
     }
 }

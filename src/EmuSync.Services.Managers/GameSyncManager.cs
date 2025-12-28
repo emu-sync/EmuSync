@@ -15,11 +15,13 @@ public class GameSyncManager(
     ILocalDataAccessor localDataAccessor,
     IStorageProviderFactory storageProviderFactory,
     IGameManager gameManager,
-    ILocalSyncLog localSyncLog
+    ILocalSyncLog localSyncLog,
+    ILocalGameSaveBackupService localGameSaveBackupService
 ) : BaseManager(logger, localDataAccessor, storageProviderFactory), IGameSyncManager
 {
     private readonly IGameManager _gameManager = gameManager;
     private readonly ILocalSyncLog _localSyncLog = localSyncLog;
+    private readonly ILocalGameSaveBackupService _localGameSaveBackupService = localGameSaveBackupService;
 
     public GetSyncTypeResult GetSyncType(string syncSourceId, GameEntity game)
     {
@@ -127,6 +129,34 @@ public class GameSyncManager(
         );
     }
 
+    public async Task RestoreFromBackup(
+        string syncSourceId,
+        GameEntity game,
+        string backupId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        string? folderPath = null;
+        game.SyncSourceIdLocations?.TryGetValue(syncSourceId, out folderPath);
+
+        if (string.IsNullOrEmpty(folderPath))
+        {
+            throw new ArgumentNullException("No sync location has been set");
+        }
+
+        await _localGameSaveBackupService.RestoreBackupAsync(game.Id, backupId, folderPath, cancellationToken);
+        DirectoryScanResult scanResult = LocalDataAccessor.ScanDirectory(folderPath);
+
+        await UploadGameFilesAsync(
+            syncSourceId,
+            folderPath,
+            game,
+            isAutoSync: false,
+            scanResult,
+            cancellationToken
+        );
+    }
+
     private GameSyncStatus DetermineSyncType(GameEntity game, DirectoryScanResult scanResult)
     {
         using var logScope = Logger.BeginScope("Determine sync type for game {gameName} / {gameId}", game.Name, game.Id);
@@ -196,6 +226,9 @@ public class GameSyncManager(
         using var stream = await storageProvider.GetZipFileAsync(fileName, cancellationToken);
 
         if (stream == null) return;
+
+        //create a backup first before we download the latest files
+        await _localGameSaveBackupService.CreateBackupAsync(game.Id, path, cancellationToken);
 
         ZipHelper.ExtractToDirectory(stream, path, game.LatestWriteTimeUtc);
 

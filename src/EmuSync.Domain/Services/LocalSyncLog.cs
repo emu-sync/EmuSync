@@ -89,6 +89,6 @@ public class LocalSyncLog(ILocalDataAccessor localDataAccessor) : ILocalSyncLog
 
     private string GetLogFilePath()
     {
-        return _localDataAccessor.GetLocalFilePath(DomainConstants.LocalDataSyncLogfile);
+        return _localDataAccessor.GetLocalFilePath(DomainConstants.LocalDataSyncLogFile);
     }
 }

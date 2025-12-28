@@ -42,4 +42,14 @@ public interface IGameSyncManager
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task ForceUploadGameAsync(string syncSourceId, GameEntity game, bool isAutoSync, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Restores a local backup for the game, then uploads the new games files as the latest
+    /// </summary>
+    /// <param name="syncSourceId"></param>
+    /// <param name="game"></param>
+    /// <param name="backupId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task RestoreFromBackup(string syncSourceId, GameEntity game, string backupId, CancellationToken cancellationToken = default);
 }

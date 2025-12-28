@@ -27,7 +27,7 @@ public static class GameMapping
     /// <summary>
     /// Maps a <see cref="FoundGame"/> to a <see cref="GameSuggestionDto"/>
     /// </summary>
-    /// <param name="entity"></param>
+    /// <param name="game"></param>
     /// <returns></returns>
     public static GameSuggestionDto ToDto(this FoundGame game)
     {
@@ -35,6 +35,21 @@ public static class GameMapping
         {
             Name = game.Name,
             SuggestedFolderPaths = game.SuggestedFolderPaths
+        };
+    }
+
+    /// <summary>
+    /// Maps a <see cref="LocalGameBackupManifestEntity"/> to a <see cref="GameBackupManifestDto"/>
+    /// </summary>
+    /// <param name="manifest"></param>
+    /// <returns></returns>
+    public static GameBackupManifestDto ToDto(this LocalGameBackupManifestEntity manifest)
+    {
+        return new()
+        {
+            Id = manifest.Id,
+            BackupFileName  = manifest.BackupFileName,
+            CreatedOnUtc = manifest.CreatedOnUtc
         };
     }
 

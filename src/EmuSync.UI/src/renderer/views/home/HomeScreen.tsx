@@ -3,6 +3,7 @@ import ExternalLinkButton from "@/renderer/components/buttons/ExternalLinkButton
 import Container from "@/renderer/components/Container";
 import LoadingHarness from "@/renderer/components/harnesses/LoadingHarness";
 import NewReleaseAlert from "@/renderer/components/NewReleaseAlert";
+import Section from "@/renderer/components/Section";
 import HorizontalStack from "@/renderer/components/stacks/HorizontalStack";
 import VerticalStack from "@/renderer/components/stacks/VerticalStack";
 import { useChangeLog } from "@/renderer/hooks/use-change-log";
@@ -39,99 +40,101 @@ export default function HomeScreen() {
     }, [latestVersion, changeLog.data]);
 
     return <Container>
+        <Section>
 
-        <Box
-            sx={{
-                height: 75,
-                textAlign: "center",
-                mb: 2
-            }}
-        >
-            <AppLogo />
-        </Box>
+            <Box
+                sx={{
+                    height: 75,
+                    textAlign: "center",
+                    mb: 2
+                }}
+            >
+                <AppLogo />
+            </Box>
 
-        <VerticalStack gap={4}>
+            <VerticalStack gap={4}>
 
-            {
-                isNewVersion &&
-                <>
-                    <NewReleaseAlert
-                        latestVersion={latestVersion}
-                    />
+                {
+                    isNewVersion &&
+                    <>
+                        <NewReleaseAlert
+                            latestVersion={latestVersion}
+                        />
 
-                    <ReadmeSection
-                        title="🚀 Here's what's new if you update"
-                    >
-
-                        <LoadingHarness
-                            query={changeLog}
-                            loadingState={<ChangeLogLoadingState />}
-
+                        <ReadmeSection
+                            title="🚀 Here's what's new if you update"
                         >
-                            <MarkdownRenderer
-                                markdown={newVersionChangeLog?.markdown ?? ""}
-                            />
-                        </LoadingHarness>
-                    </ReadmeSection>
 
-                </>
-            }
+                            <LoadingHarness
+                                query={changeLog}
+                                loadingState={<ChangeLogLoadingState />}
 
-            <ReadmeSection
-                title="📢 What's new in this version?"
-            >
+                            >
+                                <MarkdownRenderer
+                                    markdown={newVersionChangeLog?.markdown ?? ""}
+                                />
+                            </LoadingHarness>
+                        </ReadmeSection>
 
-                <LoadingHarness
-                    query={changeLog}
-                    loadingState={<ChangeLogLoadingState />}
+                    </>
+                }
 
+                <ReadmeSection
+                    title="📢 What's new in this version?"
                 >
-                    <MarkdownRenderer
-                        markdown={currentChangeLog?.markdown ?? ""}
-                    />
-                </LoadingHarness>
-            </ReadmeSection>
-            
-            <ReadmeSection
-                title="✨ Upcoming features & news"
-            >
 
-                <LoadingHarness
-                    query={changeLog}
-                    loadingState={<ChangeLogLoadingState />}
+                    <LoadingHarness
+                        query={changeLog}
+                        loadingState={<ChangeLogLoadingState />}
 
+                    >
+                        <MarkdownRenderer
+                            markdown={currentChangeLog?.markdown ?? ""}
+                        />
+                    </LoadingHarness>
+                </ReadmeSection>
+
+                <ReadmeSection
+                    title="✨ Upcoming features & news"
                 >
-                    <MarkdownRenderer
-                        markdown={news?.data ?? "### No news"}
-                    />
-                </LoadingHarness>
-            </ReadmeSection>
 
-            <ReadmeSection
-                title="❓ Need help?"
-            >
-                <ReadmeParagraph>
-                    Just installed EmuSync, but not sure what to do next? You need to <ExternalLinkButton href="https://github.com/emu-sync/EmuSync/wiki/Setting-up-a-storage-provider" text="Set up a storage provider" /> before you can set up any game syncs.
-                </ReadmeParagraph>
-                <ReadmeParagraph>
-                    Otherwise, if you're not sure how to do something or have an issue, please see the <ExternalLinkButton href="https://github.com/emu-sync/EmuSync/wiki/FAQs" text="FAQs" /> page in the wiki, or check out the other pages in the wiki.
-                </ReadmeParagraph>
-            </ReadmeSection>
+                    <LoadingHarness
+                        query={changeLog}
+                        loadingState={<ChangeLogLoadingState />}
 
-            <ReadmeSection
-                title="❤️ Support EmuSync"
-            >
-                <ReadmeParagraph>
-                    EmuSync is free and always will be. However, if you like EmuSync and want to support it, you
-                    can contribute via our <ExternalLinkButton href="https://www.patreon.com/EmuSync" text="Patreon" /> page.
-                </ReadmeParagraph>
+                    >
+                        <MarkdownRenderer
+                            markdown={news?.data ?? "### No news"}
+                        />
+                    </LoadingHarness>
+                </ReadmeSection>
 
-                <ReadmeParagraph>
-                    Many thanks if you want to support EmuSync, but please only do so if want to and can afford to.
-                </ReadmeParagraph>
-            </ReadmeSection>
+                <ReadmeSection
+                    title="❓ Need help?"
+                >
+                    <ReadmeParagraph>
+                        Just installed EmuSync, but not sure what to do next? You need to <ExternalLinkButton href="https://github.com/emu-sync/EmuSync/wiki/Setting-up-a-storage-provider" text="Set up a storage provider" /> before you can set up any game syncs.
+                    </ReadmeParagraph>
+                    <ReadmeParagraph>
+                        Otherwise, if you're not sure how to do something or have an issue, please see the <ExternalLinkButton href="https://github.com/emu-sync/EmuSync/wiki/FAQs" text="FAQs" /> page in the wiki, or check out the other pages in the wiki.
+                    </ReadmeParagraph>
+                </ReadmeSection>
 
-        </VerticalStack>
+                <ReadmeSection
+                    title="❤️ Support EmuSync"
+                >
+                    <ReadmeParagraph>
+                        EmuSync is free and always will be. However, if you like EmuSync and want to support it, you
+                        can contribute via our <ExternalLinkButton href="https://www.patreon.com/EmuSync" text="Patreon" /> page.
+                    </ReadmeParagraph>
+
+                    <ReadmeParagraph>
+                        Many thanks if you want to support EmuSync, but please only do so if want to and can afford to.
+                    </ReadmeParagraph>
+                </ReadmeSection>
+
+            </VerticalStack>
+        </Section>
     </Container>
 }
 

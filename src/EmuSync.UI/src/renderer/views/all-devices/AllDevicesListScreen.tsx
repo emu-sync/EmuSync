@@ -2,8 +2,8 @@ import { cacheKeys } from "@/renderer/api/cache-keys";
 import { deleteSyncSource, getSyncSourceList } from "@/renderer/api/sync-source-api";
 import Container from "@/renderer/components/Container";
 import AgentStatusHarness from "@/renderer/components/harnesses/AgentStatusHarness";
+import Section from "@/renderer/components/Section";
 import SectionTitle from "@/renderer/components/SectionTitle";
-import VerticalStack from "@/renderer/components/stacks/VerticalStack";
 import useListQuery from "@/renderer/hooks/use-list-query";
 import { routes } from "@/renderer/routes";
 import { localSyncSourceAtom } from "@/renderer/state/local-sync-source";
@@ -35,7 +35,7 @@ export default function AllDevicesListScreen() {
 
 
     return <Container>
-        <VerticalStack>
+        <Section>
             <SectionTitle
                 title={routes.allDevices.title}
                 icon={<Icon />}
@@ -48,6 +48,6 @@ export default function AllDevicesListScreen() {
                     onDelete={handleDelete}
                 />
             </AgentStatusHarness>
-        </VerticalStack>
+        </Section>
     </Container>
 }

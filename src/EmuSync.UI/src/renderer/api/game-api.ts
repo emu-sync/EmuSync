@@ -1,5 +1,5 @@
 import { get, post, postWithNoResponse, put, remove } from "@/renderer/api/api-helper";
-import { CreateGame, Game, GameSuggestion, GameSummary, UpdateGame } from "@/renderer/types";
+import { CreateGame, Game, GameBackupManifest, GameSuggestion, GameSummary, UpdateGame } from "@/renderer/types";
 
 const controller = "Game"
 
@@ -16,6 +16,16 @@ export async function getGameList(): Promise<GameSummary[]> {
 export async function getGameSuggestionsList(): Promise<GameSuggestion[]> {
 
     const path = `${controller}/Suggestions`;
+
+    return await get({
+        path
+    });
+
+}
+
+export async function getGameBackups(id: string): Promise<GameBackupManifest[]> {
+
+    const path = `${controller}/${id}/Backups`;
 
     return await get({
         path

@@ -17,7 +17,8 @@ public class GameController(
     IGameSyncStatusCache gameSyncStatusCache,
     IGameSyncService gameSyncService,
     ISyncTasks syncTasks,
-    IApiCache apiCache
+    IApiCache apiCache,
+    ILocalGameSaveBackupService localGameSaveBackupService
 ) : CustomControllerBase(logger, validator)
 {
     private readonly IGameManager _manager = manager;
@@ -26,6 +27,7 @@ public class GameController(
     private readonly IGameSyncService _gameSyncService = gameSyncService;
     private readonly ISyncTasks _syncTasks = syncTasks;
     private readonly IApiCache _apiCache = apiCache;
+    private readonly ILocalGameSaveBackupService _localGameSaveBackupService = localGameSaveBackupService;
 
     [HttpGet]
     public async Task<IActionResult> GetList(CancellationToken cancellationToken = default)
@@ -60,7 +62,7 @@ public class GameController(
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetById([FromRoute]string id, CancellationToken cancellationToken = default)
     {
         GameEntity? entity = _apiCache.GetGame(id);
         entity ??= await _manager.GetAsync(id, cancellationToken);
@@ -84,6 +86,16 @@ public class GameController(
         var suggestionsResult = await _localDataAccessor.ReadFileContentsOrDefaultAsync<LatestManifestScanResult>(fileName, cancellationToken);
 
         List<GameSuggestionDto> response = suggestionsResult?.FoundGames.ConvertAll(x => x.ToDto()) ?? [];
+        return Ok(response);
+    }
+
+    [HttpGet("{id}/Backups")]
+    public async Task<IActionResult> GetGameBackups([FromRoute] string id, CancellationToken cancellationToken = default)
+    {
+        List<LocalGameBackupManifestEntity> manifests = await _localGameSaveBackupService.GetBackupsAsync(id, cancellationToken);
+
+        List<GameBackupManifestDto> response = manifests.ConvertAll(x => x.ToDto());
+
         return Ok(response);
     }
 

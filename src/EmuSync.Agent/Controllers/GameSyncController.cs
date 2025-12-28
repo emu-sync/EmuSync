@@ -89,7 +89,7 @@ public class GameSyncController(
     [HttpPost("{id}/ForceUpload")]
     public async Task<IActionResult> ForceUpload([FromRoute] string id, CancellationToken cancellationToken = default)
     {
-        LogRequest($"{nameof(ForceUpload)}/{id}");
+        LogRequest($"{id}/{nameof(ForceUpload)}");
 
         SyncSourceEntity? syncSource = await _syncSourceManager.GetLocalAsync(cancellationToken);
 
@@ -116,7 +116,7 @@ public class GameSyncController(
     [HttpPost("{id}/ForceDownload")]
     public async Task<IActionResult> ForceDownload([FromRoute] string id, CancellationToken cancellationToken = default)
     {
-        LogRequest($"{nameof(ForceDownload)}/{id}");
+        LogRequest($"{id}/{nameof(ForceDownload)}");
 
         SyncSourceEntity? syncSource = await _syncSourceManager.GetLocalAsync(cancellationToken);
 
@@ -134,6 +134,33 @@ public class GameSyncController(
         }
 
         await _manager.ForceDownloadGameAsync(syncSource.Id, game, isAutoSync: false, cancellationToken);
+
+        _gameSyncStatusCache.AddOrUpdate(id, GameSyncStatus.InSync);
+
+        return Ok();
+    }
+
+    [HttpPost("{id}/RestoreFromBackup/{backupId}")]
+    public async Task<IActionResult> RestoreFromBackup([FromRoute] string id, [FromRoute] string backupId, CancellationToken cancellationToken = default)
+    {
+        LogRequest($"{id}/{nameof(RestoreFromBackup)}/{backupId}");
+
+        SyncSourceEntity? syncSource = await _syncSourceManager.GetLocalAsync(cancellationToken);
+
+        if (syncSource == null)
+        {
+            return BadRequest("No sync source has been set up");
+        }
+
+        //always fetch latest game on force
+        GameEntity? game = await _gameManager.GetAsync(id, cancellationToken);
+
+        if (game == null)
+        {
+            return NotFoundWithErrors($"No game found with ID {id}");
+        }
+
+        await _manager.RestoreFromBackup(syncSource.Id, game, backupId, cancellationToken);
 
         _gameSyncStatusCache.AddOrUpdate(id, GameSyncStatus.InSync);
 
