@@ -25,12 +25,14 @@ export const storageProviderMap = {
 
 export const defaultSyncSource: UpdateSyncSource = {
     name: "",
-    autoSyncFrequencyMins: null
+    autoSyncFrequencyMins: null,
+    maximumLocalGameBackups: null
 };
 
 export function transformSyncSource(syncSource: SyncSource): UpdateSyncSource {
     return {
         name: syncSource.name,
-        autoSyncFrequencyMins: syncSource.autoSyncFrequencyMins ?? null
+        autoSyncFrequencyMins: syncSource.autoSyncFrequencyMins ?? null,
+        maximumLocalGameBackups: syncSource.maximumLocalGameBackups ?? null
     }
 }

@@ -15,4 +15,6 @@ public class DomainConstants
     public const string LocalDataLudusaviLastEtagFile = "ludusavi-last-etag.json";
     public const string LocalDataLudusaviManifestFile = "ludusavi-manifest.json";
     public const string LocalDataLudusaviCachedScanFile = "ludusavi-cached-scan.json";
+
+    public const int DefaultMaximumLocalGameBackups = 10;
 }

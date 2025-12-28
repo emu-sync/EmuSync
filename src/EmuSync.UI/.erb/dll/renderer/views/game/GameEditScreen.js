@@ -16,7 +16,6 @@ const routes_1 = require("@/renderer/routes");
 const GameForm_1 = __importDefault(require("@/renderer/views/game/forms/GameForm"));
 const LocalSyncLogForm_1 = __importDefault(require("@/renderer/views/game/forms/LocalSyncLogForm"));
 const SyncStatusForm_1 = __importDefault(require("@/renderer/views/game/forms/SyncStatusForm"));
-const material_1 = require("@mui/material");
 const react_1 = require("react");
 function GameEditScreen() {
     const id = (0, use_id_query_param_1.default)();
@@ -34,6 +33,6 @@ function GameEditScreen() {
         successMessage: (game) => `Successfully updated game: ${game.name}`,
         errorMessage: (game) => `Failed to update game: ${game.name}`,
     });
-    return (0, jsx_runtime_1.jsx)(VerticalStack_1.default, { children: (0, jsx_runtime_1.jsxs)(Container_1.default, { children: [(0, jsx_runtime_1.jsx)(BackToListButton_1.default, { href: routes_1.routes.game.href }), (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(GameForm_1.default, { isEdit: true, query: query, saveMutation: updateMutation }), (0, jsx_runtime_1.jsx)(material_1.Divider, {}), (0, jsx_runtime_1.jsx)(SyncStatusForm_1.default, { gameId: id, gameName: query.data?.name ?? "" }), (0, jsx_runtime_1.jsx)(material_1.Divider, {}), (0, jsx_runtime_1.jsx)(LocalSyncLogForm_1.default, { gameId: id })] })] }) });
+    return (0, jsx_runtime_1.jsx)(VerticalStack_1.default, { children: (0, jsx_runtime_1.jsxs)(Container_1.default, { children: [(0, jsx_runtime_1.jsx)(BackToListButton_1.default, { href: routes_1.routes.game.href }), (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(GameForm_1.default, { isEdit: true, query: query, saveMutation: updateMutation }), (0, jsx_runtime_1.jsx)(SyncStatusForm_1.default, { gameId: id, gameName: query.data?.name ?? "" }), (0, jsx_runtime_1.jsx)(LocalSyncLogForm_1.default, { gameId: id })] })] }) });
 }
 //# sourceMappingURL=GameEditScreen.js.map

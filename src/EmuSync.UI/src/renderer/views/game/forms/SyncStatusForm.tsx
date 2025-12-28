@@ -215,6 +215,7 @@ export default function SyncStatusForm({
                                             size="small"
                                             onClick={() => forceDownloadMutation.mutate(gameId)}
                                             disabled={query.isFetching || restoreGameFromBackupMutation.isPending || updateMutation.isPending || forceDownloadMutation.isPending || forceUploadMutation.isPending}
+                                            loading={forceDownloadMutation.isPending}
                                             sx={{
                                                 minWidth: 100
                                             }}

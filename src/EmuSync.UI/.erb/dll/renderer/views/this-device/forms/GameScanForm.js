@@ -7,7 +7,6 @@ exports.default = GameScanForm;
 const jsx_runtime_1 = require("react/jsx-runtime");
 const cache_keys_1 = require("@/renderer/api/cache-keys");
 const sync_source_api_1 = require("@/renderer/api/sync-source-api");
-const VerticalStack_1 = __importDefault(require("@/renderer/components/stacks/VerticalStack"));
 const material_1 = require("@mui/material");
 const LoadingHarness_1 = __importDefault(require("@/renderer/components/harnesses/LoadingHarness"));
 const SectionTitle_1 = __importDefault(require("@/renderer/components/SectionTitle"));
@@ -19,6 +18,7 @@ const TimeAgo_1 = __importDefault(require("@/renderer/components/dates/TimeAgo")
 const LinearProgressWithLabel_1 = __importDefault(require("@/renderer/views/this-device/components/LinearProgressWithLabel"));
 const ExternalLinkButton_1 = __importDefault(require("@/renderer/components/buttons/ExternalLinkButton"));
 const Pre_1 = require("@/renderer/components/Pre");
+const Section_1 = __importDefault(require("@/renderer/components/Section"));
 function GameScanForm() {
     const { query, updateMutation } = (0, use_edit_query_1.default)({
         queryFn: sync_source_api_1.getGameScanDetails,
@@ -39,7 +39,7 @@ function GameScanForm() {
         }, 200);
         return () => clearInterval(interval);
     }, [isInProgress]);
-    return (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(SectionTitle_1.default, { title: "Game save detection", icon: (0, jsx_runtime_1.jsx)(Radar_1.default, {}) }), (0, jsx_runtime_1.jsxs)(LoadingHarness_1.default, { query: query, loadingState: (0, jsx_runtime_1.jsx)(LoadingState, {}), children: [(0, jsx_runtime_1.jsxs)(material_1.Typography, { children: ["EmuSync uses the ", (0, jsx_runtime_1.jsx)(ExternalLinkButton_1.default, { href: "https://github.com/mtkennerly/ludusavi-manifest", text: "Ludusavi Manifest" }), " to detect game saves on your device. If some of your games saves aren't detected, it might not be in the manifest yet. If it's in the manifest, but not being detected by EmuSync, and you're sure the data exists, pleae raise an issue in ", (0, jsx_runtime_1.jsx)(ExternalLinkButton_1.default, { href: "https://github.com/emu-sync/EmuSync/issues", text: "issues" }), " page."] }), (0, jsx_runtime_1.jsx)(material_1.Paper, { elevation: 3, sx: {
+    return (0, jsx_runtime_1.jsxs)(Section_1.default, { children: [(0, jsx_runtime_1.jsx)(SectionTitle_1.default, { title: "Game save detection", icon: (0, jsx_runtime_1.jsx)(Radar_1.default, {}) }), (0, jsx_runtime_1.jsxs)(LoadingHarness_1.default, { query: query, loadingState: (0, jsx_runtime_1.jsx)(LoadingState, {}), children: [(0, jsx_runtime_1.jsxs)(material_1.Typography, { children: ["EmuSync uses the ", (0, jsx_runtime_1.jsx)(ExternalLinkButton_1.default, { href: "https://github.com/mtkennerly/ludusavi-manifest", text: "Ludusavi Manifest" }), " to detect game saves on your device. If some of your games saves aren't detected, it might not be in the manifest yet. If it's in the manifest, but not being detected by EmuSync, and you're sure the data exists, pleae raise an issue in ", (0, jsx_runtime_1.jsx)(ExternalLinkButton_1.default, { href: "https://github.com/emu-sync/EmuSync/issues", text: "issues" }), " page."] }), (0, jsx_runtime_1.jsx)(material_1.Paper, { elevation: 3, sx: {
                             p: 2,
                             height: 72
                         }, component: HorizontalStack_1.default, justifyContent: "space-between", children: isInProgress ?

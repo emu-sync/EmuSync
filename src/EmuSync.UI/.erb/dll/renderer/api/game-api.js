@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getGameList = getGameList;
 exports.getGameSuggestionsList = getGameSuggestionsList;
+exports.getGameBackups = getGameBackups;
 exports.getGameById = getGameById;
 exports.createGame = createGame;
 exports.clearGameCache = clearGameCache;
@@ -17,6 +18,12 @@ async function getGameList() {
 }
 async function getGameSuggestionsList() {
     const path = `${controller}/Suggestions`;
+    return await (0, api_helper_1.get)({
+        path
+    });
+}
+async function getGameBackups(id) {
+    const path = `${controller}/${id}/Backups`;
     return await (0, api_helper_1.get)({
         path
     });

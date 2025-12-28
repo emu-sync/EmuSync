@@ -7,7 +7,6 @@ exports.default = StorageProviderForm;
 const jsx_runtime_1 = require("react/jsx-runtime");
 const cache_keys_1 = require("@/renderer/api/cache-keys");
 const sync_source_api_1 = require("@/renderer/api/sync-source-api");
-const VerticalStack_1 = __importDefault(require("@/renderer/components/stacks/VerticalStack"));
 const material_1 = require("@mui/material");
 const react_1 = require("react");
 const LoadingHarness_1 = __importDefault(require("@/renderer/components/harnesses/LoadingHarness"));
@@ -17,6 +16,7 @@ const DisplayExistingStorageProviderSelector_1 = __importDefault(require("@/rend
 const StorageProviderSelector_1 = __importDefault(require("@/renderer/views/this-device/components/StorageProviderSelector"));
 const Backup_1 = __importDefault(require("@mui/icons-material/Backup"));
 const react_query_1 = require("@tanstack/react-query");
+const Section_1 = __importDefault(require("@/renderer/components/Section"));
 function StorageProviderForm() {
     const queryClient = (0, react_query_1.useQueryClient)();
     const query = (0, react_query_1.useQuery)({
@@ -29,7 +29,7 @@ function StorageProviderForm() {
         });
         query.refetch();
     }, []);
-    return (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(SectionTitle_1.default, { title: "Storage provider", icon: (0, jsx_runtime_1.jsx)(Backup_1.default, {}) }), (0, jsx_runtime_1.jsx)(LoadingHarness_1.default, { query: query, loadingState: (0, jsx_runtime_1.jsx)(LoadingState, {}), children: 
+    return (0, jsx_runtime_1.jsxs)(Section_1.default, { children: [(0, jsx_runtime_1.jsx)(SectionTitle_1.default, { title: "Storage provider", icon: (0, jsx_runtime_1.jsx)(Backup_1.default, {}) }), (0, jsx_runtime_1.jsx)(LoadingHarness_1.default, { query: query, loadingState: (0, jsx_runtime_1.jsx)(LoadingState, {}), children: 
                 //has storage provider?
                 query.data && query.data.storageProviderId ?
                     (0, jsx_runtime_1.jsx)(DisplayExistingStorageProviderSelector_1.default, { provider: query.data.storageProviderId })

@@ -82,8 +82,33 @@ public class LocalGameSaveBackupService(
 
         manifests.Add(manifest);
 
+        //new backup created - now we need to trim the amount of backups to the limit we have set
+        SyncSourceEntity syncSource = await GetLocalSyncSourceAsync(cancellationToken);
+        int maxBackups = syncSource.MaximumLocalGameBackups ?? DomainConstants.DefaultMaximumLocalGameBackups;
+
+        if (manifests.Count > maxBackups)
+        {
+            DeleteOldBackups(gameId, manifests, maxBackups);
+        }
+
         string manifestFile = GetGameBackupManifestFileName(gameId);
         await _localDataAccessor.WriteFileContentsAsync(manifestFile, manifests, cancellationToken);
+    }
+
+    private void DeleteOldBackups(string gameId, List<LocalGameBackupManifestEntity> manifests, int maxBackups)
+    {
+        List<LocalGameBackupManifestEntity> backupsToDelete = manifests
+                        .OrderBy(m => m.CreatedOnUtc)
+                        .Take(manifests.Count - maxBackups)
+                        .ToList();
+
+        foreach (var backup in backupsToDelete)
+        {
+            string backupFile = GetGameBackupFileName(gameId, backup.BackupFileName);
+            _localDataAccessor.RemoveFile(backupFile);
+
+            manifests.Remove(backup);
+        }
     }
 
     private async Task<List<LocalGameBackupManifestEntity>?> GetBackupManifestAsync(string gameId, CancellationToken cancellationToken = default)
@@ -102,5 +127,11 @@ public class LocalGameSaveBackupService(
     {
         string gameBackupFile = Path.Combine(DomainConstants.LocalDataGameBackupFolder, gameId, fileName);
         return _localDataAccessor.GetLocalFilePath(gameBackupFile);
+    }
+
+    private async Task<SyncSourceEntity> GetLocalSyncSourceAsync(CancellationToken cancellationToken = default)
+    {
+        string filePath = _localDataAccessor.GetLocalFilePath(DomainConstants.LocalDataSyncSourceFile);
+        return await _localDataAccessor.ReadFileContentsAsync<SyncSourceEntity>(filePath, cancellationToken);
     }
 }

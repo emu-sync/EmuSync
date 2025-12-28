@@ -29,6 +29,7 @@ const CheckboxSkeleton_1 = __importDefault(require("@/renderer/components/skelet
 const SaveButtonSkeleton_1 = __importDefault(require("@/renderer/components/skeleton/SaveButtonSkeleton"));
 const TextFieldSkeleton_1 = __importDefault(require("@/renderer/components/skeleton/TextFieldSkeleton"));
 const enums_1 = require("@/renderer/types/enums");
+const Section_1 = __importDefault(require("@/renderer/components/Section"));
 const Icon = routes_1.routes.game.icon;
 function GameForm({ isEdit, query, saveMutation }) {
     const disabled = query.isFetching;
@@ -36,12 +37,12 @@ function GameForm({ isEdit, query, saveMutation }) {
     const navigate = (0, react_router_dom_1.useNavigate)();
     const [localSyncSource] = (0, jotai_1.useAtom)(local_sync_source_1.localSyncSourceAtom);
     const [allSyncSources] = (0, jotai_1.useAtom)(all_sync_sources_1.allSyncSourcesAtom);
-    const { handleSubmit, control, formState, reset, setValue } = (0, use_edit_form_1.default)({
+    const { handleSubmit, control, formState, reset, setValue, watch } = (0, use_edit_form_1.default)({
         query,
         defaultValues: isEdit ? game_utils_1.defaultUpdateGame : game_utils_1.defaultCreateGame,
         transformData: isEdit ? game_utils_1.transformUpdateGame : game_utils_1.transformCreateGame
     });
-    const autoSyncEnabled = (0, react_hook_form_1.useWatch)({ control, name: "autoSync" });
+    const autoSyncEnabled = watch("autoSync");
     const handleFormSubmit = (0, react_1.useCallback)((data) => {
         const cleanData = (0, game_utils_1.replacePathDelims)(allSyncSources, data);
         if (isEdit) {
@@ -68,7 +69,7 @@ function GameForm({ isEdit, query, saveMutation }) {
         }
         setValue(`syncSourceIdLocations.${localSyncSource.id}`, filePath, { shouldDirty: true });
     }, [setValue, isEdit, localSyncSource]);
-    return (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(SectionTitle_1.default, { title: "Game details", icon: (0, jsx_runtime_1.jsx)(Icon, {}), sectionIsDirty: formState.isDirty }), (0, jsx_runtime_1.jsx)(LoadingHarness_1.default, { query: query, loadingState: (0, jsx_runtime_1.jsx)(LoadingState, {}), children: (0, jsx_runtime_1.jsx)("form", { onSubmit: handleSubmit(handleFormSubmit), children: (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(GameSuggestionAutocomplete_1.default, { onSelect: handleGameSuggestionSelect }), (0, jsx_runtime_1.jsx)(material_1.Divider, {}), (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: "name", control: control, rules: {
+    return (0, jsx_runtime_1.jsxs)(Section_1.default, { children: [(0, jsx_runtime_1.jsx)(SectionTitle_1.default, { title: "Game details", icon: (0, jsx_runtime_1.jsx)(Icon, {}), sectionIsDirty: formState.isDirty }), (0, jsx_runtime_1.jsx)(LoadingHarness_1.default, { query: query, loadingState: (0, jsx_runtime_1.jsx)(LoadingState, {}), children: (0, jsx_runtime_1.jsx)("form", { onSubmit: handleSubmit(handleFormSubmit), children: (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(GameSuggestionAutocomplete_1.default, { onSelect: handleGameSuggestionSelect }), (0, jsx_runtime_1.jsx)(material_1.Divider, {}), (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: "name", control: control, rules: {
                                     required: "Name is required"
                                 }, render: ({ field, fieldState }) => ((0, jsx_runtime_1.jsx)(DefaultTextField_1.default, { field: field, fieldState: fieldState, label: "Name", disabled: disabled || isSubmitting, placeholder: "Enter a name for the game" })) }), (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: "autoSync", control: control, render: ({ field }) => ((0, jsx_runtime_1.jsx)(DefaultCheckbox_1.default, { field: field, checked: field.value || false, onChange: (e) => field.onChange(e.target.checked), disabled: disabled || isSubmitting, label: "Automatically sync this game?" })) }), autoSyncEnabled &&
                                 (0, jsx_runtime_1.jsx)(WarningAlert_1.default, { content: (0, jsx_runtime_1.jsx)(material_1.Typography, { children: "Auto sync can destructively overwrite game files - use with caution." }) }), (0, jsx_runtime_1.jsxs)(material_1.Paper, { elevation: 3, sx: {

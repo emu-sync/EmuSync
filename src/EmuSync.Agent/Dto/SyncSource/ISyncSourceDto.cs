@@ -9,6 +9,7 @@ public interface ISyncSourceDto
 {
     string Name { get; set; }
     int? AutoSyncFrequencyMins { get; set; }
+    int? MaximumLocalGameBackups { get; set; }
 }
 
 /// <summary>
@@ -20,5 +21,6 @@ public class SyncSourceDtoValidator : AbstractValidator<ISyncSourceDto>
     {
         RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
         RuleFor(x => x.AutoSyncFrequencyMins).GreaterThan(0).When(x => x.AutoSyncFrequencyMins != null);
+        RuleFor(x => x.MaximumLocalGameBackups).GreaterThan(-1).When(x => x.MaximumLocalGameBackups != null);
     }
 }

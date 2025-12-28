@@ -1,9 +1,11 @@
 import { cacheKeys } from "@/renderer/api/cache-keys";
 import { getLocalSyncSource, getNextAutoSyncTime, updateLocalSyncSource } from "@/renderer/api/sync-source-api";
 import InfoAlert from "@/renderer/components/alerts/InfoAlert";
+import WarningAlert from "@/renderer/components/alerts/WarningAlert";
 import CountdownTimer from "@/renderer/components/dates/CountdownTimer";
-import DefaultTextField from "@/renderer/components/inputs/DefaultTextField";
 import LoadingHarness from "@/renderer/components/harnesses/LoadingHarness";
+import DefaultTextField from "@/renderer/components/inputs/DefaultTextField";
+import Section from "@/renderer/components/Section";
 import SectionTitle from "@/renderer/components/SectionTitle";
 import SaveButtonSkeleton from "@/renderer/components/skeleton/SaveButtonSkeleton";
 import TextFieldSkeleton from "@/renderer/components/skeleton/TextFieldSkeleton";
@@ -19,7 +21,6 @@ import { Box, Button } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { Controller, useWatch } from "react-hook-form";
-import Section from "@/renderer/components/Section";
 
 const Icon = routes.thisDevice.icon;
 
@@ -40,7 +41,7 @@ export default function SyncSourceForm() {
     });
 
     const {
-        handleSubmit, control, formState, reset
+        handleSubmit, control, formState, reset, watch
     } = useEditForm({
         query,
         defaultValues: defaultSyncSource,
@@ -66,8 +67,12 @@ export default function SyncSourceForm() {
     const disabled = query.isFetching;
     const isSubmitting = updateMutation.isPending;
 
-    const autoSyncFrequencyMins = useWatch({ control, name: "autoSyncFrequencyMins" });
+    const autoSyncFrequencyMins = watch("autoSyncFrequencyMins");
     const autoSyncFrequencyMinsHasChanged = autoSyncFrequencyMins != query.data?.autoSyncFrequencyMins;
+
+    const maximumLocalGameBackups = watch("maximumLocalGameBackups");
+
+    console.log(maximumLocalGameBackups);
 
     return <form onSubmit={handleSubmit(handleFormSubmit)}>
 
@@ -101,32 +106,65 @@ export default function SyncSourceForm() {
                     )}
                 />
 
-                <Controller
-                    name="autoSyncFrequencyMins"
-                    control={control}
-                    rules={{
-                        required: "AutoSync frequency is required",
-                        min: { value: 1, message: "Must be greater than 0" },
-                        validate: (v) => Number.isInteger(Number(v)) || "Must be a whole number"
-                    }}
-                    render={({ field, fieldState }) => (
-                        <DefaultTextField
-                            field={field}
-                            fieldState={fieldState}
-                            label="AutoSync frequency (in minutes)"
-                            type="number"
-                            disabled={disabled || isSubmitting}
-                            placeholder="How often EmuSync will check if files need to uploaded/downloaded"
-                        />
-                    )}
-                />
+                <VerticalStack gap={0.5}>
 
-                {
-                    autoSyncFrequencyMinsHasChanged &&
-                    <InfoAlert
-                        content="Changing the auto sync frequency will trigger AutoSync immediately"
+                    <Controller
+                        name="maximumLocalGameBackups"
+                        control={control}
+                        rules={{
+                            required: "This field is required",
+                            min: { value: 0, message: "Must be greater than -1" },
+                            validate: (v) => Number.isInteger(Number(v)) || "Must be a whole number"
+                        }}
+                        render={({ field, fieldState }) => (
+                            <DefaultTextField
+                                field={field}
+                                fieldState={fieldState}
+                                label="Maximum local game backups (per game)"
+                                type="number"
+                                disabled={disabled || isSubmitting}
+                                placeholder="The maximum amount of local backups kept per game"
+                            />
+                        )}
                     />
-                }
+
+                    {
+                        (maximumLocalGameBackups === 0 || maximumLocalGameBackups === "0" as never) &&
+                        <WarningAlert
+                            content="Having this value set to 0 disables local backups."
+                        />
+                    }
+
+                </VerticalStack>
+
+                <VerticalStack gap={0.5}>
+                    <Controller
+                        name="autoSyncFrequencyMins"
+                        control={control}
+                        rules={{
+                            required: "This field is required",
+                            min: { value: 1, message: "Must be greater than 0" },
+                            validate: (v) => Number.isInteger(Number(v)) || "Must be a whole number"
+                        }}
+                        render={({ field, fieldState }) => (
+                            <DefaultTextField
+                                field={field}
+                                fieldState={fieldState}
+                                label="AutoSync frequency (in minutes)"
+                                type="number"
+                                disabled={disabled || isSubmitting}
+                                placeholder="How often EmuSync will check if files need to uploaded/downloaded"
+                            />
+                        )}
+                    />
+
+                    {
+                        autoSyncFrequencyMinsHasChanged &&
+                        <InfoAlert
+                            content="Changing the auto sync frequency will trigger AutoSync immediately"
+                        />
+                    }
+                </VerticalStack>
 
 
                 {

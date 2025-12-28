@@ -63,7 +63,7 @@ public class SyncSourceController(
 
         var diff = lastScanTime - now;
 
-        GameScanDetails response = new()
+        GameScanDetailsDto response = new()
         {
             LastScanSeconds = diff.TotalSeconds,
             InProgress = LudusaviManifestWorker.ScanInProgress,

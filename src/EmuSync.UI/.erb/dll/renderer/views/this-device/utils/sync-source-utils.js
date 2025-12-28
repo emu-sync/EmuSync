@@ -25,12 +25,14 @@ exports.storageProviderMap = {
 };
 exports.defaultSyncSource = {
     name: "",
-    autoSyncFrequencyMins: null
+    autoSyncFrequencyMins: null,
+    maximumLocalGameBackups: null
 };
 function transformSyncSource(syncSource) {
     return {
         name: syncSource.name,
-        autoSyncFrequencyMins: syncSource.autoSyncFrequencyMins ?? null
+        autoSyncFrequencyMins: syncSource.autoSyncFrequencyMins ?? null,
+        maximumLocalGameBackups: syncSource.maximumLocalGameBackups ?? null
     };
 }
 //# sourceMappingURL=sync-source-utils.js.map

@@ -29,6 +29,6 @@ function LocalSyncHistoryScreen() {
         }
         return [];
     }, [query.data, gamesQuery.data]);
-    return (0, jsx_runtime_1.jsx)(AgentStatusHarness_1.default, { children: (0, jsx_runtime_1.jsx)(LocalSyncLogDataGrid_1.default, { loading: query.isLoading || gamesQuery.isLoading, hasError: query.isError, reloadFunc: query.refetch, games: gamesQuery.data ?? [], logs: logsWithValidGames, showToolbar: true, showGameColumn: true }) });
+    return (0, jsx_runtime_1.jsx)(AgentStatusHarness_1.default, { children: (0, jsx_runtime_1.jsx)(LocalSyncLogDataGrid_1.default, { loading: query.isLoading || gamesQuery.isLoading, hasError: query.isError, reloadFunc: query.refetch, games: gamesQuery.data ?? [], logs: logsWithValidGames, showToolbar: true, showGameColumn: true, disableSelection: false }) });
 }
 //# sourceMappingURL=LocalSyncHistoryScreen.js.map

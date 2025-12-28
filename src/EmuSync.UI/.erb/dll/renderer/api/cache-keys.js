@@ -11,6 +11,9 @@ exports.cacheKeys = {
     gameSyncStatus: (id) => {
         return buildCacheKey("gameSyncStatus", id);
     },
+    gameBackups: (id) => {
+        return buildCacheKey("gameBackups", id);
+    },
     gameLocalSyncLogsList: "gameLocalSyncLogs",
     gameLocalSyncLogs: (id) => {
         return buildCacheKey("gameLocalSyncLogs", id);

@@ -6,7 +6,8 @@ export const defaultSyncSource: SyncSource = {
     name: "",
     storageProviderId: null,
     platformId: 0,
-    autoSyncFrequencyMins: null
+    autoSyncFrequencyMins: 0,
+    maximumLocalGameBackups: 0
 };
 
 export const localSyncSourceAtom = atom<SyncSource>(defaultSyncSource);

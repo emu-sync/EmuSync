@@ -9,8 +9,8 @@ const cache_keys_1 = require("@/renderer/api/cache-keys");
 const sync_source_api_1 = require("@/renderer/api/sync-source-api");
 const Container_1 = __importDefault(require("@/renderer/components/Container"));
 const AgentStatusHarness_1 = __importDefault(require("@/renderer/components/harnesses/AgentStatusHarness"));
+const Section_1 = __importDefault(require("@/renderer/components/Section"));
 const SectionTitle_1 = __importDefault(require("@/renderer/components/SectionTitle"));
-const VerticalStack_1 = __importDefault(require("@/renderer/components/stacks/VerticalStack"));
 const use_list_query_1 = __importDefault(require("@/renderer/hooks/use-list-query"));
 const routes_1 = require("@/renderer/routes");
 const local_sync_source_1 = require("@/renderer/state/local-sync-source");
@@ -30,6 +30,6 @@ function AllDevicesListScreen() {
     const handleDelete = (0, react_1.useCallback)((id) => {
         return deleteMutation.mutateAsync(id);
     }, [deleteMutation]);
-    return (0, jsx_runtime_1.jsx)(Container_1.default, { children: (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(SectionTitle_1.default, { title: routes_1.routes.allDevices.title, icon: (0, jsx_runtime_1.jsx)(Icon, {}) }), (0, jsx_runtime_1.jsx)(AgentStatusHarness_1.default, { children: (0, jsx_runtime_1.jsx)(DeviceList_1.default, { thisDeviceId: localSyncSource.id, query: query, onDelete: handleDelete }) })] }) });
+    return (0, jsx_runtime_1.jsx)(Container_1.default, { children: (0, jsx_runtime_1.jsxs)(Section_1.default, { children: [(0, jsx_runtime_1.jsx)(SectionTitle_1.default, { title: routes_1.routes.allDevices.title, icon: (0, jsx_runtime_1.jsx)(Icon, {}) }), (0, jsx_runtime_1.jsx)(AgentStatusHarness_1.default, { children: (0, jsx_runtime_1.jsx)(DeviceList_1.default, { thisDeviceId: localSyncSource.id, query: query, onDelete: handleDelete }) })] }) });
 }
 //# sourceMappingURL=AllDevicesListScreen.js.map

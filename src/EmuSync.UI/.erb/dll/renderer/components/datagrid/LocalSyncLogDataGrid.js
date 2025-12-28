@@ -8,11 +8,20 @@ const jsx_runtime_1 = require("react/jsx-runtime");
 const SyncTypeChip_1 = require("@/renderer/components/chips/SyncTypeChip");
 const CustomToolbar_1 = __importDefault(require("@/renderer/components/datagrid/CustomToolbar"));
 const DisplayDate_1 = __importDefault(require("@/renderer/components/dates/DisplayDate"));
+const routes_1 = require("@/renderer/routes");
 const enums_1 = require("@/renderer/types/enums");
 const x_data_grid_1 = require("@mui/x-data-grid");
 const react_1 = require("react");
-function LocalSyncLogDataGrid({ loading, hasError, reloadFunc, logs, games, showGameColumn, showToolbar }) {
+const react_router_dom_1 = require("react-router-dom");
+function LocalSyncLogDataGrid({ loading, hasError, reloadFunc, logs, games, showGameColumn, showToolbar, disableSelection }) {
     const columns = (0, react_1.useMemo)(() => {
+        const gameColumn = showGameColumn ? [
+            {
+                field: "gameId", headerName: "Game", flex: 5, minWidth: 250, headerAlign: "left", align: "left",
+                type: "singleSelect",
+                valueOptions: games.map(g => ({ value: g.id, label: g.name })),
+            }
+        ] : [];
         const output = [
             {
                 field: "syncType", headerName: "Sync type", flex: 1, minWidth: 140, headerAlign: "center", align: "center",
@@ -24,6 +33,7 @@ function LocalSyncLogDataGrid({ loading, hasError, reloadFunc, logs, games, show
                         } });
                 }
             },
+            ...gameColumn,
             {
                 field: "isAutoSync", headerName: "Synced automatically?", flex: 1, type: "boolean", minWidth: 150, headerAlign: "center", align: "center",
             },
@@ -39,20 +49,18 @@ function LocalSyncLogDataGrid({ loading, hasError, reloadFunc, logs, games, show
                 }
             }
         ];
-        if (showGameColumn) {
-            output.unshift({
-                field: "gameId", headerName: "Game", flex: 5, minWidth: 250, headerAlign: "left", align: "left",
-                type: "singleSelect",
-                valueOptions: games.map(g => ({ value: g.id, label: g.name })),
-            });
-        }
         return output;
     }, [games, showGameColumn, showGameColumn]);
+    const LinkRow = (props) => {
+        const href = `${routes_1.routes.gameEdit.href}?id=${props.row.gameId}`;
+        return (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, { to: href, style: { color: "inherit", textDecoration: "none" }, children: (0, jsx_runtime_1.jsx)(x_data_grid_1.GridRow, { ...props }) });
+    };
     const Toolbar = (0, react_1.useCallback)(() => {
         return (0, jsx_runtime_1.jsx)(CustomToolbar_1.default, { loading: loading, hasError: hasError, reloadFunc: reloadFunc });
     }, [loading, hasError, reloadFunc]);
-    return (0, jsx_runtime_1.jsx)(x_data_grid_1.DataGrid, { columns: columns, rows: logs, loading: loading, showToolbar: showToolbar, disableRowSelectionOnClick: true, getRowClassName: () => "disabled-row", slots: {
-            toolbar: Toolbar
+    return (0, jsx_runtime_1.jsx)(x_data_grid_1.DataGrid, { columns: columns, rows: logs, loading: loading, showToolbar: showToolbar, disableRowSelectionOnClick: true, getRowClassName: () => disableSelection ? "disabled-row" : "", slots: {
+            toolbar: Toolbar,
+            row: disableSelection ? undefined : LinkRow
         } });
 }
 //# sourceMappingURL=LocalSyncLogDataGrid.js.map

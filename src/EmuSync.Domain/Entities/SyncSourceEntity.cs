@@ -19,4 +19,9 @@ public class SyncSourceEntity
     public OsPlatform OsPlatform { get; set; }
 
     public TimeSpan? AutoSyncFrequency { get; set; }
+
+    /// <summary>
+    /// The amount of local backups to store per game
+    /// </summary>
+    public int? MaximumLocalGameBackups { get; set; }
 }

@@ -1,4 +1,5 @@
 ﻿using EmuSync.Agent.Dto.Game;
+using EmuSync.Domain;
 
 namespace EmuSync.Agent.Mapping;
 
@@ -18,6 +19,7 @@ public static class SyncSourceMapping
             StorageProviderId = (int?)entity.StorageProvider,
             PlatformId = (int)(entity.OsPlatform),
             AutoSyncFrequencyMins = entity.AutoSyncFrequency.HasValue ? entity.AutoSyncFrequency.Value.Minutes : 2,
+            MaximumLocalGameBackups = entity.MaximumLocalGameBackups ?? DomainConstants.DefaultMaximumLocalGameBackups
         };
     }
 
@@ -55,7 +57,8 @@ public static class SyncSourceMapping
         {
             Id = id,
             Name = dto.Name,
-            AutoSyncFrequency = dto.AutoSyncFrequencyMins.HasValue ? TimeSpan.FromMinutes(dto.AutoSyncFrequencyMins.Value) : null
+            AutoSyncFrequency = dto.AutoSyncFrequencyMins.HasValue ? TimeSpan.FromMinutes(dto.AutoSyncFrequencyMins.Value) : null,
+            MaximumLocalGameBackups = dto.MaximumLocalGameBackups
         };
     }
 }

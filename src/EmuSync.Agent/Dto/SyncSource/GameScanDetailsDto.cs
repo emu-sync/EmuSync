@@ -2,7 +2,7 @@
 
 namespace EmuSync.Agent.Dto.SyncSource;
 
-public class GameScanDetails
+public record GameScanDetailsDto
 {
     [JsonPropertyName("lastScanSeconds")]
     public double LastScanSeconds { get; set; }

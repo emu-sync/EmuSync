@@ -54,14 +54,15 @@ export default function GameForm({
     const [allSyncSources] = useAtom(allSyncSourcesAtom);
 
     const {
-        handleSubmit, control, formState, reset, setValue
+        handleSubmit, control, formState, reset, setValue,
+        watch
     } = useEditForm({
         query,
         defaultValues: isEdit ? defaultUpdateGame : defaultCreateGame,
         transformData: isEdit ? transformUpdateGame : transformCreateGame
     });
 
-    const autoSyncEnabled = useWatch({ control, name: "autoSync" });
+    const autoSyncEnabled = watch("autoSync");
 
     const handleFormSubmit = useCallback((data: UpdateGame | CreateGame) => {
 
