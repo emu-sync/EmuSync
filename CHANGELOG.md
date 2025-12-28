@@ -57,3 +57,19 @@ This is the same release as 1.0.2, but with a fix for Windows not correctly iden
 
 ## Fixes
 - Fixed an issue where nested folder structure wasn't being retained on restore from Windows to Linux.
+
+# v1.0.6
+
+## Local game backups
+- EmuSync automatically creates a local backup of your game save before downloading a newer version.
+    - Backups are stored locally on each of your devices.
+    - Control how many backups are kept in the **This device** section (default: 10).
+- Easily restore from any previous backup if an incorrect save overwrites your progress.
+    - Ideal for recovering from incorrect sync issues.
+
+## Local sync history
+- You can now keep track of when EmuSync uploads or downloads files for your configured games.
+    - Useful for troubleshooting and understanding exactly when AutoSync occurs.
+
+## Other
+- Tweaked the layout of several sections to provide clearer visual structure (hopefully!).
