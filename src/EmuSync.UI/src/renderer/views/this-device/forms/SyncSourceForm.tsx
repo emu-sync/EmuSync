@@ -72,8 +72,6 @@ export default function SyncSourceForm() {
 
     const maximumLocalGameBackups = watch("maximumLocalGameBackups");
 
-    console.log(maximumLocalGameBackups);
-
     return <form onSubmit={handleSubmit(handleFormSubmit)}>
 
         <Section>

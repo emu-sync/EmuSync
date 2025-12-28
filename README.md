@@ -7,9 +7,9 @@
 ## 📖 About
 
 Game save files are stored in different places across OS platforms, which can make syncing a challenge.
-EmuSync aims to simplify this by mapping locations from multiple devices to a single sync point. 
+EmuSync aims to simplify this by mapping locations from multiple devices to a single sync point, using your chosen cloud storage provider as the storage point.
 
-Easily set up which games you want keep backed up and let EmuSync handle the rest! It even works in Gaming mode on the SteamDeck - check out the Decky plugin [here](https://github.com/emu-sync/EmuSync-DeckyPlugin).
+Easily set up which games you want to keep backed up and let EmuSync handle the rest! It even works in Gaming mode on the SteamDeck - check out the Decky plugin [here](https://github.com/emu-sync/EmuSync-DeckyPlugin).
 
 - If you're having trouble with EmuSync, or want to see in more detail how to use it, please see our [Wiki](https://github.com/emu-sync/EmuSync/wiki).
 - Want to see what EmuSync looks like before you download it? Check out the [Preview](https://github.com/emu-sync/EmuSync/wiki/Preview-EmuSync) page in our wiki.
@@ -38,7 +38,8 @@ Confirmed working devices (but not limited to):
 - Define and manage your game save locations.
 - Automatically detect game saves, making the configuration of your game syncs a breeze.
 - Automatically and manually sync game saves.
-- A Decky plugin for SteamDeck users so you can check on the status of your game syncs without having to hop into desktop mode
+- Local backup & restore mechanism.
+- A Decky plugin for SteamDeck users so you can check on the status of your game syncs without having to hop into desktop mode.
     - [EmuSync-DeckyPlugin](https://github.com/emu-sync/EmuSync-DeckyPlugin)
 
 ## 🛠️ Installation
