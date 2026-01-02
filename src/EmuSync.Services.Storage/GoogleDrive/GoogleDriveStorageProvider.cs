@@ -356,6 +356,7 @@ public class GoogleDriveStorageProvider(
         {
             HttpClientInitializer = credential,
             ApplicationName = StorageConstants.ApplicationName,
+            HttpClientTimeout = Timeout.InfiniteTimeSpan
         });
 
         _driveService = service;

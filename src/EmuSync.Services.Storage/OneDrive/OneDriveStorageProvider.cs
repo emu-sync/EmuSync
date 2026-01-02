@@ -134,6 +134,8 @@ public class OneDriveStorageProvider(
         }
 
         _httpClient ??= new();
+        _httpClient.Timeout = Timeout.InfiniteTimeSpan;
+
         return _httpClient;
 
     }
