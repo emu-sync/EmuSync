@@ -1,5 +1,6 @@
 ﻿using EmuSync.Domain.Enums;
 using EmuSync.Domain.Helpers;
+using EmuSync.Domain.Objects;
 using EmuSync.Domain.Results;
 using EmuSync.Services.Managers.Abstracts;
 using EmuSync.Services.Managers.Interfaces;
@@ -16,12 +17,14 @@ public class GameSyncManager(
     IStorageProviderFactory storageProviderFactory,
     IGameManager gameManager,
     ILocalSyncLog localSyncLog,
-    ILocalGameSaveBackupService localGameSaveBackupService
+    ILocalGameSaveBackupService localGameSaveBackupService,
+    ISyncProgressTracker syncProgressTracker
 ) : BaseManager(logger, localDataAccessor, storageProviderFactory), IGameSyncManager
 {
     private readonly IGameManager _gameManager = gameManager;
     private readonly ILocalSyncLog _localSyncLog = localSyncLog;
     private readonly ILocalGameSaveBackupService _localGameSaveBackupService = localGameSaveBackupService;
+    private readonly ISyncProgressTracker _syncProgressTracker = syncProgressTracker;
 
     public GetSyncTypeResult GetSyncType(string syncSourceId, GameEntity game)
     {
@@ -220,25 +223,65 @@ public class GameSyncManager(
         CancellationToken cancellationToken = default
     )
     {
+        SyncProgress? syncProgress = _syncProgressTracker.Get(game.Id);
+
+        if (syncProgress != null)
+        {
+            Logger.LogInformation("A sync is already in progress for game {gameId} - skipping download", game.Id);
+        }
+
         var storageProvider = await GetRequiredStorageProviderAsync(cancellationToken);
-
-        string fileName = string.Format(StorageConstants.FileName_GameZip, game.Id);
-        using var stream = await storageProvider.GetZipFileAsync(fileName, cancellationToken);
-
-        if (stream == null) return;
-
-        //create a backup first before we download the latest files
-        await _localGameSaveBackupService.CreateBackupAsync(game.Id, path, cancellationToken);
-
-        ZipHelper.ExtractToDirectory(stream, path, game.LatestWriteTimeUtc);
 
         try
         {
-            await _localSyncLog.WriteLogAsync(game.Id, SyncType.Download, isAutoSync, cancellationToken);
+            _syncProgressTracker.UpdateStage(game.Id, "Downloading game files");
+
+            string fileName = string.Format(StorageConstants.FileName_GameZip, game.Id);
+
+            using var stream = await storageProvider.GetZipFileAsync(
+                fileName,
+                (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 0, 70),
+                cancellationToken
+            );
+
+            if (stream == null) return;
+
+            //create a backup first before we download the latest files
+            _syncProgressTracker.UpdateStage(game.Id, "Creating backup");
+
+            await _localGameSaveBackupService.CreateBackupAsync(
+                game.Id, 
+                path,
+                (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 70, 85),
+                cancellationToken
+            );
+
+            _syncProgressTracker.UpdateStage(game.Id, "Extracting game files");
+
+            ZipHelper.ExtractToDirectory(
+                stream, 
+                path, 
+                game.LatestWriteTimeUtc,
+                (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 85, 100)
+            );
+
+            try
+            {
+                await _localSyncLog.WriteLogAsync(game.Id, SyncType.Download, isAutoSync, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to wite local sync log");
+            }
+
         }
-        catch (Exception ex)
+        catch
         {
-            Logger.LogError(ex, "Failed to wite local sync log");
+            throw;
+        }
+        finally
+        {
+            _syncProgressTracker.Remove(game.Id);
         }
     }
 
@@ -251,31 +294,67 @@ public class GameSyncManager(
         CancellationToken cancellationToken = default
     )
     {
+        SyncProgress? syncProgress = _syncProgressTracker.Get(game.Id);
+
+        if (syncProgress != null)
+        {
+            Logger.LogInformation("A sync is already in progress for game {gameId} - skipping upload", game.Id);
+        }
+
         var storageProvider = await GetRequiredStorageProviderAsync(cancellationToken);
-
-        using var stream = ZipHelper.CreateZipFromFolder(path);
-
-        string fileName = string.Format(StorageConstants.FileName_GameZip, game.Id);
-
-
-        Logger.LogInformation("Uploading game files {fileName}", fileName);
-        await storageProvider.UpsertZipDataAsync(fileName, stream, cancellationToken);
-
-        game.LastSyncedFrom = syncSourceId;
-        game.LastSyncTimeUtc = DateTime.UtcNow;
-        game.LatestWriteTimeUtc = scanResult.LatestWriteTimeUtc;
-        game.StorageBytes = scanResult.StorageBytes;
-
-        Logger.LogInformation("Saving game data {gameName}", game.Name);
-        await _gameManager.UpdateMetaDataAsync(game, cancellationToken);
 
         try
         {
-            await _localSyncLog.WriteLogAsync(game.Id, SyncType.Upload, isAutoSync, cancellationToken);
+            _syncProgressTracker.UpdateStage(game.Id, "Compressing game files");
+
+            using var stream = ZipHelper.CreateZipFromFolder(
+                path,
+                (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 0, 30)
+            );
+
+            string fileName = string.Format(StorageConstants.FileName_GameZip, game.Id);
+
+            _syncProgressTracker.UpdateStage(game.Id, "Uploading game files");
+            Logger.LogInformation("Uploading game files {fileName}", fileName);
+
+            await storageProvider.UpsertZipDataAsync(
+                fileName,
+                stream,
+                (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 30, 90),
+                cancellationToken
+            );
+
+            game.LastSyncedFrom = syncSourceId;
+            game.LastSyncTimeUtc = DateTime.UtcNow;
+            game.LatestWriteTimeUtc = scanResult.LatestWriteTimeUtc;
+            game.StorageBytes = scanResult.StorageBytes;
+
+            _syncProgressTracker.UpdateStage(game.Id, "Updating metadata");
+            Logger.LogInformation("Saving game data {gameName}", game.Name);
+
+            await _gameManager.UpdateMetaDataAsync(
+                game,
+                (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 90, 100),
+                cancellationToken
+            );
+
+            try
+            {
+                await _localSyncLog.WriteLogAsync(game.Id, SyncType.Upload, isAutoSync, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to wite local sync log");
+            }
+
         }
-        catch (Exception ex)
+        catch
         {
-            Logger.LogError(ex, "Failed to wite local sync log");
+            throw;
+        }
+        finally
+        {
+            _syncProgressTracker.Remove(game.Id);
         }
     }
 }

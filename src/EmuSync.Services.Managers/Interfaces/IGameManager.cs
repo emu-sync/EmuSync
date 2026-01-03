@@ -38,9 +38,10 @@ public interface IGameManager
     /// Updates the more detailed info of a <see cref="GameEntity"/>
     /// </summary>
     /// <param name="entity"></param>
+    /// <param name="onProgress"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<bool> UpdateMetaDataAsync(GameEntity entity, CancellationToken cancellationToken = default);
+    Task<bool> UpdateMetaDataAsync(GameEntity entity, Action<double>? onProgress = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes a <see cref="GameEntity"/> by <paramref name="id"/>

@@ -6,6 +6,8 @@ using EmuSync.Agent.Services;
 using EmuSync.Domain.Enums;
 using EmuSync.Domain.Extensions;
 using EmuSync.Domain.Helpers;
+using EmuSync.Domain.Services;
+using EmuSync.Domain.Services.Interfaces;
 using EmuSync.Services.LudusaviImporter;
 using EmuSync.Services.LudusaviImporter.Interfaces;
 using EmuSync.Services.Managers.Extensions;
@@ -134,6 +136,7 @@ public class Program
         #endregion
 
         builder.Services.AddSingleton<ISyncTasks, SyncTasks>();
+        builder.Services.AddSingleton<ISyncProgressTracker, SyncProgressTracker>();
 
         builder.Services.AddSingleton<IApiCache, ApiCache>();
         builder.Services.AddSingleton<IGameSyncStatusCache, GameSyncStatusCache>();

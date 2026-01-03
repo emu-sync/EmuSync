@@ -20,17 +20,24 @@ public class LocalGameSaveBackupService(
         return manifests ?? [];
     }
 
-    public async Task CreateBackupAsync(string gameId, string path, CancellationToken cancellationToken = default)
+    public async Task CreateBackupAsync(string gameId, string path, Action<double>? onProgress = null, CancellationToken cancellationToken = default)
     {
         DateTime now = DateTime.UtcNow;
         string fileName = string.Format(DomainConstants.LocalDataGameBackupFileNameFormat, now.ToString("dd-MM-yyyy_HH-mm-ss"));
         string fullBackupLocation = GetGameBackupFileName(gameId, fileName);
 
+        if (!Directory.Exists(path))
+        {
+            _logger.LogInformation("Location {pathj} didn't exist, skipping backup for game {gameId}", path, gameId);
+            return;
+        }
+
         //create the zip backup content
-        using var stream = ZipHelper.CreateZipFromFolder(path);
+        using var stream = ZipHelper.CreateZipFromFolder(path, onProgress);
         var fileBytes = stream.ToArray();
 
         string dir = Path.GetDirectoryName(fullBackupLocation)!;
+
         if (!Directory.Exists(dir))
         {
             Directory.CreateDirectory(dir);

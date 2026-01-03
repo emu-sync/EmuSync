@@ -1,5 +1,6 @@
 ﻿using Dropbox.Api;
 using Dropbox.Api.Files;
+using EmuSync.Domain.Objects;
 using EmuSync.Services.Storage.Interfaces;
 using Microsoft.Extensions.Options;
 using System.Text;
@@ -30,10 +31,10 @@ public class DropboxStorageProvider(
         }
     }
 
-    public async Task<MemoryStream?> GetZipFileAsync(string fileName, CancellationToken cancellationToken = default)
+    public async Task<MemoryStream?> GetZipFileAsync(string fileName, Action<double>? onProgress = null, CancellationToken cancellationToken = default)
     {
         string fullFilePath = GetFullFilePath(fileName);
-        return await GetZipFileContentsAsync(fullFilePath, cancellationToken);
+        return await GetZipFileContentsAsync(fullFilePath, onProgress, cancellationToken);
     }
 
     public async Task DeleteFileAsync(string fileName, CancellationToken cancellationToken = default)
@@ -44,7 +45,12 @@ public class DropboxStorageProvider(
         await client.Files.DeleteV2Async(fullFilePath);
     }
 
-    public async Task UpsertJsonDataAsync(string fileName, object data, CancellationToken cancellationToken = default)
+    public async Task UpsertJsonDataAsync(
+        string fileName, 
+        object data,
+        Action<double>? onProgress = null,
+        CancellationToken cancellationToken = default
+    )
     {
         string fullFilePath = GetFullFilePath(fileName);
 
@@ -53,15 +59,23 @@ public class DropboxStorageProvider(
             WriteIndented = false
         });
 
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonContent));
+        byte[] bytes = Encoding.UTF8.GetBytes(jsonContent);
 
-        await UpsertMemoryStreamAsync(fullFilePath, stream, cancellationToken);
+        using var stream = new MemoryStream(bytes);
+        using var progressStream = new ProgressStream(stream, onProgress);
+
+        await UpsertMemoryStreamAsync(fullFilePath, stream, onProgress, cancellationToken);
     }
 
-    public async Task UpsertZipDataAsync(string fileName, MemoryStream stream, CancellationToken cancellationToken = default)
+    public async Task UpsertZipDataAsync(
+        string fileName, 
+        MemoryStream stream,
+        Action<double>? onProgress = null,
+        CancellationToken cancellationToken = default
+    )
     {
         string fullFilePath = GetFullFilePath(fileName);
-        await UpsertMemoryStreamAsync(fullFilePath, stream, cancellationToken);
+        await UpsertMemoryStreamAsync(fullFilePath, stream, onProgress, cancellationToken);
     }
 
     public void RemoveRelatedFiles()
@@ -79,15 +93,17 @@ public class DropboxStorageProvider(
     private async Task<FileMetadata> UpsertMemoryStreamAsync(
         string fileName,
         MemoryStream stream,
+        Action<double>? onProgress = null,
         CancellationToken cancellationToken = default
     )
     {
+        using var progressStream = new ProgressStream(stream, onProgress);
         var client = await GetDropboxClientAsync(cancellationToken);
 
         return await client.Files.UploadAsync(
             fileName,
             WriteMode.Overwrite.Instance,
-            body: stream
+            body: progressStream
         );
     }
 
@@ -120,17 +136,31 @@ public class DropboxStorageProvider(
     /// <summary>
     /// Gets a zip file contents
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     /// <param name="filePath"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private async Task<MemoryStream> GetZipFileContentsAsync(string filePath, CancellationToken cancellationToken = default)
+    private async Task<MemoryStream> GetZipFileContentsAsync(string filePath, Action<double>? onProgress = null, CancellationToken cancellationToken = default)
     {
         var client = await GetDropboxClientAsync(cancellationToken);
         using var response = await client.Files.DownloadAsync(filePath);
 
-        var data = await response.GetContentAsByteArrayAsync();
-        return new MemoryStream(data);
+        var totalSize = response.Response.Size;
+
+        using var stream = await response.GetContentAsStreamAsync();
+
+        var memoryStream = new MemoryStream();
+        using var progressStream = new ProgressStream(memoryStream, onProgress, totalSize);
+
+        //copy the content in chunks, reporting progress
+        byte[] buffer = new byte[81920]; // 80KB
+        int bytesRead;
+
+        while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
+        {
+            await progressStream.WriteAsync(buffer, 0, bytesRead, cancellationToken);
+        }
+
+        return memoryStream;
     }
 
     /// <summary>

@@ -1,5 +1,5 @@
 import { get, postWithNoResponse } from "@/renderer/api/api-helper";
-import { GameSyncStatus  } from "@/renderer/types";
+import { GameSyncStatus, SyncProgress  } from "@/renderer/types";
 
 const controller = "GameSync"
 
@@ -47,6 +47,16 @@ export async function restoreGameFromBackup(id: string, backupId: string): Promi
     const path = `${controller}/${id}/RestoreFromBackup/${backupId}`;
 
     await postWithNoResponse({
+        path
+    });
+
+}
+
+export async function getSyncProgress(id: string): Promise<SyncProgress> {
+
+    const path = `${controller}/${id}/SyncProgress`;
+
+    return await get({
         path
     });
 

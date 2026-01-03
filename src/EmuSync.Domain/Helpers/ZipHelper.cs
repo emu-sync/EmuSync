@@ -9,14 +9,20 @@ public static class ZipHelper
     /// </summary>
     /// <param name="folderPath"></param>
     /// <returns></returns>
-    public static MemoryStream CreateZipFromFolder(string folderPath)
-
+    public static MemoryStream CreateZipFromFolder(
+        string folderPath,
+        Action<double>? onProgressChange = null
+    )
     {
         var memoryStream = new MemoryStream();
 
+        var files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
+        int totalFiles = files.Length;
+        int processedFiles = 0;
+
         using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
         {
-            foreach (var filePath in Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories))
+            foreach (var filePath in files)
             {
                 var relativePath = Path.GetRelativePath(folderPath, filePath);
                 var entry = archive.CreateEntry(relativePath, CompressionLevel.Optimal);
@@ -25,10 +31,17 @@ public static class ZipHelper
 
                 using var fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
                 fileStream.CopyTo(entryStream);
+
+
+                processedFiles++;
+
+                onProgressChange?.Invoke(
+                    totalFiles == 0 ? 100 : (processedFiles / (double)totalFiles) * 100
+                );
             }
         }
 
-        memoryStream.Position = 0; // reset for reading
+        memoryStream.Position = 0; //reset for reading
         return memoryStream;
     }
 
@@ -38,7 +51,12 @@ public static class ZipHelper
     /// <param name="zipStream"></param>
     /// <param name="outputDirectory"></param>
     /// <param name="forceLastWriteTime"></param>
-    public static void ExtractToDirectory(MemoryStream zipStream, string outputDirectory, DateTime? forceLastWriteTime = null)
+    public static void ExtractToDirectory(
+        MemoryStream zipStream,
+        string outputDirectory,
+        DateTime? forceLastWriteTime = null,
+        Action<double>? onProgressChange = null
+    )
     {
         string? cleanOutputDirectory = GetOsSafePath(outputDirectory);
         if (string.IsNullOrEmpty(cleanOutputDirectory)) return;
@@ -53,7 +71,11 @@ public static class ZipHelper
 
         Directory.CreateDirectory(cleanOutputDirectory);
 
-        foreach (var entry in archive.Entries)
+        var entries = archive.Entries.Where(e => !string.IsNullOrEmpty(e.Name)).ToList();
+        int totalEntries = entries.Count;
+        int processedEntries = 0;
+
+        foreach (var entry in entries)
         {
             var filePath = GetOsSafePath(
                 Path.Combine(cleanOutputDirectory, entry.FullName)
@@ -85,6 +107,9 @@ public static class ZipHelper
             {
                 File.SetLastWriteTimeUtc(filePath, forceLastWriteTime.Value);
             }
+
+            processedEntries++;
+            onProgressChange?.Invoke((processedEntries / (double)totalEntries) * 100);
         }
 
         //stop false positives and ensure we keep the last write time on the local directory the same
