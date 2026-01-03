@@ -133,8 +133,10 @@ public class OneDriveStorageProvider(
             throw new InvalidOperationException("No microsoft token is present on the device");
         }
 
-        _httpClient ??= new();
-        _httpClient.Timeout = Timeout.InfiniteTimeSpan;
+        _httpClient ??= new()
+        {
+            Timeout = Timeout.InfiniteTimeSpan
+        };
 
         return _httpClient;
 
