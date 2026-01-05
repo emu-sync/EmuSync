@@ -6,6 +6,7 @@ public class DomainConstants
     public const string LocalDataFolder = ".emusync-data";
 
     public const string LocalDataGameBackupFolder = "game-backups";
+    public const string LocalDataGameTempZipsFolder = "temp-zips";
     public const string LocalDataGameBackupFileNameFormat = "backup_{0}.zip";
     public const string LocalDataGameBackupManifestFile = "manifest.json";
 

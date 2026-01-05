@@ -97,9 +97,6 @@ async function executeFetch(
         options.cache = "no-store";
     }
 
-
-    console.log(`FETCH REQUEST`, "|", url, "|", options);
-
     const response = await fetch(url, options);
 
     if (!response.ok) {

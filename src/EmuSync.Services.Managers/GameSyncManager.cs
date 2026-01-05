@@ -1,4 +1,5 @@
-﻿using EmuSync.Domain.Enums;
+﻿using EmuSync.Domain;
+using EmuSync.Domain.Enums;
 using EmuSync.Domain.Helpers;
 using EmuSync.Domain.Objects;
 using EmuSync.Domain.Results;
@@ -232,25 +233,29 @@ public class GameSyncManager(
 
         var storageProvider = await GetRequiredStorageProviderAsync(cancellationToken);
 
+        string tempZipPath = GetTempZipPath();
+
         try
         {
             _syncProgressTracker.UpdateStage(game.Id, "Downloading game files");
 
             string fileName = string.Format(StorageConstants.FileName_GameZip, game.Id);
 
-            using var stream = await storageProvider.GetZipFileAsync(
+            await storageProvider.GetZipFileAsync(
                 fileName,
+                tempZipPath,
                 (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 0, 70),
                 cancellationToken
             );
 
-            if (stream == null) return;
+            bool tempZipFileExists = File.Exists(tempZipPath);
+            if (!tempZipFileExists) return;
 
-            //create a backup first before we download the latest files
+            //create a backup first before we extract the latest files
             _syncProgressTracker.UpdateStage(game.Id, "Creating backup");
 
             await _localGameSaveBackupService.CreateBackupAsync(
-                game.Id, 
+                game.Id,
                 path,
                 (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 70, 85),
                 cancellationToken
@@ -258,9 +263,11 @@ public class GameSyncManager(
 
             _syncProgressTracker.UpdateStage(game.Id, "Extracting game files");
 
+            using var fileStream = new FileStream(tempZipPath, FileMode.Open, FileAccess.Read);
+
             ZipHelper.ExtractToDirectory(
-                stream, 
-                path, 
+                fileStream,
+                path,
                 game.LatestWriteTimeUtc,
                 (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 85, 100)
             );
@@ -282,6 +289,7 @@ public class GameSyncManager(
         finally
         {
             _syncProgressTracker.Remove(game.Id);
+            DeleteFileIfExsts(tempZipPath);
         }
     }
 
@@ -303,12 +311,16 @@ public class GameSyncManager(
 
         var storageProvider = await GetRequiredStorageProviderAsync(cancellationToken);
 
+        string tempZipPath = GetTempZipPath();
+
         try
         {
             _syncProgressTracker.UpdateStage(game.Id, "Compressing game files");
 
-            using var stream = ZipHelper.CreateZipFromFolder(
+            //create a physical zip
+            ZipHelper.CreateZipFromFolder(
                 path,
+                tempZipPath,
                 (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 0, 30)
             );
 
@@ -317,9 +329,11 @@ public class GameSyncManager(
             _syncProgressTracker.UpdateStage(game.Id, "Uploading game files");
             Logger.LogInformation("Uploading game files {fileName}", fileName);
 
+            using var fileStream = new FileStream(tempZipPath, FileMode.Open, FileAccess.Read);
+
             await storageProvider.UpsertZipDataAsync(
                 fileName,
-                stream,
+                fileStream,
                 (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 30, 90),
                 cancellationToken
             );
@@ -355,6 +369,31 @@ public class GameSyncManager(
         finally
         {
             _syncProgressTracker.Remove(game.Id);
+            DeleteFileIfExsts(tempZipPath);
+        }
+    }
+
+    private string GetTempZipPath()
+    {
+        string tempZipName = $"{IdHelper.Create()}.zip";
+
+        return LocalDataAccessor.GetLocalFilePath(
+            Path.Combine(DomainConstants.LocalDataGameTempZipsFolder, tempZipName)
+        );
+    }
+
+    private void DeleteFileIfExsts(string filePath)
+    {
+        try
+        {
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("Failed to delete file {file}", filePath);
         }
     }
 }

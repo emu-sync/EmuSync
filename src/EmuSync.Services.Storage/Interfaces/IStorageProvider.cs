@@ -18,7 +18,7 @@ public interface IStorageProvider
     /// <param name="onProgress"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<MemoryStream?> GetZipFileAsync(string fileName, Action<double>? onProgress = null, CancellationToken cancellationToken = default);
+    Task GetZipFileAsync(string fileName, string writeToPath, Action<double>? onProgress = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes a file by <paramref name="fileName"/>
@@ -47,7 +47,7 @@ public interface IStorageProvider
     /// <param name="onProgress"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task UpsertZipDataAsync(string fileName, MemoryStream stream, Action<double>? onProgress = null, CancellationToken cancellationToken = default);
+    Task UpsertZipDataAsync(string fileName, Stream stream, Action<double>? onProgress = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Removes any files associated with the provider

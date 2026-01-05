@@ -40,14 +40,14 @@ public class GoogleDriveStorageProvider(
 
     }
 
-    public async Task<MemoryStream?> GetZipFileAsync(string fileName, Action<double>? onProgress = null, CancellationToken cancellationToken = default)
+    public async Task GetZipFileAsync(string fileName, string writeToPath, Action<double>? onProgress = null, CancellationToken cancellationToken = default)
     {
         string folderId = await GetOrCreateFolderAsync(StorageConstants.DataFolderName, cancellationToken: cancellationToken);
         string? fileId = await GetFileIdByNameAsync(folderId, fileName, cancellationToken: cancellationToken);
 
-        if (string.IsNullOrEmpty(fileId)) return default;
+        if (string.IsNullOrEmpty(fileId)) return;
 
-        return await GetZipFileContentsAsync(fileId, onProgress, cancellationToken);
+        await CreateLocalZipFile(fileId, writeToPath, onProgress, cancellationToken);
     }
 
     public async Task DeleteFileAsync(string fileName, CancellationToken cancellationToken = default)
@@ -85,7 +85,7 @@ public class GoogleDriveStorageProvider(
 
     public async Task UpsertZipDataAsync(
         string fileName,
-        MemoryStream stream,
+        Stream stream,
         Action<double>? onProgress = null,
         CancellationToken cancellationToken = default
     )
@@ -343,9 +343,10 @@ public class GoogleDriveStorageProvider(
     /// Gets a zip file contents
     /// </summary>
     /// <param name="fileId"></param>
+    /// <param name="writeToPath"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private async Task<MemoryStream> GetZipFileContentsAsync(string fileId, Action<double>? onProgress = null, CancellationToken cancellationToken = default)
+    private async Task CreateLocalZipFile(string fileId, string writeToPath, Action<double>? onProgress = null, CancellationToken cancellationToken = default)
     {
         var service = await GetDriveService(cancellationToken);
 
@@ -355,12 +356,10 @@ public class GoogleDriveStorageProvider(
         var file = await request.ExecuteAsync(cancellationToken);
         ulong totalSize = file.Size.HasValue && file.Size > 0 ? (ulong)file.Size.Value : 0;
 
-        var memoryStream = new MemoryStream();
-        using var progressStream = new ProgressStream(memoryStream, onProgress, totalSize);
+        using var fileStream = new FileStream(writeToPath, FileMode.CreateNew, FileAccess.Write);
+        using var progressStream = new ProgressStream(fileStream, onProgress, totalSize);
 
         await request.DownloadAsync(progressStream, cancellationToken);
-
-        return memoryStream;
     }
 
     /// <summary>

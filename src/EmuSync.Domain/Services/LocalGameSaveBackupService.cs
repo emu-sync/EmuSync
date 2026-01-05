@@ -33,17 +33,7 @@ public class LocalGameSaveBackupService(
         }
 
         //create the zip backup content
-        using var stream = ZipHelper.CreateZipFromFolder(path, onProgress);
-        var fileBytes = stream.ToArray();
-
-        string dir = Path.GetDirectoryName(fullBackupLocation)!;
-
-        if (!Directory.Exists(dir))
-        {
-            Directory.CreateDirectory(dir);
-        }
-
-        await File.WriteAllBytesAsync(fullBackupLocation, fileBytes, cancellationToken);
+        ZipHelper.CreateZipFromFolder(path, fullBackupLocation, onProgress);
         await AddBackupToManifestAsync(gameId, fileName, now, cancellationToken);
     }
 
@@ -67,11 +57,7 @@ public class LocalGameSaveBackupService(
         }
 
         using var fileStream = new FileStream(fullBackupLocation, FileMode.Open, FileAccess.Read);
-        using var memoryStream = new MemoryStream();
-
-        fileStream.CopyTo(memoryStream);
-
-        ZipHelper.ExtractToDirectory(memoryStream, outputDirectory, DateTime.UtcNow);
+        ZipHelper.ExtractToDirectory(fileStream, outputDirectory, DateTime.UtcNow);
     }
 
     private async Task AddBackupToManifestAsync(string gameId, string fileName, DateTime createdOnUtc, CancellationToken cancellationToken = default)

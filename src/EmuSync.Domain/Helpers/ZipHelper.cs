@@ -5,45 +5,46 @@ namespace EmuSync.Domain.Helpers;
 public static class ZipHelper
 {
     /// <summary>
-    /// Creates an in memory zip of all files and folders found at <paramref name="folderPath"/>
+    /// Creates a zip of all files and folders found at <paramref name="folderPath"/>
+    /// and writes it to <paramref name="zipPath"/>
     /// </summary>
-    /// <param name="folderPath"></param>
-    /// <returns></returns>
-    public static MemoryStream CreateZipFromFolder(
+    public static void CreateZipFromFolder(
         string folderPath,
+        string zipPath,
         Action<double>? onProgressChange = null
     )
     {
-        var memoryStream = new MemoryStream();
-
         var files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
         int totalFiles = files.Length;
         int processedFiles = 0;
 
-        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
+        Directory.CreateDirectory(Path.GetDirectoryName(zipPath)!);
+
+        using var fileStream = new FileStream(
+            zipPath,
+            FileMode.Create,
+            FileAccess.Write,
+            FileShare.None
+        );
+
+        using var archive = new ZipArchive(fileStream, ZipArchiveMode.Create);
+
+        foreach (var filePath in files)
         {
-            foreach (var filePath in files)
-            {
-                var relativePath = Path.GetRelativePath(folderPath, filePath);
-                var entry = archive.CreateEntry(relativePath, CompressionLevel.Optimal);
+            var relativePath = Path.GetRelativePath(folderPath, filePath);
+            var entry = archive.CreateEntry(relativePath, CompressionLevel.Optimal);
 
-                using var entryStream = entry.Open();
+            using var entryStream = entry.Open();
+            using var input = File.OpenRead(filePath);
+            input.CopyTo(entryStream);
 
-                using var fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-                fileStream.CopyTo(entryStream);
-
-
-                processedFiles++;
-
-                onProgressChange?.Invoke(
-                    totalFiles == 0 ? 100 : (processedFiles / (double)totalFiles) * 100
-                );
-            }
+            processedFiles++;
+            onProgressChange?.Invoke(
+                totalFiles == 0 ? 100 : (processedFiles / (double)totalFiles) * 100
+            );
         }
-
-        memoryStream.Position = 0; //reset for reading
-        return memoryStream;
     }
+
 
     /// <summary>
     /// Extracts the in-memory zip to <paramref name="outputDirectory"/>
@@ -51,8 +52,9 @@ public static class ZipHelper
     /// <param name="zipStream"></param>
     /// <param name="outputDirectory"></param>
     /// <param name="forceLastWriteTime"></param>
+    /// <param name="onProgressChange"></param>
     public static void ExtractToDirectory(
-        MemoryStream zipStream,
+        Stream zipStream,
         string outputDirectory,
         DateTime? forceLastWriteTime = null,
         Action<double>? onProgressChange = null
