@@ -73,3 +73,10 @@ This is the same release as 1.0.2, but with a fix for Windows not correctly iden
 
 ## Other
 - Tweaked the layout of several sections to provide clearer visual structure (hopefully!).
+
+# v1.0.7
+
+- Added a progress indicator when syncing game files
+- Reworked how EmuSync uploads/downloads files 
+    - This is mostly for people who are uploading larger folders and may have experienced issues where they'd fail
+- Various minor bugixes related to the Dropbox storage provider

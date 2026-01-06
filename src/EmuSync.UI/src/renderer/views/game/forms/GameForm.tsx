@@ -185,7 +185,6 @@ export default function GameForm({
                         {
                             allSyncSources.map((src) => {
 
-                                const isWindows = src.platformId === OsPlatform.Windows;
                                 const isThisDevice = src.id === localSyncSource.id;
                                 let label = src.name;
 

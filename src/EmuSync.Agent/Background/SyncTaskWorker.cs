@@ -1,17 +1,25 @@
-﻿namespace EmuSync.Agent.Background;
+﻿using EmuSync.Domain;
+using EmuSync.Domain.Services.Interfaces;
+
+namespace EmuSync.Agent.Background;
 
 public class SyncTaskWorker(
     ILogger<SyncTaskWorker> logger,
     IServiceProvider serviceProvider,
-    ISyncTasks syncTasks
+    ISyncTasks syncTasks,
+    ILocalDataAccessor localDataAccessor
 ) : BackgroundService
 {
     private readonly ILogger<SyncTaskWorker> _logger = logger;
     private readonly IServiceProvider _serviceProvider = serviceProvider;
     private readonly ISyncTasks _syncTasks = syncTasks;
+    private readonly ILocalDataAccessor _localDataAccessor = localDataAccessor;
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
+        //keep temporary zip folder tidy
+        DeleteTemporaryZipFolder();
+
         while (!cancellationToken.IsCancellationRequested)
         {
 
@@ -35,6 +43,24 @@ public class SyncTaskWorker(
 
         }
 
+    }
+
+    private void DeleteTemporaryZipFolder()
+    {
+        try
+        {
+            string path = _localDataAccessor.GetLocalFilePath(DomainConstants.LocalDataGameTempZipsFolder);
+
+            if (Directory.Exists(path))
+            {
+                Directory.Delete(path, true);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to delete temp zip folder on startup");
+        }
     }
 
     private async Task TryProcessTasksAsync(CancellationToken cancellationToken)

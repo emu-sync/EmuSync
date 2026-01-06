@@ -17,10 +17,12 @@ import useEditQuery from "@/renderer/hooks/use-edit-query";
 import DisplayGameSyncStatus from "@/renderer/views/game/components/DisplayGameSyncStatus";
 import RestoreFromBackupModal from "@/renderer/views/game/components/RestoreFromBackupModal";
 import { determineGameSyncStatus } from "@/renderer/views/game/utils/game-utils";
+import useSyncProgressPoll from "@/renderer/views/game/utils/use-sync-progress-poll";
+import LinearProgressWithLabel from "@/renderer/views/this-device/components/LinearProgressWithLabel";
 import SyncIcon from '@mui/icons-material/Sync';
-import { Button, Divider, Typography } from "@mui/material";
+import { Button, CircularProgress, Divider, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 
 interface SyncStatusFormProps {
@@ -31,7 +33,6 @@ interface SyncStatusFormProps {
 export default function SyncStatusForm({
     gameId, gameName
 }: SyncStatusFormProps) {
-
 
     const [backupModalIsOpen, setBackupModalIsOpen] = useState(false);
 
@@ -49,6 +50,8 @@ export default function SyncStatusForm({
     const gameBackupsKey = useMemo(() => {
         return cacheKeys.gameBackups(gameId);
     }, [gameId]);
+
+    const syncProgress = useSyncProgressPoll(gameId);
 
     const {
         query, updateMutation
@@ -78,10 +81,7 @@ export default function SyncStatusForm({
     const forceDownloadMutation = useMutation({
         mutationFn: forceDownloadGame,
         onSuccess: async (data) => {
-
-            queryClient.invalidateQueries({ queryKey: [gameSyncStatusKey] });
-            queryClient.invalidateQueries({ queryKey: [gameBackupsKey] });
-            queryClient.invalidateQueries({ queryKey: [gameLocalSyncLogsKey] });
+            refreshQueries();
             successAlert(`Successfully downloaded game files for: ${gameName}`);
         },
         onError: async () => {
@@ -92,16 +92,19 @@ export default function SyncStatusForm({
     const forceUploadMutation = useMutation({
         mutationFn: forceUploadGame,
         onSuccess: async (data) => {
-
-            queryClient.invalidateQueries({ queryKey: [gameSyncStatusKey] });
-            queryClient.invalidateQueries({ queryKey: [gameBackupsKey] });
-            queryClient.invalidateQueries({ queryKey: [gameLocalSyncLogsKey] });
+            refreshQueries();
             successAlert(`Successfully uploaded game files for: ${gameName}`);
         },
         onError: async () => {
             errorAlert(`Failed to upload game files for: ${gameName} (do you have the game open?)`);
         },
     });
+
+    const refreshQueries = useCallback(() => {
+        queryClient.invalidateQueries({ queryKey: [gameSyncStatusKey] });
+        queryClient.invalidateQueries({ queryKey: [gameBackupsKey] });
+        queryClient.invalidateQueries({ queryKey: [gameLocalSyncLogsKey] });
+    }, [queryClient]);
 
     const handleSyncButtonClick = useCallback(() => {
         updateMutation.mutate(gameId);
@@ -124,6 +127,13 @@ export default function SyncStatusForm({
 
     const hasBackups = gameBackupsQuery.data && gameBackupsQuery.data.length > 0;
 
+    useEffect(() => {
+
+        if (syncProgress.isInProgress) return;
+        refreshQueries();
+
+    }, [syncProgress.isInProgress]);
+
     return <Section>
         <SectionTitle
             title="Sync status"
@@ -138,6 +148,24 @@ export default function SyncStatusForm({
             {
                 query.data ?
                     <VerticalStack>
+
+                        {
+                            syncProgress.isInProgress &&
+                            <>
+                                <VerticalStack gap={1}>
+                                    <LinearProgressWithLabel value={syncProgress.overallCompletionPercent ?? 0} />
+                                    <HorizontalStack>
+                                        <Typography>
+                                            {syncProgress.currentStage}...
+                                        </Typography>
+                                        <CircularProgress size={16} />
+                                    </HorizontalStack>
+
+                                </VerticalStack>
+                                <Divider />
+                            </>
+                        }
+
                         <DisplayGameSyncStatus
                             gameSyncStatus={query.data}
                         />
@@ -147,8 +175,9 @@ export default function SyncStatusForm({
                                 color="primary"
                                 onClick={handleSyncButtonClick}
                                 disabled={
-                                    query.isFetching || restoreGameFromBackupMutation.isPending ||updateMutation.isPending || forceDownloadMutation.isPending || forceUploadMutation.isPending
+                                    query.isFetching || restoreGameFromBackupMutation.isPending || updateMutation.isPending || forceDownloadMutation.isPending || forceUploadMutation.isPending
                                     || syncState === null || syncState.isUpToDate || syncState.localPathIsUnset || (syncState.neverSynced && !syncState.localPathExists)
+                                    || syncProgress.isInProgress
                                 }
                                 loading={updateMutation.isPending}
                             >
@@ -159,7 +188,7 @@ export default function SyncStatusForm({
                                 variant="contained"
                                 color="secondary"
                                 onClick={() => query.refetch()}
-                                disabled={query.isFetching || restoreGameFromBackupMutation.isPending ||updateMutation.isPending || forceDownloadMutation.isPending}
+                                disabled={query.isFetching || restoreGameFromBackupMutation.isPending || updateMutation.isPending || forceDownloadMutation.isPending || syncProgress.isInProgress}
                                 loading={query.isRefetching}
                             >
                                 Recheck
@@ -177,7 +206,8 @@ export default function SyncStatusForm({
                                             variant="contained"
 
                                             size="small"
-                                            disabled={query.isFetching || restoreGameFromBackupMutation.isPending ||updateMutation.isPending || forceUploadMutation.isPending}
+                                            onClick={() => forceUploadMutation.mutate(gameId)}
+                                            disabled={query.isFetching || restoreGameFromBackupMutation.isPending || updateMutation.isPending || forceUploadMutation.isPending || syncProgress.isInProgress}
                                             loading={forceUploadMutation.isPending}
                                             sx={{
                                                 minWidth: 100
@@ -214,7 +244,7 @@ export default function SyncStatusForm({
 
                                             size="small"
                                             onClick={() => forceDownloadMutation.mutate(gameId)}
-                                            disabled={query.isFetching || restoreGameFromBackupMutation.isPending || updateMutation.isPending || forceDownloadMutation.isPending || forceUploadMutation.isPending}
+                                            disabled={query.isFetching || restoreGameFromBackupMutation.isPending || updateMutation.isPending || forceDownloadMutation.isPending || forceUploadMutation.isPending || syncProgress.isInProgress}
                                             loading={forceDownloadMutation.isPending}
                                             sx={{
                                                 minWidth: 100
@@ -249,7 +279,7 @@ export default function SyncStatusForm({
 
                                             size="small"
                                             onClick={() => setBackupModalIsOpen(true)}
-                                            disabled={query.isFetching || updateMutation.isPending || forceDownloadMutation.isPending}
+                                            disabled={query.isFetching || updateMutation.isPending || forceDownloadMutation.isPending || syncProgress.isInProgress}
                                             loading={restoreGameFromBackupMutation.isPending}
                                             sx={{
                                                 ml: 1,
@@ -276,7 +306,7 @@ export default function SyncStatusForm({
                     <></>
             }
 
-            <RestoreFromBackupModal 
+            <RestoreFromBackupModal
                 backups={gameBackupsQuery.data ?? []}
                 isOpen={backupModalIsOpen}
                 setIsOpen={setBackupModalIsOpen}

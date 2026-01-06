@@ -14,11 +14,11 @@ public interface IStorageProvider
     /// <summary>
     /// Gets a zip file stream
     /// </summary>
-    /// <typeparam name="TData"></typeparam>
     /// <param name="fileName"></param>
+    /// <param name="onProgress"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<MemoryStream?> GetZipFileAsync(string fileName, CancellationToken cancellationToken = default);
+    Task GetZipFileAsync(string fileName, string writeToPath, Action<double>? onProgress = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes a file by <paramref name="fileName"/>
@@ -34,18 +34,20 @@ public interface IStorageProvider
     /// </summary>
     /// <param name="fileName"></param>
     /// <param name="data"></param>
+    /// <param name="onProgress"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task UpsertJsonDataAsync(string fileName, object data, CancellationToken cancellationToken = default);
+    Task UpsertJsonDataAsync(string fileName, object data, Action<double>? onProgress = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates/creates a zip file
     /// </summary>
     /// <param name="fileName"></param>
     /// <param name="stream"></param>
+    /// <param name="onProgress"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task UpsertZipDataAsync(string fileName, MemoryStream stream, CancellationToken cancellationToken = default);
+    Task UpsertZipDataAsync(string fileName, Stream stream, Action<double>? onProgress = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Removes any files associated with the provider

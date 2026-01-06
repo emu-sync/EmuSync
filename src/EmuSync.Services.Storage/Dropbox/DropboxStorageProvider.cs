@@ -1,5 +1,6 @@
 ﻿using Dropbox.Api;
 using Dropbox.Api.Files;
+using EmuSync.Domain.Objects;
 using EmuSync.Services.Storage.Interfaces;
 using Microsoft.Extensions.Options;
 using System.Text;
@@ -30,10 +31,10 @@ public class DropboxStorageProvider(
         }
     }
 
-    public async Task<MemoryStream?> GetZipFileAsync(string fileName, CancellationToken cancellationToken = default)
+    public async Task GetZipFileAsync(string fileName, string writeToPath, Action<double>? onProgress = null, CancellationToken cancellationToken = default)
     {
         string fullFilePath = GetFullFilePath(fileName);
-        return await GetZipFileContentsAsync(fullFilePath, cancellationToken);
+        await CreateLocalZipFile(fullFilePath, writeToPath, onProgress, cancellationToken);
     }
 
     public async Task DeleteFileAsync(string fileName, CancellationToken cancellationToken = default)
@@ -41,10 +42,27 @@ public class DropboxStorageProvider(
         string fullFilePath = GetFullFilePath(fileName);
         var client = await GetDropboxClientAsync(cancellationToken);
 
-        await client.Files.DeleteV2Async(fullFilePath);
+        try
+        {
+            await client.Files.DeleteV2Async(fullFilePath);
+        }
+        catch (ApiException<DeleteError> ex)
+        {
+            //if the item wasn't found, that's fine, otherwise throw the error
+            if (!ex.Message.Contains("path_lookup/not_found"))
+            {
+                throw;
+            }
+        }
+
     }
 
-    public async Task UpsertJsonDataAsync(string fileName, object data, CancellationToken cancellationToken = default)
+    public async Task UpsertJsonDataAsync(
+        string fileName,
+        object data,
+        Action<double>? onProgress = null,
+        CancellationToken cancellationToken = default
+    )
     {
         string fullFilePath = GetFullFilePath(fileName);
 
@@ -53,15 +71,23 @@ public class DropboxStorageProvider(
             WriteIndented = false
         });
 
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonContent));
+        byte[] bytes = Encoding.UTF8.GetBytes(jsonContent);
 
-        await UpsertMemoryStreamAsync(fullFilePath, stream, cancellationToken);
+        using var stream = new MemoryStream(bytes);
+        using var progressStream = new ProgressStream(stream, onProgress);
+
+        await UpsertStreamAsSessionAsync(fullFilePath, stream, onProgress, cancellationToken);
     }
 
-    public async Task UpsertZipDataAsync(string fileName, MemoryStream stream, CancellationToken cancellationToken = default)
+    public async Task UpsertZipDataAsync(
+        string fileName,
+        Stream stream,
+        Action<double>? onProgress = null,
+        CancellationToken cancellationToken = default
+    )
     {
         string fullFilePath = GetFullFilePath(fileName);
-        await UpsertMemoryStreamAsync(fullFilePath, stream, cancellationToken);
+        await UpsertStreamAsSessionAsync(fullFilePath, stream, onProgress, cancellationToken);
     }
 
     public void RemoveRelatedFiles()
@@ -76,18 +102,49 @@ public class DropboxStorageProvider(
     /// <param name="stream"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private async Task<FileMetadata> UpsertMemoryStreamAsync(
+    private async Task<FileMetadata> UpsertStreamAsSessionAsync(
         string fileName,
-        MemoryStream stream,
+        Stream stream,
+        Action<double>? onProgress = null,
         CancellationToken cancellationToken = default
     )
     {
+        using var progressStream = new ProgressStream(stream, onProgress);
+
+        const int chunkSize = 5 * 1024 * 1024; //5MB
         var client = await GetDropboxClientAsync(cancellationToken);
 
-        return await client.Files.UploadAsync(
-            fileName,
-            WriteMode.Overwrite.Instance,
-            body: stream
+        ulong uploaded = 0;
+        var buffer = new byte[chunkSize];
+
+        // Start session
+        var read = await progressStream.ReadAsync(buffer, cancellationToken);
+        using var firstChunk = new MemoryStream(buffer, 0, read);
+
+        var session = await client.Files.UploadSessionStartAsync(
+            body: firstChunk
+        );
+
+        uploaded += (ulong)read;
+
+        //append
+        while ((read = await progressStream.ReadAsync(buffer, cancellationToken)) > 0)
+        {
+            using var chunk = new MemoryStream(buffer, 0, read);
+
+            await client.Files.UploadSessionAppendV2Async(
+                new UploadSessionCursor(session.SessionId, uploaded),
+                body: chunk
+            );
+
+            uploaded += (ulong)read;
+        }
+
+        //finish
+        return await client.Files.UploadSessionFinishAsync(
+            new UploadSessionCursor(session.SessionId, uploaded),
+            new CommitInfo(fileName, mode: WriteMode.Overwrite.Instance),
+            body: progressStream
         );
     }
 
@@ -120,17 +177,29 @@ public class DropboxStorageProvider(
     /// <summary>
     /// Gets a zip file contents
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     /// <param name="filePath"></param>
+    /// <param name="writeToPath"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private async Task<MemoryStream> GetZipFileContentsAsync(string filePath, CancellationToken cancellationToken = default)
+    private async Task CreateLocalZipFile(string filePath, string writeToPath, Action<double>? onProgress = null, CancellationToken cancellationToken = default)
     {
         var client = await GetDropboxClientAsync(cancellationToken);
         using var response = await client.Files.DownloadAsync(filePath);
 
-        var data = await response.GetContentAsByteArrayAsync();
-        return new MemoryStream(data);
+        var totalSize = response.Response.Size;
+
+        using var stream = await response.GetContentAsStreamAsync();
+        using var fileStream = new FileStream(writeToPath, FileMode.CreateNew, FileAccess.Write);
+        using var progressStream = new ProgressStream(fileStream, onProgress, totalSize);
+
+        //copy the content in chunks, reporting progress
+        byte[] buffer = new byte[81920]; // 80KB
+        int bytesRead;
+
+        while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
+        {
+            await progressStream.WriteAsync(buffer, 0, bytesRead, cancellationToken);
+        }
     }
 
     /// <summary>
@@ -150,7 +219,13 @@ public class DropboxStorageProvider(
         }
 
         //dropbox refresh tokens don't expire
-        DropboxClient client = new(token.RefreshToken, appKey: _options.AppKey);
+        DropboxClient client = new(token.RefreshToken, appKey: _options.AppKey, config: new DropboxClientConfig()
+        {
+            HttpClient = new()
+            {
+                Timeout = Timeout.InfiniteTimeSpan
+            }
+        });
 
         _dropboxClient = client;
         return _dropboxClient;

@@ -1,7 +1,10 @@
 using EmuSync.Agent.Dto.GameSync;
 using EmuSync.Domain.Enums;
+using EmuSync.Domain.Objects;
+using EmuSync.Domain.Services.Interfaces;
 using EmuSync.Services.Managers.Interfaces;
 using EmuSync.Services.Managers.Results;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EmuSync.Agent.Controllers;
 
@@ -13,13 +16,15 @@ public class GameSyncController(
     IGameSyncManager manager,
     IGameManager gameManager,
     ISyncSourceManager syncSourceManager,
-    IGameSyncStatusCache gameSyncStatusCache
+    IGameSyncStatusCache gameSyncStatusCache,
+    ISyncProgressTracker syncProgressTracker
 ) : CustomControllerBase(logger, validator)
 {
     private readonly IGameSyncManager _manager = manager;
     private readonly IGameManager _gameManager = gameManager;
     private readonly ISyncSourceManager _syncSourceManager = syncSourceManager;
     private readonly IGameSyncStatusCache _gameSyncStatusCache = gameSyncStatusCache;
+    private readonly ISyncProgressTracker _syncProgressTracker = syncProgressTracker;
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetSyncStatus([FromRoute] string id, CancellationToken cancellationToken = default)
@@ -165,5 +170,22 @@ public class GameSyncController(
         _gameSyncStatusCache.AddOrUpdate(id, GameSyncStatus.InSync);
 
         return Ok();
+    }
+
+    [HttpGet("{id}/SyncProgress")]
+    public async Task<IActionResult> SyncProgress([FromRoute] string id, CancellationToken cancellationToken = default)
+    {
+        SyncProgress? syncProgress = _syncProgressTracker.Get(id);
+
+        SyncProgressDto response = new()
+        {
+            InProgress = syncProgress != null,
+            OverallCompletionPercent = syncProgress?.OverallCompletionPercent is double val
+                ? Math.Round(val, 2)
+                : null,
+            CurrentStage = syncProgress?.CurrentStage,
+        };
+
+        return Ok(response);
     }
 }

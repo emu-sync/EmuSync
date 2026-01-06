@@ -9,3 +9,9 @@ export interface GameSyncStatus {
     localFolderPathExists: boolean;
     storageBytes: number;
 }
+
+export interface SyncProgress {
+    inProgress: boolean;
+    overallCompletionPercent: number | null;
+    currentStage: string | null;
+}

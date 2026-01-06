@@ -1,5 +1,7 @@
-﻿using EmuSync.Services.Storage.Interfaces;
+﻿using EmuSync.Domain.Objects;
+using EmuSync.Services.Storage.Interfaces;
 using Microsoft.Extensions.Options;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -38,7 +40,7 @@ public class OneDriveStorageProvider(
         return JsonSerializer.Deserialize<TData>(content);
     }
 
-    public async Task<MemoryStream?> GetZipFileAsync(string fileName, CancellationToken cancellationToken = default)
+    public async Task GetZipFileAsync(string fileName, string writeToPath, Action<double>? onProgress = null, CancellationToken cancellationToken = default)
     {
         var client = await GetClientAsync(cancellationToken);
 
@@ -50,11 +52,28 @@ public class OneDriveStorageProvider(
             cancellationToken: cancellationToken
         );
 
-        using var response = await client.SendAsync(request, cancellationToken);
+        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        var data = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-        return new MemoryStream(data);
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        using var fileStream = new FileStream(writeToPath, FileMode.CreateNew, FileAccess.Write);
+
+        var buffer = new byte[81920];
+        long totalRead = 0;
+        long? totalLength = response.Content.Headers.ContentLength;
+
+        int read;
+        while ((read = await stream.ReadAsync(buffer, cancellationToken)) > 0)
+        {
+            await fileStream.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
+            totalRead += read;
+
+            if (totalLength.HasValue && onProgress != null)
+            {
+                double percent = (totalRead / (double)totalLength.Value) * 100;
+                onProgress(percent);
+            }
+        }
     }
 
     public async Task DeleteFileAsync(string fileName, CancellationToken cancellationToken = default)
@@ -70,10 +89,21 @@ public class OneDriveStorageProvider(
         );
 
         using var response = await client.SendAsync(request, cancellationToken);
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return;
+        }
+
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task UpsertJsonDataAsync(string fileName, object data, CancellationToken cancellationToken = default)
+    public async Task UpsertJsonDataAsync(
+        string fileName,
+        object data,
+        Action<double>? onProgress = null,
+        CancellationToken cancellationToken = default
+    )
     {
         var client = await GetClientAsync(cancellationToken);
 
@@ -81,12 +111,14 @@ public class OneDriveStorageProvider(
 
         string json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = false });
         byte[] bytes = Encoding.UTF8.GetBytes(json);
+
         using var stream = new MemoryStream(bytes);
+        using var progressStream = new ProgressStream(stream, onProgress);
 
         using var request = await BuildRequestMessageAsync(
             path,
             HttpMethod.Put,
-            stream,
+            progressStream,
             "application/json",
             cancellationToken
         );
@@ -95,22 +127,64 @@ public class OneDriveStorageProvider(
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task UpsertZipDataAsync(string fileName, MemoryStream stream, CancellationToken cancellationToken = default)
+    public async Task UpsertZipDataAsync(
+        string fileName,
+        Stream stream,
+        Action<double>? onProgress = null,
+        CancellationToken cancellationToken = default
+    )
     {
         var client = await GetClientAsync(cancellationToken);
 
-        string path = $"/{fileName}:/content";
-
-        using var request = await BuildRequestMessageAsync(
-            path,
-            HttpMethod.Put,
-            stream,
-            "application/zip",
+        //create upload session (Graph API – uses auth)
+        using var createSessionRequest = await BuildRequestMessageAsync(
+            $"{fileName}:/createUploadSession",
+            HttpMethod.Post,
+            new MemoryStream(Encoding.UTF8.GetBytes("""
+            {
+              "item": {
+                "@microsoft.graph.conflictBehavior": "replace"
+              }
+            }
+            """)),
+            "application/json",
             cancellationToken
         );
 
-        using var response = await client.SendAsync(request, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        using var createSessionResponse = await client.SendAsync(createSessionRequest, cancellationToken);
+        createSessionResponse.EnsureSuccessStatusCode();
+
+        using var json = JsonDocument.Parse(
+            await createSessionResponse.Content.ReadAsStringAsync(cancellationToken)
+        );
+
+        var uploadUrl = json.RootElement.GetProperty("uploadUrl").GetString()!;
+
+        //upload chunks
+        const int chunkSize = 5 * 1024 * 1024; // 5MB
+        var buffer = new byte[chunkSize];
+
+        stream.Position = 0;
+        using var progressStream = new ProgressStream(stream, onProgress);
+
+        long uploaded = 0;
+        int read;
+
+        while ((read = await progressStream.ReadAsync(buffer, cancellationToken)) > 0)
+        {
+            using var content = new ByteArrayContent(buffer, 0, read);
+            content.Headers.ContentRange = new ContentRangeHeaderValue(uploaded, uploaded + read - 1, stream.Length);
+
+            using var request = new HttpRequestMessage(HttpMethod.Put, uploadUrl)
+            {
+                Content = content
+            };
+
+            using var response = await client.SendAsync(request, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            uploaded += read;
+        }
     }
 
     public void RemoveRelatedFiles()
@@ -133,7 +207,11 @@ public class OneDriveStorageProvider(
             throw new InvalidOperationException("No microsoft token is present on the device");
         }
 
-        _httpClient ??= new();
+        _httpClient ??= new()
+        {
+            Timeout = Timeout.InfiniteTimeSpan
+        };
+
         return _httpClient;
 
     }
@@ -141,7 +219,7 @@ public class OneDriveStorageProvider(
     private async Task<HttpRequestMessage> BuildRequestMessageAsync(
         string path,
         HttpMethod method,
-        MemoryStream? content = null,
+        Stream? content = null,
         string? contentType = null,
         CancellationToken cancellationToken = default
     )

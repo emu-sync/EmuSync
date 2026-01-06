@@ -64,7 +64,7 @@ public class GameManager(
         entity.Id = IdHelper.Create();
 
         //add it to the games list
-        await WriteToExternalList(entity, ListOperation.Upsert, cancellationToken);
+        await WriteToExternalList(entity, ListOperation.Upsert, onProgress: null, cancellationToken);
 
         Logger.LogInformation("Game {name} was created", entity.Name);
     }
@@ -96,14 +96,14 @@ public class GameManager(
         foundEntity.AutoSync = entity.AutoSync;
 
         //add it to the games list
-        await WriteToExternalList(foundEntity, ListOperation.Upsert, cancellationToken);
+        await WriteToExternalList(foundEntity, ListOperation.Upsert, onProgress: null, cancellationToken);
 
         Logger.LogInformation("Game {name} was updated", entity.Name);
 
         return foundEntity;
     }
 
-    public async Task<bool> UpdateMetaDataAsync(GameEntity entity, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateMetaDataAsync(GameEntity entity, Action<double>? onProgress = null, CancellationToken cancellationToken = default)
     {
         var foundEntity = await GetAsync(entity.Id, cancellationToken);
         if (foundEntity == null) return false;
@@ -114,7 +114,7 @@ public class GameManager(
         foundEntity.StorageBytes = entity.StorageBytes;
 
         //add it to the games list
-        await WriteToExternalList(foundEntity, ListOperation.Upsert, cancellationToken);
+        await WriteToExternalList(foundEntity, ListOperation.Upsert, onProgress, cancellationToken);
 
         Logger.LogInformation("The metadata for {name} was updated", entity.Name);
 
@@ -132,14 +132,19 @@ public class GameManager(
         await storageProvider.DeleteFileAsync(fileName, cancellationToken);
 
         //remove it from the games list
-        await WriteToExternalList(foundEntity, ListOperation.Remove, cancellationToken);
+        await WriteToExternalList(foundEntity, ListOperation.Remove, onProgress: null, cancellationToken);
 
         Logger.LogInformation("Game {name} was deleted", foundEntity.Name);
 
         return true;
     }
 
-    private async Task WriteToExternalList(GameEntity entity, ListOperation operation, CancellationToken cancellationToken)
+    private async Task WriteToExternalList(
+        GameEntity entity, 
+        ListOperation operation,
+         Action<double>? onProgress = null,
+        CancellationToken cancellationToken = default
+    )
     {
         var storageProvider = await GetRequiredStorageProviderAsync(cancellationToken);
 
@@ -165,7 +170,7 @@ public class GameManager(
                     file.Games.RemoveBy(x => x.Id == entity.Id);
                     break;
             }
-            await storageProvider.UpsertJsonDataAsync(fileName, file, cancellationToken: cancellationToken);
+            await storageProvider.UpsertJsonDataAsync(fileName, file, onProgress: onProgress, cancellationToken: cancellationToken);
         }
         finally
         {
