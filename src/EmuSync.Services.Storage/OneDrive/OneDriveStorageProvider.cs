@@ -42,6 +42,13 @@ public class OneDriveStorageProvider(
 
     public async Task GetZipFileAsync(string fileName, string writeToPath, Action<double>? onProgress = null, CancellationToken cancellationToken = default)
     {
+        string folderPath = Path.GetDirectoryName(writeToPath)!;
+
+        if (!Path.Exists(folderPath))
+        {
+            Directory.CreateDirectory(folderPath);
+        }
+
         var client = await GetClientAsync(cancellationToken);
 
         string path = $"{fileName}:/content";

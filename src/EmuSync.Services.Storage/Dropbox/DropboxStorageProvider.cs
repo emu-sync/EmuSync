@@ -183,6 +183,13 @@ public class DropboxStorageProvider(
     /// <returns></returns>
     private async Task CreateLocalZipFile(string filePath, string writeToPath, Action<double>? onProgress = null, CancellationToken cancellationToken = default)
     {
+        string path = Path.GetDirectoryName(writeToPath)!;
+
+        if (!Path.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+
         var client = await GetDropboxClientAsync(cancellationToken);
         using var response = await client.Files.DownloadAsync(filePath);
 
