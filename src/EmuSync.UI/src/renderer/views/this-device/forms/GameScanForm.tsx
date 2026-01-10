@@ -61,7 +61,7 @@ export default function GameScanForm() {
             <Typography>
                 EmuSync uses the <ExternalLinkButton href="https://github.com/mtkennerly/ludusavi-manifest" text="Ludusavi Manifest" /> to detect game saves on your device. 
                 If some of your games saves aren't detected, it might not be in the manifest yet.
-                If it's in the manifest, but not being detected by EmuSync, and you're sure the data exists, pleae raise an issue in <ExternalLinkButton href="https://github.com/emu-sync/EmuSync/issues" text="issues" /> page.
+                If it's in the manifest, but not being detected by EmuSync, and you're sure the data exists, please raise an issue in <ExternalLinkButton href="https://github.com/emu-sync/EmuSync/issues" text="issues" /> page.
             </Typography>
             <Paper
                 elevation={3}
