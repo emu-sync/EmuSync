@@ -89,8 +89,17 @@ storage, manager, or agent layers.
 - `Enums/` — `StorageProvider`, `SyncType`, `GameSyncStatus`, `OsPlatform`.
 - `Services/` — local-disk access (`LocalDataAccessor`/`ILocalDataAccessor`), `LocalSyncLog`,
   `LocalGameSaveBackupService`, `SyncProgressTracker`.
-- `Helpers/` — `ZipHelper`, `PlatformHelper` (OS detection), `IdHelper`.
+- `Helpers/` — `ZipHelper`, `PlatformHelper` (OS detection), `IdHelper`, `IgnoredFileMatcher`.
 - `DomainConstants` — the on-disk file/folder names (see §6).
+
+`GameEntity.IgnoredFilePaths` lets a user exclude specific files/folders (relative to the save
+folder) from sync — e.g. emulator cache files that churn constantly but don't matter.
+`IgnoredFileMatcher` is the single place that interprets this list (paths are compared
+case-insensitively with forward slashes, since the list travels between OSes via cloud metadata).
+It's threaded through `LocalDataAccessor.ScanDirectory`, `ZipHelper.CreateZipFromFolder`, and
+`ZipHelper.ExtractToDirectory`/`DeleteExistingContents`, so ignored files are skipped consistently
+during scanning, zipping, and download extraction (an ignored local file survives a download
+overwrite instead of being deleted).
 
 **`EmuSync.Services.Storage`** — every cloud backend hidden behind a single interface,
 `IStorageProvider`:
@@ -168,6 +177,23 @@ singleton hosted service — follow it if you add a worker. Progress flows back 
 `Action<double>` callbacks and `ISyncProgressTracker`.
 
 `GameSyncWorker` also adds a 30-second startup delay before its first run "to let the system settle".
+
+#### Upload vs. download decision (`GameSyncManager.DetermineSyncType`)
+
+The sync direction is decided by comparing the local `DirectoryScanResult` (from
+`LocalDataAccessor.ScanDirectory`, ignore-aware) against the game's stored `LatestWriteTimeUtc` and
+`NonIgnoredFileCount`:
+
+- **File write time only** — `DirectoryScanResult.LatestWriteTimeUtc` deliberately reflects only
+  non-ignored *file* mtimes, never directory mtimes. A directory's mtime bumps whenever any file
+  inside it changes, including an ignored one (e.g. an emulator rewriting a cache file), so it
+  can't be trusted to mean "non-ignored content changed" and would otherwise cause spurious
+  uploads.
+- **Non-ignored file count** — deleting a non-ignored file doesn't bump any *remaining* file's
+  mtime, so a drop in `GameEntity.NonIgnoredFileCount` versus the last synced count is the signal
+  used to catch that case and still trigger an upload. The check is skipped when there's no stored
+  count yet (games synced before this field existed), to avoid a one-time false upload the first
+  time they're scanned post-upgrade.
 
 ### 3.4 Request lifecycle (example)
 
