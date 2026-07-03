@@ -35,7 +35,7 @@ public class Program
 
             builder.WebHost.ConfigureKestrel(options =>
             {
-                options.ListenLocalhost(5353, listenOptions =>
+                options.ListenLocalhost(6969, listenOptions =>
                 {
 
                 });

@@ -14,6 +14,10 @@ export const cacheKeys = {
         return buildCacheKey("gameBackups", id);
     },
 
+    gameSaveFiles: (id: string) => {
+        return buildCacheKey("gameSaveFiles", id);
+    },
+
     gameLocalSyncLogsList: "gameLocalSyncLogs",
     gameLocalSyncLogs: (id: string) => {
         return buildCacheKey("gameLocalSyncLogs", id);

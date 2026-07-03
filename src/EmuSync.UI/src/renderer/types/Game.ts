@@ -26,6 +26,7 @@ export interface Game {
     lastSyncedFrom?: string | null;
     lastSyncTimeUtc?: Date | null;
     storageBytes: number;
+    ignoredFilePaths?: string[] | null;
 }
 
 export interface CreateGame {
@@ -33,6 +34,7 @@ export interface CreateGame {
     autoSync: boolean;
     syncSourceIdLocations?: Record<string, string> | null;
     maximumLocalGameBackups: number | null;
+    ignoredFilePaths?: string[] | null;
 }
 
 export interface UpdateGame {
@@ -41,6 +43,13 @@ export interface UpdateGame {
     autoSync: boolean;
     syncSourceIdLocations?: Record<string, string> | null;
     maximumLocalGameBackups: number | null;
+    ignoredFilePaths?: string[] | null;
+}
+
+export interface GameSaveFile {
+    relativePath: string;
+    sizeBytes: number;
+    lastWriteTimeUtc: Date;
 }
 
 export interface GameBackupManifest {

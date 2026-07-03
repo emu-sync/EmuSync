@@ -38,6 +38,12 @@ exports.routes = {
         pathMatcher: (path) => editPath("game", path),
         icon: VideogameAsset_1.default
     },
+    gameQuickAdd: {
+        href: "/game/quick-add",
+        title: "Quick add/update games",
+        pathMatcher: exactPathMatch,
+        icon: VideogameAsset_1.default
+    },
     gameAdd: {
         href: "/game/add",
         title: "Add game",

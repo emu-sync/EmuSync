@@ -14,10 +14,14 @@ exports.cacheKeys = {
     gameBackups: (id) => {
         return buildCacheKey("gameBackups", id);
     },
+    gameSaveFiles: (id) => {
+        return buildCacheKey("gameSaveFiles", id);
+    },
     gameLocalSyncLogsList: "gameLocalSyncLogs",
     gameLocalSyncLogs: (id) => {
         return buildCacheKey("gameLocalSyncLogs", id);
     },
+    gameSyncProgres: "gameSyncProgres",
     gameList: "gameList",
     gameSuggestionList: "gameSuggestionList",
     healthCheck: "healthCheck",

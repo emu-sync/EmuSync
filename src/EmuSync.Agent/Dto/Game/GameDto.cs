@@ -27,4 +27,7 @@ public record GameDto
 
     [JsonPropertyName("storageBytes")]
     public long? StorageBytes { get; set; }
+
+    [JsonPropertyName("ignoredFilePaths")]
+    public List<string>? IgnoredFilePaths { get; set; }
 }

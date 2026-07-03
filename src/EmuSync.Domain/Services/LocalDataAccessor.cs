@@ -55,7 +55,7 @@ public class LocalDataAccessor : ILocalDataAccessor
         return Path.Combine(localFolder, fileName);
     }
 
-    public DirectoryScanResult ScanDirectory(string? path)
+    public DirectoryScanResult ScanDirectory(string? path, IgnoredFileMatcher? ignoredFiles = null)
     {
         DirectoryScanResult result = new();
 
@@ -73,12 +73,35 @@ public class LocalDataAccessor : ILocalDataAccessor
         DirectoryInfo directoryInfo = new DirectoryInfo(path);
         result.LatestDirectoryWriteTimeUtc = directoryInfo.LastWriteTimeUtc;
 
-        SearchDirectory(result, path);
+        SearchDirectory(result, path, path, ignoredFiles ?? IgnoredFileMatcher.Empty);
 
         return result;
     }
 
-    private void SearchDirectory(DirectoryScanResult scanResult, string path)
+    public List<RelativeFileInfo> ListRelativeFiles(string? path, int maxResults = 2000)
+    {
+        List<RelativeFileInfo> results = [];
+
+        if (string.IsNullOrEmpty(path) || !Directory.Exists(path)) return results;
+
+        foreach (string file in Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories))
+        {
+            if (results.Count >= maxResults) break;
+
+            FileInfo fileInfo = new FileInfo(file);
+
+            results.Add(new RelativeFileInfo
+            {
+                RelativePath = IgnoredFileMatcher.Normalize(Path.GetRelativePath(path, file)),
+                SizeBytes = fileInfo.Length,
+                LastWriteTimeUtc = fileInfo.LastWriteTimeUtc
+            });
+        }
+
+        return results;
+    }
+
+    private void SearchDirectory(DirectoryScanResult scanResult, string rootPath, string path, IgnoredFileMatcher ignoredFiles)
     {
         var files = Directory.EnumerateFiles(path);
 
@@ -86,6 +109,8 @@ public class LocalDataAccessor : ILocalDataAccessor
         {
             foreach (string file in files)
             {
+                if (ignoredFiles.IsIgnored(rootPath, file)) continue;
+
                 scanResult.FileCount++;
 
                 FileInfo fileInfo = new FileInfo(file);
@@ -110,13 +135,13 @@ public class LocalDataAccessor : ILocalDataAccessor
 
                 DirectoryInfo directoryInfo = new DirectoryInfo(directory);
 
-                DateTime latest = scanResult.LatestFileWriteTimeUtc ?? DateTime.MinValue;
+                DateTime latest = scanResult.LatestDirectoryWriteTimeUtc ?? DateTime.MinValue;
                 if (directoryInfo.LastWriteTimeUtc > latest)
                 {
                     scanResult.LatestDirectoryWriteTimeUtc = directoryInfo.LastWriteTimeUtc;
                 }
 
-                SearchDirectory(scanResult, directory);
+                SearchDirectory(scanResult, rootPath, directory, ignoredFiles);
             }
         }
     }

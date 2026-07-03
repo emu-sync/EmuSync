@@ -9,23 +9,10 @@ public record DirectoryScanResult
     public long StorageBytes { get; set; }
     public DateTime? LatestFileWriteTimeUtc { get; set; }
     public DateTime? LatestDirectoryWriteTimeUtc { get; set; }
-    public DateTime? LatestWriteTimeUtc
-    {
-        get
-        {
-            if (!LatestFileWriteTimeUtc.HasValue && !LatestDirectoryWriteTimeUtc.HasValue) return null;
-
-            DateTime latestFile = LatestFileWriteTimeUtc ?? DateTime.MinValue;
-            DateTime latestDirectory = LatestDirectoryWriteTimeUtc ?? DateTime.MinValue;
-
-            if (latestFile > latestDirectory)
-            {
-                return LatestFileWriteTimeUtc;
-            }
-            else
-            {
-                return latestDirectory;
-            }
-        }
-    }
+    /// <summary>
+    /// The latest write time to use for sync decisions. Directory write times are deliberately
+    /// excluded - they bump whenever any file inside changes, including ignored ones, so they
+    /// cannot be trusted to reflect a non-ignored content change.
+    /// </summary>
+    public DateTime? LatestWriteTimeUtc => LatestFileWriteTimeUtc;
 }

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDropboxAuthUrl = getDropboxAuthUrl;
 exports.getGoogleAuthUrl = getGoogleAuthUrl;
 exports.getMicrosoftAuthUrl = getMicrosoftAuthUrl;
+exports.completeSharedFolderSetup = completeSharedFolderSetup;
 const api_helper_1 = require("@/renderer/api/api-helper");
 const controller = "Auth";
 async function getDropboxAuthUrl() {
@@ -21,6 +22,13 @@ async function getMicrosoftAuthUrl() {
     const path = `${controller}/Microsoft/AuthUrl`;
     return await (0, api_helper_1.get)({
         path
+    });
+}
+async function completeSharedFolderSetup(body) {
+    const path = `${controller}/SharedFolder/AuthFinish`;
+    await (0, api_helper_1.postWithNoResponse)({
+        path,
+        body
     });
 }
 //# sourceMappingURL=auth-api.js.map

@@ -140,6 +140,29 @@ public class GameManagerTests
     }
 
     [Fact]
+    public async Task UpdateMetaDataAsync_CopiesNonIgnoredFileCount()
+    {
+        var entity = new GameEntity { Id = "g1", Name = "Game1", NonIgnoredFileCount = 1 };
+        var file = new GameListFile { Games = new List<GameMetaData> { GameMetaData.FromGame(entity) } };
+        _storage.Setup(s => s.GetJsonFileAsync<GameListFile>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(file);
+
+        GameListFile? capturedFile = null;
+        _storage
+            .Setup(s => s.UpsertJsonDataAsync(It.IsAny<string>(), It.IsAny<object>(), null, It.IsAny<CancellationToken>()))
+            .Callback<string, object, Action<double>?, CancellationToken>((_, data, _, _) => capturedFile = (GameListFile)data)
+            .Returns(Task.CompletedTask);
+
+        var sut = CreateSut();
+
+        var updated = await sut.UpdateMetaDataAsync(new GameEntity { Id = "g1", NonIgnoredFileCount = 9 });
+
+        Assert.True(updated);
+        Assert.NotNull(capturedFile);
+        Assert.Equal(9, capturedFile!.Games.Single(x => x.Id == "g1").NonIgnoredFileCount);
+    }
+
+    [Fact]
     public async Task UpdateMetaDataAsync_ReturnsFalse_WhenGameDoesNotExist()
     {
         _storage.Setup(s => s.GetJsonFileAsync<GameListFile>(It.IsAny<string>(), It.IsAny<CancellationToken>()))

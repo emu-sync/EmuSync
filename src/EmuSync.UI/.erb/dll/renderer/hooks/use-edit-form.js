@@ -4,7 +4,7 @@ exports.default = useEditForm;
 const react_1 = require("react");
 const react_hook_form_1 = require("react-hook-form");
 function useEditForm({ query, defaultValues, transformData }) {
-    const { handleSubmit, control, reset, formState, setValue, watch } = (0, react_hook_form_1.useForm)({
+    const { handleSubmit, control, reset, formState, setValue, getValues, watch } = (0, react_hook_form_1.useForm)({
         defaultValues
     });
     (0, react_1.useEffect)(() => {
@@ -19,6 +19,7 @@ function useEditForm({ query, defaultValues, transformData }) {
         formState,
         setValue,
         reset,
+        getValues,
         watch
     };
 }

@@ -7,14 +7,16 @@ export const defaultUpdateGame: UpdateGame = {
     name: "",
     autoSync: false,
     syncSourceIdLocations: null,
-    maximumLocalGameBackups: null
+    maximumLocalGameBackups: null,
+    ignoredFilePaths: null
 };
 
 export const defaultCreateGame: CreateGame = {
     name: "",
     autoSync: false,
     syncSourceIdLocations: null,
-    maximumLocalGameBackups: null
+    maximumLocalGameBackups: null,
+    ignoredFilePaths: null
 };
 
 export function transformUpdateGame(game: Game): UpdateGame {
@@ -23,7 +25,8 @@ export function transformUpdateGame(game: Game): UpdateGame {
         autoSync: game.autoSync,
         syncSourceIdLocations: game.syncSourceIdLocations,
         name: game.name,
-        maximumLocalGameBackups: game.maximumLocalGameBackups
+        maximumLocalGameBackups: game.maximumLocalGameBackups,
+        ignoredFilePaths: game.ignoredFilePaths ?? null
     }
 }
 

@@ -11,10 +11,16 @@ public static class ZipHelper
     public static void CreateZipFromFolder(
         string folderPath,
         string zipPath,
-        Action<double>? onProgressChange = null
+        Action<double>? onProgressChange = null,
+        IgnoredFileMatcher? ignoredFiles = null
     )
     {
-        var files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
+        ignoredFiles ??= IgnoredFileMatcher.Empty;
+
+        var files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories)
+            .Where(x => !ignoredFiles.IsIgnored(folderPath, x))
+            .ToArray();
+
         int totalFiles = files.Length;
         int processedFiles = 0;
 
@@ -57,23 +63,26 @@ public static class ZipHelper
         Stream zipStream,
         string outputDirectory,
         DateTime? forceLastWriteTime = null,
-        Action<double>? onProgressChange = null
+        Action<double>? onProgressChange = null,
+        IgnoredFileMatcher? ignoredFiles = null
     )
     {
+        ignoredFiles ??= IgnoredFileMatcher.Empty;
+
         string? cleanOutputDirectory = GetOsSafePath(outputDirectory);
         if (string.IsNullOrEmpty(cleanOutputDirectory)) return;
 
         zipStream.Position = 0; //ensure start
         using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read, leaveOpen: false);
 
-        if (Directory.Exists(cleanOutputDirectory))
-        {
-            Directory.Delete(cleanOutputDirectory, recursive: true);
-        }
+        DeleteExistingContents(cleanOutputDirectory, ignoredFiles);
 
         Directory.CreateDirectory(cleanOutputDirectory);
 
-        var entries = archive.Entries.Where(e => !string.IsNullOrEmpty(e.Name)).ToList();
+        var entries = archive.Entries
+            .Where(e => !string.IsNullOrEmpty(e.Name))
+            .Where(e => !ignoredFiles.IsIgnored(e.FullName))
+            .ToList();
         int totalEntries = entries.Count;
         int processedEntries = 0;
 
@@ -124,6 +133,37 @@ public static class ZipHelper
 
             // finally, set the output directory itself
             Directory.SetLastWriteTimeUtc(cleanOutputDirectory, forceLastWriteTime.Value);
+        }
+    }
+
+    private static void DeleteExistingContents(string outputDirectory, IgnoredFileMatcher ignoredFiles)
+    {
+        if (!Directory.Exists(outputDirectory)) return;
+
+        //no ignored files - keep the original behaviour of clearing the whole directory
+        if (!ignoredFiles.HasEntries)
+        {
+            Directory.Delete(outputDirectory, recursive: true);
+            return;
+        }
+
+        foreach (var file in Directory.GetFiles(outputDirectory, "*", SearchOption.AllDirectories))
+        {
+            if (ignoredFiles.IsIgnored(outputDirectory, file)) continue;
+
+            File.Delete(file);
+        }
+
+        //remove empty directories bottom-up - directories still holding ignored files survive
+        var directories = Directory.GetDirectories(outputDirectory, "*", SearchOption.AllDirectories)
+            .OrderByDescending(x => x.Length);
+
+        foreach (var directory in directories)
+        {
+            if (!Directory.EnumerateFileSystemEntries(directory).Any())
+            {
+                Directory.Delete(directory);
+            }
         }
     }
 

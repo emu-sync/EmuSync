@@ -32,6 +32,12 @@ public record GameMetaData
     [JsonPropertyName("mlgb")]
     public int? MaximumLocalGameBackups { get; set; }
 
+    [JsonPropertyName("if")]
+    public List<string>? IgnoredFilePaths { get; set; }
+
+    [JsonPropertyName("nfc")]
+    public int? NonIgnoredFileCount { get; set; }
+
     public GameEntity ToEntity()
     {
         return new()
@@ -45,6 +51,8 @@ public record GameMetaData
             SyncSourceIdLocations = this.SyncSourceIdLocations,
             StorageBytes = this.StorageBytes,
             MaximumLocalGameBackups = this.MaximumLocalGameBackups,
+            IgnoredFilePaths = this.IgnoredFilePaths,
+            NonIgnoredFileCount = this.NonIgnoredFileCount,
         };
     }
 
@@ -61,6 +69,8 @@ public record GameMetaData
             LatestWriteTimeUtc = entity.LatestWriteTimeUtc,
             StorageBytes = entity.StorageBytes,
             MaximumLocalGameBackups = entity.MaximumLocalGameBackups,
+            IgnoredFilePaths = entity.IgnoredFilePaths,
+            NonIgnoredFileCount = entity.NonIgnoredFileCount,
         };
     }
 }

@@ -20,7 +20,8 @@ public class GameMappingsTests
             LastSyncedFrom = "src",
             LastSyncTimeUtc = DateTime.UtcNow,
             StorageBytes = 123,
-            MaximumLocalGameBackups = 5
+            MaximumLocalGameBackups = 5,
+            IgnoredFilePaths = ["config.ini"]
         };
 
         GameDto dto = entity.ToDto();
@@ -33,6 +34,7 @@ public class GameMappingsTests
         Assert.Equal(entity.LastSyncTimeUtc, dto.LastSyncTimeUtc);
         Assert.Equal(entity.StorageBytes, dto.StorageBytes);
         Assert.Equal(entity.MaximumLocalGameBackups, dto.MaximumLocalGameBackups);
+        Assert.Equal(entity.IgnoredFilePaths, dto.IgnoredFilePaths);
     }
 
     [Fact]
@@ -122,7 +124,8 @@ public class GameMappingsTests
         {
             Id = "id",
             Name = "n",
-            AutoSync = false
+            AutoSync = false,
+            IgnoredFilePaths = ["config.ini", "sub/cache.bin"]
         };
 
         GameEntity entity = update.ToEntity();
@@ -130,6 +133,7 @@ public class GameMappingsTests
         Assert.Equal("id", entity.Id);
         Assert.Equal(update.Name, entity.Name);
         Assert.Equal(update.AutoSync, entity.AutoSync);
+        Assert.Equal(update.IgnoredFilePaths, entity.IgnoredFilePaths);
     }
 
     [Fact]

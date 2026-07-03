@@ -9,6 +9,7 @@ const enums_1 = require("@/renderer/types/enums");
 const dropbox_logo_png_1 = __importDefault(require("@assets/images/dropbox-logo.png"));
 const onedrive_logo_png_1 = __importDefault(require("@assets/images/onedrive-logo.png"));
 const google_drive_icon_webp_1 = __importDefault(require("@assets/images/google-drive-icon.webp"));
+const folder_icon_png_1 = __importDefault(require("@assets/images/folder-icon.png"));
 exports.storageProviderMap = {
     [enums_1.StorageProvider.GoogleDrive]: {
         name: "Google drive",
@@ -21,6 +22,10 @@ exports.storageProviderMap = {
     [enums_1.StorageProvider.OneDrive]: {
         name: "OneDrive",
         image: onedrive_logo_png_1.default
+    },
+    [enums_1.StorageProvider.SharedFolder]: {
+        name: "Shared/local folder",
+        image: folder_icon_png_1.default
     },
 };
 exports.defaultSyncSource = {

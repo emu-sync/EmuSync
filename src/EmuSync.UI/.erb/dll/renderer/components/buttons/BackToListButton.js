@@ -12,7 +12,7 @@ const ArrowBackIosNew_1 = __importDefault(require("@mui/icons-material/ArrowBack
 const material_1 = require("@mui/material");
 const jotai_1 = require("jotai");
 const { sidebarMinimisedWidth, sidebarWidth, headerHeight, sidebarTransitionTime } = site_settings_1.siteSettings.layoutProperties;
-function BackToListButton({ href, ...buttonProps }) {
+function BackToListButton({ href, disableFloat, disableMargin, ...buttonProps }) {
     const [sidebarConfig] = (0, jotai_1.useAtom)(sidebar_config_1.sidebarConfigAtom);
     const left = sidebarConfig.isMinimised ? sidebarMinimisedWidth : sidebarWidth;
     return (0, jsx_runtime_1.jsx)(material_1.Box
@@ -22,11 +22,11 @@ function BackToListButton({ href, ...buttonProps }) {
         sx: {
             position: {
                 xs: "initial",
-                lg: "absolute"
+                lg: disableFloat ? "initial" : "absolute"
             },
             mb: {
-                xs: 2,
-                lg: 0
+                xs: disableMargin ? 0 : 2,
+                lg: disableMargin ? 0 : disableFloat ? 2 : 0
             },
             transition: `left ${sidebarTransitionTime}`,
             left: `calc(${left} + 30px)`,

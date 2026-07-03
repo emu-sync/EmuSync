@@ -14,12 +14,12 @@ const x_data_grid_1 = require("@mui/x-data-grid");
 const react_1 = require("react");
 const react_router_dom_1 = require("react-router-dom");
 require("./overrides.css");
-function ListViewDataGrid({ columns, rows, loading, editHref, addButtonRedirect, addButtonItemName, hasError, reloadFunc, deleteFunc, getDeleteItemDetails }) {
+function ListViewDataGrid({ columns, rows, loading, editHref, addButtonRedirect, addButtonItemName, hasError, reloadFunc, deleteFunc, getDeleteItemDetails, toolbarExtension }) {
     const [deleteModalIsOpen, setDeleteModalIsOpen] = (0, react_1.useState)(false);
     const [currentDeleteModel, setCurrentDeleteModel] = (0, react_1.useState)(null);
     const Toolbar = (0, react_1.useCallback)(() => {
-        return (0, jsx_runtime_1.jsx)(CustomToolbar_1.default, { addButtonRedirect: addButtonRedirect, itemName: addButtonItemName, loading: loading, reloadFunc: reloadFunc, hasError: hasError });
-    }, [addButtonRedirect, addButtonItemName, loading, reloadFunc, hasError]);
+        return (0, jsx_runtime_1.jsx)(CustomToolbar_1.default, { addButtonRedirect: addButtonRedirect, itemName: addButtonItemName, loading: loading, reloadFunc: reloadFunc, hasError: hasError, toolbarExtension: toolbarExtension });
+    }, [addButtonRedirect, addButtonItemName, loading, reloadFunc, hasError, toolbarExtension]);
     const handleDeleteClick = (0, react_1.useCallback)(async (row) => {
         const details = await getDeleteItemDetails(row);
         setCurrentDeleteModel(details);

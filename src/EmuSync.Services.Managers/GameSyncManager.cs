@@ -34,7 +34,7 @@ public class GameSyncManager(
         string? folderPath = null;
         game.SyncSourceIdLocations?.TryGetValue(syncSourceId, out folderPath);
 
-        DirectoryScanResult scanResult = LocalDataAccessor.ScanDirectory(folderPath);
+        DirectoryScanResult scanResult = LocalDataAccessor.ScanDirectory(folderPath, new IgnoredFileMatcher(game.IgnoredFilePaths));
 
         result.SyncStatus = DetermineSyncType(game, scanResult);
         result.FolderPath = folderPath!;
@@ -121,7 +121,7 @@ public class GameSyncManager(
             throw new ArgumentNullException("No sync location has been set");
         }
 
-        DirectoryScanResult scanResult = LocalDataAccessor.ScanDirectory(folderPath);
+        DirectoryScanResult scanResult = LocalDataAccessor.ScanDirectory(folderPath, new IgnoredFileMatcher(game.IgnoredFilePaths));
 
         await UploadGameFilesAsync(
             syncSourceId,
@@ -149,7 +149,7 @@ public class GameSyncManager(
         }
 
         await _localGameSaveBackupService.RestoreBackupAsync(game.Id, backupId, folderPath, cancellationToken);
-        DirectoryScanResult scanResult = LocalDataAccessor.ScanDirectory(folderPath);
+        DirectoryScanResult scanResult = LocalDataAccessor.ScanDirectory(folderPath, new IgnoredFileMatcher(game.IgnoredFilePaths));
 
         await UploadGameFilesAsync(
             syncSourceId,
@@ -194,6 +194,19 @@ public class GameSyncManager(
             Logger.LogDebug("No local directory found - game should be downloaded");
 
             return GameSyncStatus.RequiresDownload;
+        }
+
+        //a non-ignored file being deleted doesn't bump any remaining file's write time, so file
+        //count is the only signal available to detect it. Skip when there's no stored baseline
+        //(e.g. games synced before this field existed) to avoid a one-time false upload.
+        bool nonIgnoredFileWasRemoved = game.NonIgnoredFileCount.HasValue
+            && scanResult.FileCount < game.NonIgnoredFileCount.Value;
+
+        if (nonIgnoredFileWasRemoved)
+        {
+            Logger.LogDebug("A non-ignored file was removed locally - game should be uploaded");
+
+            return GameSyncStatus.RequiresUpload;
         }
 
         DateTime scanResultLatestWriteTime = scanResult.LatestWriteTimeUtc ?? DateTime.MinValue;
@@ -269,7 +282,8 @@ public class GameSyncManager(
                 fileStream,
                 path,
                 game.LatestWriteTimeUtc,
-                (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 85, 100)
+                (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 85, 100),
+                new IgnoredFileMatcher(game.IgnoredFilePaths)
             );
 
             try
@@ -321,7 +335,8 @@ public class GameSyncManager(
             ZipHelper.CreateZipFromFolder(
                 path,
                 tempZipPath,
-                (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 0, 30)
+                (progress) => _syncProgressTracker.UpdateStageCompletionPercent(game.Id, progress, 0, 30),
+                new IgnoredFileMatcher(game.IgnoredFilePaths)
             );
 
             string fileName = string.Format(StorageConstants.FileName_GameZip, game.Id);
@@ -342,6 +357,7 @@ public class GameSyncManager(
             game.LastSyncTimeUtc = DateTime.UtcNow;
             game.LatestWriteTimeUtc = scanResult.LatestWriteTimeUtc;
             game.StorageBytes = scanResult.StorageBytes;
+            game.NonIgnoredFileCount = scanResult.FileCount;
 
             _syncProgressTracker.UpdateStage(game.Id, "Updating metadata");
             Logger.LogInformation("Saving game data {gameName}", game.Name);

@@ -21,6 +21,7 @@ import WarningAlert from "@/renderer/components/alerts/WarningAlert";
 import DefaultCheckbox from "@/renderer/components/inputs/DefaultCheckbox";
 import DefaultTextField from "@/renderer/components/inputs/DefaultTextField";
 import GameSuggestionAutocomplete from "@/renderer/components/inputs/GameSuggestionAutocomplete";
+import IgnoredFilesPicker from "@/renderer/components/inputs/IgnoredFilesPicker";
 import Section from "@/renderer/components/Section";
 import CheckboxSkeleton from "@/renderer/components/skeleton/CheckboxSkeleton";
 import SaveButtonSkeleton from "@/renderer/components/skeleton/SaveButtonSkeleton";
@@ -76,6 +77,7 @@ export default function GameForm({
     });
 
     const autoSyncEnabled = watch("autoSync");
+    const localFolderPath = watch(`syncSourceIdLocations.${localSyncSource.id}` as const);
 
 
     const handleOverrideMaximumBackupCheckboxChange = useCallback((checked: boolean) => {
@@ -304,6 +306,37 @@ export default function GameForm({
                             })
                         }
                     </Paper>
+
+                    {
+                        isEdit && gameId &&
+                        <Paper
+                            elevation={3}
+                            sx={{
+                                p: 2
+                            }}
+                            component={VerticalStack}
+                        >
+                            <Typography>Ignored files</Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                Ticked files are excluded from syncing - useful for machine-specific files stored next to the game saves.
+                            </Typography>
+
+                            <Controller
+                                name="ignoredFilePaths"
+                                control={control as never}
+                                render={({ field }) => (
+                                    <IgnoredFilesPicker
+                                        gameId={gameId}
+                                        syncSourceId={localSyncSource.id}
+                                        folderPath={localFolderPath}
+                                        value={field.value}
+                                        onChange={(paths) => field.onChange(paths)}
+                                        disabled={disabled || isSubmitting}
+                                    />
+                                )}
+                            />
+                        </Paper>
+                    }
 
                     <ButtonRow>
                         <Button

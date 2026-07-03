@@ -6,23 +6,30 @@ exports.transformCreateGame = transformCreateGame;
 exports.determineGameSyncStatus = determineGameSyncStatus;
 exports.replacePathDelims = replacePathDelims;
 const enums_1 = require("@/renderer/types/enums");
+const path_utils_1 = require("@/renderer/utils/path-utils");
 exports.defaultUpdateGame = {
     id: "",
     name: "",
     autoSync: false,
-    syncSourceIdLocations: null
+    syncSourceIdLocations: null,
+    maximumLocalGameBackups: null,
+    ignoredFilePaths: null
 };
 exports.defaultCreateGame = {
     name: "",
     autoSync: false,
-    syncSourceIdLocations: null
+    syncSourceIdLocations: null,
+    maximumLocalGameBackups: null,
+    ignoredFilePaths: null
 };
 function transformUpdateGame(game) {
     return {
         id: game.id,
         autoSync: game.autoSync,
         syncSourceIdLocations: game.syncSourceIdLocations,
-        name: game.name
+        name: game.name,
+        maximumLocalGameBackups: game.maximumLocalGameBackups,
+        ignoredFilePaths: game.ignoredFilePaths ?? null
     };
 }
 function transformCreateGame() {
@@ -53,9 +60,7 @@ function replacePathDelims(syncSources, game) {
             continue;
         }
         const isWindows = syncSource.platformId === enums_1.OsPlatform.Windows;
-        updated[id] = isWindows
-            ? path.replace(/\//g, "\\") //normalise → Windows
-            : path.replace(/\\/g, "/"); //normalise → mac + linux
+        updated[id] = (0, path_utils_1.normalisePathDelims)(path, isWindows);
     }
     return {
         ...game,

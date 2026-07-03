@@ -36,7 +36,7 @@ exports.navLinks = [
         key: "general",
         links: [
             getNavLink(routes_1.routes.home),
-            getNavLink(routes_1.routes.game, [routes_1.routes.gameEdit, routes_1.routes.gameAdd]),
+            getNavLink(routes_1.routes.game, [routes_1.routes.gameEdit, routes_1.routes.gameAdd, routes_1.routes.gameQuickAdd]),
             getNavLink(routes_1.routes.thisDevice),
             getNavLink(routes_1.routes.allDevices),
             getNavLink(routes_1.routes.localSyncHistory),

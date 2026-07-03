@@ -40,4 +40,15 @@ public class GameEntity
     /// The amount of local backups to store per game - overrides the value set at sync source level
     /// </summary>
     public int? MaximumLocalGameBackups { get; set; }
+
+    /// <summary>
+    /// File paths relative to the save folder that are excluded from syncing
+    /// </summary>
+    public List<string>? IgnoredFilePaths { get; set; }
+
+    /// <summary>
+    /// The number of non-ignored files found at the last successful sync - used to detect a
+    /// non-ignored file being deleted, which wouldn't otherwise bump any file's write time
+    /// </summary>
+    public int? NonIgnoredFileCount { get; set; }
 }

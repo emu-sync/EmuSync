@@ -93,6 +93,7 @@ public class GameManager(
 
         foundEntity.AutoSync = entity.AutoSync;
         foundEntity.MaximumLocalGameBackups = entity.MaximumLocalGameBackups;
+        foundEntity.IgnoredFilePaths = entity.IgnoredFilePaths;
 
         //add it to the games list
         await WriteToExternalList(foundEntity, ListOperation.Upsert, onProgress: null, cancellationToken);
@@ -166,6 +167,7 @@ public class GameManager(
         foundEntity.LastSyncTimeUtc = entity.LastSyncTimeUtc;
         foundEntity.LatestWriteTimeUtc = entity.LatestWriteTimeUtc;
         foundEntity.StorageBytes = entity.StorageBytes;
+        foundEntity.NonIgnoredFileCount = entity.NonIgnoredFileCount;
 
         //add it to the games list
         await WriteToExternalList(foundEntity, ListOperation.Upsert, onProgress, cancellationToken);

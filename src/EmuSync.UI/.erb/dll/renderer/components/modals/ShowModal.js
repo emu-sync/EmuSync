@@ -19,7 +19,7 @@ function ShowModal({ isOpen, title, children, maxWidth, paperElevation, showClos
     };
     const showClose = showCloseButton ?? false;
     return (0, jsx_runtime_1.jsxs)(Dialog_1.default, { keepMounted: true, disableEnforceFocus: true, open: isOpen, onClose: handleClose, maxWidth: maxWidth, fullWidth: true, PaperProps: {
-            elevation: paperElevation ?? 3
+            elevation: paperElevation ?? 2
         }, children: [(0, jsx_runtime_1.jsx)(DialogTitle_1.default, { children: title }), (0, jsx_runtime_1.jsx)(material_1.Divider, { variant: "middle" }), (0, jsx_runtime_1.jsx)(DialogContent_1.default, { children: children }), showClose && (0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)(material_1.Divider, { variant: "middle" }), (0, jsx_runtime_1.jsx)(VerticalStack_1.default, { sx: { p: 3 }, alignItems: "center", children: (0, jsx_runtime_1.jsx)(material_1.Button, { variant: "outlined", color: "secondary", onClick: handleClose, sx: {
                                 width: {
                                     xs: "100%",

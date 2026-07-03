@@ -6,6 +6,7 @@ var StorageProvider;
     StorageProvider[StorageProvider["GoogleDrive"] = 1] = "GoogleDrive";
     StorageProvider[StorageProvider["Dropbox"] = 2] = "Dropbox";
     StorageProvider[StorageProvider["OneDrive"] = 3] = "OneDrive";
+    StorageProvider[StorageProvider["SharedFolder"] = 4] = "SharedFolder";
 })(StorageProvider || (exports.StorageProvider = StorageProvider = {}));
 var OsPlatform;
 (function (OsPlatform) {

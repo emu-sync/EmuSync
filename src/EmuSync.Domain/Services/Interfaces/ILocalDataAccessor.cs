@@ -1,4 +1,5 @@
-﻿using EmuSync.Domain.Results;
+﻿using EmuSync.Domain.Helpers;
+using EmuSync.Domain.Results;
 
 namespace EmuSync.Domain.Services.Interfaces;
 
@@ -46,6 +47,12 @@ public interface ILocalDataAccessor
     /// Scans a directory to determine info about all the files and folders
     /// </summary>
     /// <param name="path"></param>
+    /// <param name="ignoredFiles">Files excluded from the scan results</param>
     /// <returns></returns>
-    DirectoryScanResult ScanDirectory(string? path);
+    DirectoryScanResult ScanDirectory(string? path, IgnoredFileMatcher? ignoredFiles = null);
+
+    /// <summary>
+    /// Lists all files under <paramref name="path"/> as paths relative to it
+    /// </summary>
+    List<RelativeFileInfo> ListRelativeFiles(string? path, int maxResults = 2000);
 }

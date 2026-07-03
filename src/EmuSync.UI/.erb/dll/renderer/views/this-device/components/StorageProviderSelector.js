@@ -12,14 +12,16 @@ const react_1 = require("react");
 const material_2 = require("@mui/material");
 const InfoAlert_1 = __importDefault(require("@/renderer/components/alerts/InfoAlert"));
 const ShowModal_1 = __importDefault(require("@/renderer/components/modals/ShowModal"));
-const HorizontalStack_1 = __importDefault(require("@/renderer/components/stacks/HorizontalStack"));
 const auth_api_1 = require("@/renderer/api/auth-api");
-const StorageProviderDetails_1 = __importDefault(require("@/renderer/views/this-device/components/StorageProviderDetails"));
-const sync_source_utils_1 = require("@/renderer/views/this-device/utils/sync-source-utils");
 const use_alerts_1 = __importDefault(require("@/renderer/hooks/use-alerts"));
+const StorageProviderDetails_1 = __importDefault(require("@/renderer/views/this-device/components/StorageProviderDetails"));
+const SharedFolderSetupForm_1 = __importDefault(require("@/renderer/views/this-device/forms/SharedFolderSetupForm"));
+const sync_source_utils_1 = require("@/renderer/views/this-device/utils/sync-source-utils");
+const system_1 = require("@mui/system");
 function StorageProviderSelector({ onConnected }) {
     const { errorAlert } = (0, use_alerts_1.default)();
     const [modalIsOpen, setModalIsOpen] = (0, react_1.useState)(false);
+    const [sharedFolderModalIsOpen, setSharedFolderModalIsOpen] = (0, react_1.useState)(false);
     const [openWindow, setOpenWindow] = (0, react_1.useState)(null);
     const [dropboxIsLoading, setDropboxIsLoading] = (0, react_1.useState)(false);
     const [googleIsLoading, setGoogleIsLoading] = (0, react_1.useState)(false);
@@ -77,6 +79,9 @@ function StorageProviderSelector({ onConnected }) {
             setGoogleIsLoading(false);
         }
     }, [handleSelect]);
+    const handleSelectSharedFolder = (0, react_1.useCallback)(async () => {
+        setSharedFolderModalIsOpen(true);
+    }, []);
     (0, react_1.useEffect)(() => {
         if (!openWindow)
             return;
@@ -90,7 +95,13 @@ function StorageProviderSelector({ onConnected }) {
         }, 500); // check every 500ms
         return () => clearInterval(interval);
     }, [openWindow]);
-    return (0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(InfoAlert_1.default, { content: (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(material_1.Typography, { children: "Please select a provider where your game data will be stored." }), (0, jsx_runtime_1.jsx)(material_1.Typography, { children: "Selecting a provider for the first time will open a browser window for you to log in and grant EmuSync permission to your storage." })] }) }), (0, jsx_runtime_1.jsxs)(HorizontalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(ProviderSelector, { provider: enums_1.StorageProvider.GoogleDrive, onSelect: handleSelectGoogle, loading: googleIsLoading }), (0, jsx_runtime_1.jsx)(ProviderSelector, { provider: enums_1.StorageProvider.Dropbox, onSelect: handleSelectDropbox, loading: dropboxIsLoading }), (0, jsx_runtime_1.jsx)(ProviderSelector, { provider: enums_1.StorageProvider.OneDrive, onSelect: handleSelectOneDrive, loading: onedriveIsLoading })] })] }), (0, jsx_runtime_1.jsx)(ShowModal_1.default, { isOpen: modalIsOpen, setIsOpen: () => { }, title: "Connecting to provider", children: (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(InfoAlert_1.default, { content: (0, jsx_runtime_1.jsx)(VerticalStack_1.default, { children: (0, jsx_runtime_1.jsx)(material_1.Typography, { children: "A window should open for you to log in to your provider. EmuSync only has access to the files and folders it creates." }) }) }), (0, jsx_runtime_1.jsx)(material_1.Typography, { textAlign: "center", children: (0, jsx_runtime_1.jsx)(material_2.CircularProgress, { size: 20 }) })] }) })] });
+    return (0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(InfoAlert_1.default, { content: (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(material_1.Typography, { children: "Please select a provider where your game data will be stored." }), (0, jsx_runtime_1.jsx)(material_1.Typography, { children: "Selecting a provider for the first time will open a browser window for you to log in and grant EmuSync permission to your storage." })] }) }), (0, jsx_runtime_1.jsxs)(system_1.Box, { sx: {
+                            display: "grid",
+                            gridTemplateColumns: {
+                                xs: "repeat(2, 1fr)",
+                            },
+                            gap: 2
+                        }, children: [(0, jsx_runtime_1.jsx)(ProviderSelector, { provider: enums_1.StorageProvider.GoogleDrive, onSelect: handleSelectGoogle, loading: googleIsLoading }), (0, jsx_runtime_1.jsx)(ProviderSelector, { provider: enums_1.StorageProvider.Dropbox, onSelect: handleSelectDropbox, loading: dropboxIsLoading }), (0, jsx_runtime_1.jsx)(ProviderSelector, { provider: enums_1.StorageProvider.OneDrive, onSelect: handleSelectOneDrive, loading: onedriveIsLoading }), (0, jsx_runtime_1.jsx)(ProviderSelector, { provider: enums_1.StorageProvider.SharedFolder, onSelect: handleSelectSharedFolder, loading: false })] })] }), (0, jsx_runtime_1.jsx)(ShowModal_1.default, { isOpen: modalIsOpen, setIsOpen: () => { }, title: "Connecting to provider", children: (0, jsx_runtime_1.jsxs)(VerticalStack_1.default, { children: [(0, jsx_runtime_1.jsx)(InfoAlert_1.default, { content: (0, jsx_runtime_1.jsx)(VerticalStack_1.default, { children: (0, jsx_runtime_1.jsx)(material_1.Typography, { children: "A window should open for you to log in to your provider. EmuSync only has access to the files and folders it creates." }) }) }), (0, jsx_runtime_1.jsx)(material_1.Typography, { textAlign: "center", children: (0, jsx_runtime_1.jsx)(material_2.CircularProgress, { size: 20 }) })] }) }), (0, jsx_runtime_1.jsx)(SharedFolderSetupForm_1.default, { isOpen: sharedFolderModalIsOpen, setIsOpen: setSharedFolderModalIsOpen, onConnected: onConnected })] });
 }
 function ProviderSelector({ provider, onSelect, loading }) {
     const providerDetails = (0, react_1.useMemo)(() => {
@@ -100,10 +111,7 @@ function ProviderSelector({ provider, onSelect, loading }) {
         onSelect(provider);
     }, [onSelect, provider]);
     return (0, jsx_runtime_1.jsx)(material_1.Button, { onClick: handleSelect, color: "secondary", variant: "outlined", sx: {
-            fontWeight: "bold",
-            mx: "auto",
-            height: 150,
-            width: "100%"
+            py: 2
         }, loading: loading, children: (0, jsx_runtime_1.jsx)(StorageProviderDetails_1.default, { image: providerDetails.image, name: providerDetails.name, direction: "column" }) });
 }
 //# sourceMappingURL=StorageProviderSelector.js.map

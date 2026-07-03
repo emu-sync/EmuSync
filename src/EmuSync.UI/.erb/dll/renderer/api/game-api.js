@@ -4,10 +4,12 @@ exports.getGameList = getGameList;
 exports.getGameSuggestionsList = getGameSuggestionsList;
 exports.getGameBackups = getGameBackups;
 exports.getGameById = getGameById;
+exports.getGameSaveFiles = getGameSaveFiles;
 exports.createGame = createGame;
 exports.clearGameCache = clearGameCache;
 exports.updateGame = updateGame;
 exports.deleteGame = deleteGame;
+exports.quickAddGames = quickAddGames;
 const api_helper_1 = require("@/renderer/api/api-helper");
 const controller = "Game";
 async function getGameList() {
@@ -30,6 +32,12 @@ async function getGameBackups(id) {
 }
 async function getGameById(id) {
     const path = `${controller}/${id}`;
+    return await (0, api_helper_1.get)({
+        path
+    });
+}
+async function getGameSaveFiles(id, syncSourceId) {
+    const path = `${controller}/${id}/SaveFiles?syncSourceId=${encodeURIComponent(syncSourceId)}`;
     return await (0, api_helper_1.get)({
         path
     });
@@ -58,6 +66,13 @@ async function deleteGame(id) {
     const path = `${controller}/${id}`;
     await (0, api_helper_1.remove)({
         path
+    });
+}
+async function quickAddGames(body) {
+    const path = `${controller}/QuickAdd`;
+    return await (0, api_helper_1.postWithNoResponse)({
+        path,
+        body
     });
 }
 //# sourceMappingURL=game-api.js.map

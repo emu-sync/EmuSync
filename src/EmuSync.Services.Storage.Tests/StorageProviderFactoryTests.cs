@@ -43,4 +43,4 @@ public class StorageProviderFactoryTests
         var result = await sut.CreateAsync();
 
         Assert.Null(result);
-    }
+    }}

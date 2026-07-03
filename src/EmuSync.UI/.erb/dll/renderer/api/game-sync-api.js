@@ -5,6 +5,8 @@ exports.syncGame = syncGame;
 exports.forceDownloadGame = forceDownloadGame;
 exports.forceUploadGame = forceUploadGame;
 exports.restoreGameFromBackup = restoreGameFromBackup;
+exports.deleteBackup = deleteBackup;
+exports.getSyncProgress = getSyncProgress;
 const api_helper_1 = require("@/renderer/api/api-helper");
 const controller = "GameSync";
 async function getGameSyncStatus(id) {
@@ -34,6 +36,18 @@ async function forceUploadGame(id) {
 async function restoreGameFromBackup(id, backupId) {
     const path = `${controller}/${id}/RestoreFromBackup/${backupId}`;
     await (0, api_helper_1.postWithNoResponse)({
+        path
+    });
+}
+async function deleteBackup(id, backupId) {
+    const path = `${controller}/${id}/Backup/${backupId}`;
+    await (0, api_helper_1.remove)({
+        path
+    });
+}
+async function getSyncProgress(id) {
+    const path = `${controller}/${id}/SyncProgress`;
+    return await (0, api_helper_1.get)({
         path
     });
 }

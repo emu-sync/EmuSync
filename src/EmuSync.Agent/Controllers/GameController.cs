@@ -81,6 +81,36 @@ public class GameController(
         return Ok(response);
     }
 
+    [HttpGet("{id}/SaveFiles")]
+    public async Task<IActionResult> GetSaveFiles(
+        [FromRoute] string id,
+        [FromQuery] string syncSourceId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        GameEntity? entity = _apiCache.GetGame(id);
+        entity ??= await _manager.GetAsync(id, cancellationToken);
+
+        if (entity == null)
+        {
+            return NotFoundWithErrors($"No game found with ID {id}");
+        }
+
+        string? folderPath = null;
+        entity.SyncSourceIdLocations?.TryGetValue(syncSourceId, out folderPath);
+
+        var files = _localDataAccessor.ListRelativeFiles(folderPath);
+
+        List<GameSaveFileDto> response = files.ConvertAll(x => new GameSaveFileDto
+        {
+            RelativePath = x.RelativePath,
+            SizeBytes = x.SizeBytes,
+            LastWriteTimeUtc = x.LastWriteTimeUtc
+        });
+
+        return Ok(response);
+    }
+
     [HttpGet("Suggestions")]
     public async Task<IActionResult> GetSuggestions(CancellationToken cancellationToken = default)
     {

@@ -47,7 +47,6 @@ async function executeFetch(path, bodyOrQuery, method) {
         options.body = JSON.stringify(bodyOrQuery);
         options.cache = "no-store";
     }
-    console.log(`FETCH REQUEST`, "|", url, "|", options);
     const response = await fetch(url, options);
     if (!response.ok) {
         console.error(`FAILED TO FETCH`, "|", url, "|", response);

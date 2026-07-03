@@ -124,6 +124,10 @@ export default class MenuBuilder {
                         this.mainWindow.webContents.toggleDevTools();
                     },
                 },
+                { type: 'separator' },
+                { label: 'Zoom In', role: 'zoomIn' },
+                { label: 'Zoom Out', role: 'zoomOut' },
+                { label: 'Reset Zoom', role: 'resetZoom' },
             ],
         };
         const subMenuViewProd: MenuItemConstructorOptions = {
@@ -136,6 +140,10 @@ export default class MenuBuilder {
                         this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
                     },
                 },
+                { type: 'separator' },
+                { label: 'Zoom In', role: 'zoomIn' },
+                { label: 'Zoom Out', role: 'zoomOut' },
+                { label: 'Reset Zoom', role: 'resetZoom' },
             ],
         };
         const subMenuWindow: DarwinMenuItemConstructorOptions = {
@@ -239,6 +247,10 @@ export default class MenuBuilder {
                                     this.mainWindow.webContents.toggleDevTools();
                                 },
                             },
+                            { type: 'separator' },
+                            { label: 'Zoom &In', role: 'zoomIn' },
+                            { label: 'Zoom &Out', role: 'zoomOut' },
+                            { label: '&Reset Zoom', role: 'resetZoom' },
                         ]
                         : [
                             {
@@ -250,6 +262,10 @@ export default class MenuBuilder {
                                     );
                                 },
                             },
+                            { type: 'separator' },
+                            { label: 'Zoom &In', role: 'zoomIn' },
+                            { label: 'Zoom &Out', role: 'zoomOut' },
+                            { label: '&Reset Zoom', role: 'resetZoom' },
                         ],
             },
             {

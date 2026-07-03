@@ -19,6 +19,9 @@ public record UpdateGameDto : IGameDto
 
     [JsonPropertyName("maximumLocalGameBackups")]
     public int? MaximumLocalGameBackups { get; set; }
+
+    [JsonPropertyName("ignoredFilePaths")]
+    public List<string>? IgnoredFilePaths { get; set; }
 }
 
 public class UpdateGameDtoValidator : AbstractValidator<UpdateGameDto>
