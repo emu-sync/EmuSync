@@ -7,6 +7,7 @@
 		<UserSecretsId>9e25b347-22f6-4000-be1e-f0eba847fad6</UserSecretsId>
 		<Version>0.1.0</Version>
 		<AssemblyVersion>0.1.0</AssemblyVersion>
+		<AllowMissingPrunePackageData>true</AllowMissingPrunePackageData>
 	</PropertyGroup>
 
 	<ItemGroup>

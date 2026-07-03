@@ -1,5 +1,6 @@
 <Project>
   <PropertyGroup>
     <NoWarn>$(NoWarn);8618</NoWarn>
+    <AllowMissingPrunePackageData>true</AllowMissingPrunePackageData>
   </PropertyGroup>
 </Project>
