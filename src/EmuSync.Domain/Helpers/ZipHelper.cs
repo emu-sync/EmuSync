@@ -33,6 +33,7 @@ public static class ZipHelper
         {
             var relativePath = Path.GetRelativePath(folderPath, filePath);
             var entry = archive.CreateEntry(relativePath, CompressionLevel.Optimal);
+            entry.LastWriteTime = new DateTimeOffset(File.GetLastWriteTime(filePath));
 
             using var entryStream = entry.Open();
             using var input = File.OpenRead(filePath);
@@ -104,11 +105,7 @@ public static class ZipHelper
             }
 
             entry.ExtractToFile(filePath, overwrite: true);
-
-            if (forceLastWriteTime.HasValue)
-            {
-                File.SetLastWriteTimeUtc(filePath, forceLastWriteTime.Value);
-            }
+            File.SetLastWriteTimeUtc(filePath, entry.LastWriteTime.UtcDateTime);
 
             processedEntries++;
             onProgressChange?.Invoke((processedEntries / (double)totalEntries) * 100);
